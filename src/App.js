@@ -59,7 +59,20 @@ const assignedEngineerOptions = [
   { value: "Ifeoma Ndudim", label: "Ifeoma Ndudim" },
 ];
 
+const subOptionFromValue = (val) => (val ? { value: val, label: val } : null);
+
 function App() {
+  // theme state (persisted)
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
+
+  // form state
   const [form, setForm] = useState({
     ticket_id: '',
     category: null,
@@ -94,7 +107,7 @@ function App() {
     setForm(f => ({ ...f, ticket_id: `INC-${dateStr}-${randomNum}` }));
   }, []);
 
-  // Handle normal input changes
+  // native input handler
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
     if (type === 'checkbox') {
@@ -106,341 +119,244 @@ function App() {
     }
   };
 
-  // Handle react-select changes
-  const handleSelectChange = (selected, action) => {
-    const { name } = action;
-    setForm(f => ({ ...f, [name]: selected }));
-    if (name === 'category') {
-      setForm(f => ({ ...f, sub_category: '' }));
-    }
-    if (name === 'detectedBy' && selected?.value !== 'Other') {
-      setForm(f => ({ ...f, detectedByOther: '' }));
-    }
+  // react-select handlers
+  const handleCategoryChange = (selected) => setForm(f => ({ ...f, category: selected, sub_category: '' }));
+  const handlePriorityChange = (selected) => setForm(f => ({ ...f, priority: selected }));
+  const handleDetectedByChange = (selected) => {
+    setForm(f => ({ ...f, detectedBy: selected }));
+    if (!selected || selected.value !== 'Other') setForm(f => ({ ...f, detectedByOther: '' }));
   };
-
-  // For sub_category normal select
-  const handleSubCategoryChange = (e) => {
-    setForm(f => ({ ...f, sub_category: e.target.value }));
-  };
+  const handleStatusChange = (selected) => setForm(f => ({ ...f, status: selected }));
+  const handleAssignedToChange = (selectedArray) => setForm(f => ({ ...f, assigned_to: selectedArray || [] }));
+  const handleSubCategorySelectChange = (selected) => setForm(f => ({ ...f, sub_category: selected ? selected.value : '' }));
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const output = { ...form };
-
-    // Unwrap react-select values to strings or arrays of strings
     output.category = output.category?.value || '';
     output.priority = output.priority?.value || '';
     output.detectedBy = output.detectedBy?.value || '';
     output.status = output.status?.value || '';
     output.assigned_to = output.assigned_to.map(a => a.value);
-
-    if (output.detectedBy === 'Other') {
-      output.detectedBy = output.detectedByOther;
-    }
+    if (output.detectedBy === 'Other') output.detectedBy = output.detectedByOther;
 
     alert("Ticket Submitted:\n\n" + JSON.stringify(output, null, 2));
   };
 
+  const getSubCategoryOptions = () => {
+    const catKey = form.category?.value;
+    if (!catKey) return [];
+    return (subCategories[catKey] || []).map(s => ({ value: s, label: s }));
+  };
+
   return (
     <Container style={{ maxWidth: 900, marginTop: 20, marginBottom: 40, fontFamily: 'Arial, sans-serif' }}>
-      <div className="text-center mb-4">
-        <img src="/Kasi Logo.jpeg" alt="Company Logo" style={{ maxWidth: 200, height: 'auto' }} />
-      </div>
-      <h2 className="text-center mb-4">Kasi Cloud Data Center Incident Ticket</h2>
+      <div style={{ position: 'relative' }}>
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="btn btn-sm btn-outline-secondary"
+          aria-label="Toggle theme"
+          style={{ position: 'absolute', right: 0, top: -10, zIndex: 20, transform: 'translateY(-50%)' }}
+        >
+          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
+        </button>
 
-      <Form onSubmit={handleSubmit}>
-
-        <Form.Group className="mb-3" controlId="ticket_id">
-          <Form.Label>Ticket ID</Form.Label>
-          <Form.Control type="text" name="ticket_id" value={form.ticket_id} readOnly />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="category">
-          <Form.Label>Incident Category</Form.Label>
-          <Select
-            options={categoryOptions}
-            value={form.category}
-            onChange={handleSelectChange}
-            name="category"
-            placeholder="-- Select Category --"
-            isClearable
-          />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="sub_category">
-          <Form.Label>Sub-category</Form.Label>
-          <Form.Select
-            name="sub_category"
-            value={form.sub_category}
-            onChange={handleSubCategoryChange}
-            disabled={!form.category}
-          >
-            <option value="">-- Select Sub-category --</option>
-            {form.category &&
-              subCategories[form.category.value].map(sub => (
-                <option key={sub} value={sub}>{sub}</option>
-              ))
-            }
-          </Form.Select>
-        </Form.Group>
-
-        <Row>
-          <Form.Group as={Col} md={6} className="mb-3" controlId="opened">
-            <Form.Label>Date/Time Opened</Form.Label>
-            <Form.Control
-              type="datetime-local"
-              name="opened"
-              value={form.opened}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-
-          <Form.Group as={Col} md={6} className="mb-3" controlId="reported_by">
-            <Form.Label>Reported By</Form.Label>
-            <Form.Control
-              type="text"
-              name="reported_by"
-              value={form.reported_by}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-        </Row>
-
-        <Form.Group className="mb-3" controlId="contact_info">
-          <Form.Label>Contact Information</Form.Label>
-          <Form.Control
-            type="email"
-            name="contact_info"
-            placeholder="email@example.com"
-            value={form.contact_info}
-            onChange={handleChange}
-          />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="priority">
-          <Form.Label>Priority Level (P0–P4)</Form.Label>
-          <Select
-            options={priorityOptions}
-            value={form.priority}
-            onChange={handleSelectChange}
-            name="priority"
-            placeholder="-- Select Priority --"
-            isClearable
-          />
-        </Form.Group>
-
-        <Row>
-          <Form.Group as={Col} md={6} className="mb-3" controlId="location">
-            <Form.Label>Affected Location (Rack/Zone/Room)</Form.Label>
-            <Form.Control
-              type="text"
-              name="location"
-              value={form.location}
-              onChange={handleChange}
-            />
-          </Form.Group>
-
-          <Form.Group as={Col} md={6} className="mb-3" controlId="impacted">
-            <Form.Label>Impacted Systems/Services</Form.Label>
-            <Form.Control
-              type="text"
-              name="impacted"
-              value={form.impacted}
-              onChange={handleChange}
-            />
-          </Form.Group>
-        </Row>
-
-        <Form.Group className="mb-3" controlId="description">
-          <Form.Label>Incident Description</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={4}
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="detectedBy">
-          <Form.Label>Detected By</Form.Label>
-          <Select
-            options={detectedByOptions}
-            value={form.detectedBy}
-            onChange={handleSelectChange}
-            name="detectedBy"
-            placeholder="-- Select --"
-            isClearable
-          />
-        </Form.Group>
-
-        {form.detectedBy?.value === 'Other' && (
-          <Form.Group className="mb-3" controlId="detectedByOther">
-            <Form.Label>Please specify</Form.Label>
-            <Form.Control
-              type="text"
-              name="detectedByOther"
-              value={form.detectedByOther}
-              onChange={handleChange}
-              placeholder="Enter custom detection source"
-              required
-            />
-          </Form.Group>
-        )}
-
-        <Row>
-          <Form.Group as={Col} md={6} className="mb-3" controlId="time_detected">
-            <Form.Label>Time Detected</Form.Label>
-            <Form.Control
-              type="datetime-local"
-              name="time_detected"
-              value={form.time_detected}
-              onChange={handleChange}
-            />
-          </Form.Group>
-
-          <Form.Group as={Col} md={6} className="mb-3" controlId="root_cause">
-            <Form.Label>Root Cause (if known)</Form.Label>
-            <Form.Control
-              type="text"
-              name="root_cause"
-              value={form.root_cause}
-              onChange={handleChange}
-            />
-          </Form.Group>
-        </Row>
-
-        <Form.Group className="mb-3" controlId="actions_taken">
-          <Form.Label>Immediate Actions Taken</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            name="actions_taken"
-            value={form.actions_taken}
-            onChange={handleChange}
-          />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="status">
-          <Form.Label>Status</Form.Label>
-          <Select
-            options={statusOptions}
-            value={form.status}
-            onChange={handleSelectChange}
-            name="status"
-            placeholder="-- Select Status --"
-            isClearable
-          />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="assigned_to">
-          <Form.Label>Assigned Engineer</Form.Label>
-          <Select
-            options={assignedEngineerOptions}
-            value={form.assigned_to}
-            onChange={selected => setForm(f => ({ ...f, assigned_to: selected || [] }))}
-            isMulti
-            name="assigned_to"
-            placeholder="Select assigned engineers"
-          />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="resolution_summary">
-          <Form.Label>Resolution Summary</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            name="resolution_summary"
-            value={form.resolution_summary}
-            onChange={handleChange}
-          />
-        </Form.Group>
-
-        <Row>
-          <Form.Group as={Col} md={6} className="mb-3" controlId="resolution_time">
-            <Form.Label>Resolution Time</Form.Label>
-            <Form.Control
-              type="datetime-local"
-              name="resolution_time"
-              value={form.resolution_time}
-              onChange={handleChange}
-            />
-          </Form.Group>
-
-          <Form.Group as={Col} md={6} className="mb-3" controlId="duration">
-            <Form.Label>Duration of Outage</Form.Label>
-            <Form.Control
-              type="text"
-              name="duration"
-              placeholder="e.g., 2h 15m"
-              value={form.duration}
-              onChange={handleChange}
-            />
-          </Form.Group>
-        </Row>
-
-        <Form.Group className="mb-3" controlId="post_review">
-          <Form.Check
-            type="checkbox"
-            label="Post-Incident Review Needed?"
-            name="post_review"
-            checked={form.post_review}
-            onChange={handleChange}
-          />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="attachments">
-          <Form.Label>Attachments</Form.Label>
-          <Form.Control
-            type="file"
-            name="attachments"
-            multiple
-            onChange={handleChange}
-          />
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="escalation_history">
-          <Form.Label>Escalation History</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={2}
-            name="escalation_history"
-            value={form.escalation_history}
-            onChange={handleChange}
-          />
-        </Form.Group>
-
-        <Row>
-          <Form.Group as={Col} md={6} className="mb-3" controlId="closed">
-            <Form.Label>Date/Time Closed</Form.Label>
-            <Form.Control
-              type="datetime-local"
-              name="closed"
-              value={form.closed}
-              onChange={handleChange}
-            />
-          </Form.Group>
-
-          <Form.Group as={Col} md={6} className="mb-3" controlId="sla_breach">
-            <Form.Check
-              type="checkbox"
-              label="SLA Breach?"
-              name="sla_breach"
-              checked={form.sla_breach}
-              onChange={handleChange}
-            />
-          </Form.Group>
-        </Row>
-
-        <div className="d-grid gap-2 mt-4">
-          <Button variant="primary" type="submit" size="lg">
-            Submit Ticket
-          </Button>
+        <div className="text-center mb-4">
+          <img src="/Kasi Logo.jpeg" alt="Company Logo" style={{ maxWidth: 200, height: 'auto' }} />
         </div>
-      </Form>
+        <h2 className="text-center mb-4">Kasi Cloud Data Center Incident Ticket</h2>
+
+        <Form onSubmit={handleSubmit} className="app-form">
+          <Form.Group className="mb-3" controlId="ticket_id">
+            <Form.Label>Ticket ID</Form.Label>
+            <Form.Control type="text" name="ticket_id" value={form.ticket_id} readOnly />
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="category">
+            <Form.Label>Incident Category</Form.Label>
+            <Select
+              classNamePrefix="rs"
+              options={categoryOptions}
+              value={form.category}
+              onChange={handleCategoryChange}
+              name="category"
+              placeholder="-- Select Category --"
+              isClearable
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="sub_category">
+            <Form.Label>Sub-category</Form.Label>
+            <Select
+              classNamePrefix="rs"
+              options={getSubCategoryOptions()}
+              value={subOptionFromValue(form.sub_category)}
+              onChange={handleSubCategorySelectChange}
+              name="sub_category"
+              placeholder="-- Select Sub-category --"
+              isClearable
+              isDisabled={!form.category}
+            />
+          </Form.Group>
+
+          <Row>
+            <Form.Group as={Col} md={6} className="mb-3" controlId="opened">
+              <Form.Label>Date/Time Opened</Form.Label>
+              <Form.Control type="datetime-local" name="opened" value={form.opened} onChange={handleChange} required />
+            </Form.Group>
+
+            <Form.Group as={Col} md={6} className="mb-3" controlId="reported_by">
+              <Form.Label>Reported By</Form.Label>
+              <Form.Control type="text" name="reported_by" value={form.reported_by} onChange={handleChange} required />
+            </Form.Group>
+          </Row>
+
+          <Form.Group className="mb-3" controlId="contact_info">
+            <Form.Label>Contact Information</Form.Label>
+            <Form.Control type="email" name="contact_info" placeholder="email@example.com" value={form.contact_info} onChange={handleChange} />
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="priority">
+            <Form.Label>Priority Level (P0–P4)</Form.Label>
+            <Select
+              classNamePrefix="rs"
+              options={priorityOptions}
+              value={form.priority}
+              onChange={handlePriorityChange}
+              name="priority"
+              placeholder="-- Select Priority --"
+              isClearable
+            />
+          </Form.Group>
+
+          <Row>
+            <Form.Group as={Col} md={6} className="mb-3" controlId="location">
+              <Form.Label>Affected Location (Rack/Zone/Room)</Form.Label>
+              <Form.Control type="text" name="location" value={form.location} onChange={handleChange} />
+            </Form.Group>
+
+            <Form.Group as={Col} md={6} className="mb-3" controlId="impacted">
+              <Form.Label>Impacted Systems/Services</Form.Label>
+              <Form.Control type="text" name="impacted" value={form.impacted} onChange={handleChange} />
+            </Form.Group>
+          </Row>
+
+          <Form.Group className="mb-3" controlId="description">
+            <Form.Label>Incident Description</Form.Label>
+            <Form.Control as="textarea" rows={4} name="description" value={form.description} onChange={handleChange} required />
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="detectedBy">
+            <Form.Label>Detected By</Form.Label>
+            <Select
+              classNamePrefix="rs"
+              options={detectedByOptions}
+              value={form.detectedBy}
+              onChange={handleDetectedByChange}
+              name="detectedBy"
+              placeholder="-- Select --"
+              isClearable
+            />
+          </Form.Group>
+
+          {form.detectedBy?.value === 'Other' && (
+            <Form.Group className="mb-3" controlId="detectedByOther">
+              <Form.Label>Please specify</Form.Label>
+              <Form.Control type="text" name="detectedByOther" value={form.detectedByOther} onChange={handleChange} placeholder="Enter custom detection source" required />
+            </Form.Group>
+          )}
+
+          <Row>
+            <Form.Group as={Col} md={6} className="mb-3" controlId="time_detected">
+              <Form.Label>Time Detected</Form.Label>
+              <Form.Control type="datetime-local" name="time_detected" value={form.time_detected} onChange={handleChange} />
+            </Form.Group>
+
+            <Form.Group as={Col} md={6} className="mb-3" controlId="root_cause">
+              <Form.Label>Root Cause (if known)</Form.Label>
+              <Form.Control type="text" name="root_cause" value={form.root_cause} onChange={handleChange} />
+            </Form.Group>
+          </Row>
+
+          <Form.Group className="mb-3" controlId="actions_taken">
+            <Form.Label>Immediate Actions Taken</Form.Label>
+            <Form.Control as="textarea" rows={3} name="actions_taken" value={form.actions_taken} onChange={handleChange} />
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="status">
+            <Form.Label>Status</Form.Label>
+            <Select
+              classNamePrefix="rs"
+              options={statusOptions}
+              value={form.status}
+              onChange={handleStatusChange}
+              name="status"
+              placeholder="-- Select Status --"
+              isClearable
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="assigned_to">
+            <Form.Label>Assigned Engineer</Form.Label>
+            <Select
+              classNamePrefix="rs"
+              options={assignedEngineerOptions}
+              value={form.assigned_to}
+              onChange={handleAssignedToChange}
+              isMulti
+              name="assigned_to"
+              placeholder="Select assigned engineers"
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="resolution_summary">
+            <Form.Label>Resolution Summary</Form.Label>
+            <Form.Control as="textarea" rows={3} name="resolution_summary" value={form.resolution_summary} onChange={handleChange} />
+          </Form.Group>
+
+          <Row>
+            <Form.Group as={Col} md={6} className="mb-3" controlId="resolution_time">
+              <Form.Label>Resolution Time</Form.Label>
+              <Form.Control type="datetime-local" name="resolution_time" value={form.resolution_time} onChange={handleChange} />
+            </Form.Group>
+
+            <Form.Group as={Col} md={6} className="mb-3" controlId="duration">
+              <Form.Label>Duration of Outage</Form.Label>
+              <Form.Control type="text" name="duration" placeholder="e.g., 2h 15m" value={form.duration} onChange={handleChange} />
+            </Form.Group>
+          </Row>
+
+          <Form.Group className="mb-3" controlId="post_review">
+            <Form.Check type="checkbox" label="Post-Incident Review Needed?" name="post_review" checked={form.post_review} onChange={handleChange} />
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="attachments">
+            <Form.Label>Attachments</Form.Label>
+            <Form.Control type="file" name="attachments" multiple onChange={handleChange} />
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="escalation_history">
+            <Form.Label>Escalation History</Form.Label>
+            <Form.Control as="textarea" rows={2} name="escalation_history" value={form.escalation_history} onChange={handleChange} />
+          </Form.Group>
+
+          <Row>
+            <Form.Group as={Col} md={6} className="mb-3" controlId="closed">
+              <Form.Label>Date/Time Closed</Form.Label>
+              <Form.Control type="datetime-local" name="closed" value={form.closed} onChange={handleChange} />
+            </Form.Group>
+
+            <Form.Group as={Col} md={6} className="mb-3" controlId="sla_breach">
+              <Form.Check type="checkbox" label="SLA Breach?" name="sla_breach" checked={form.sla_breach} onChange={handleChange} />
+            </Form.Group>
+          </Row>
+
+          <div className="d-grid gap-2 mt-4">
+            <Button variant="primary" type="submit" size="lg">Submit Ticket</Button>
+          </div>
+        </Form>
+      </div>
     </Container>
   );
 }
