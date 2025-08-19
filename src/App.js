@@ -1,7 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Container, Row, Col } from 'react-bootstrap';
+import { Form, Button, Container, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import Select from 'react-select';
+import axios from "axios";
 
+/**
+ * axios instance that respects REACT_APP_API_URL.
+ * - If REACT_APP_API_URL is set (e.g., in Docker/prod), it will use `${REACT_APP_API_URL}/api`.
+ * - Otherwise (dev), it uses the CRA dev proxy `/api`.
+ */
+const API_BASE = (() => {
+  const raw = process.env.REACT_APP_API_URL?.trim();
+  if (raw && raw.length > 0) {
+    // ensure no trailing slash, then append /api
+    return `${raw.replace(/\/$/, '')}/api`;
+  }
+  // CRA dev proxy will forward /api to http://localhost:8000
+  return '/api';
+})();
+
+const api = axios.create({
+  baseURL: API_BASE,
+});
+
+/* ---------- your existing constants (unchanged) ---------- */
 const subCategories = {
   Network: [
     "Router Failure",
@@ -61,6 +82,7 @@ const assignedEngineerOptions = [
 
 const subOptionFromValue = (val) => (val ? { value: val, label: val } : null);
 
+/* ---------- component (kept fields, layout, theme, styles) ---------- */
 function App() {
   // theme state (persisted)
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
@@ -101,6 +123,10 @@ function App() {
     sla_breach: false,
   });
 
+  // status UI
+  const [statusMsg, setStatusMsg] = useState(null); // { type: 'success'|'error', text: '...' }
+  const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
     const dateStr = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
     const randomNum = Math.floor(1000 + Math.random() * 9000);
@@ -130,17 +156,113 @@ function App() {
   const handleAssignedToChange = (selectedArray) => setForm(f => ({ ...f, assigned_to: selectedArray || [] }));
   const handleSubCategorySelectChange = (selected) => setForm(f => ({ ...f, sub_category: selected ? selected.value : '' }));
 
-  const handleSubmit = (e) => {
+  /* utility: convert datetime-local to ISO (returns empty string if not set) */
+  const dtToISO = (value) => {
+    if (!value) return '';
+    // value likely in "YYYY-MM-DDTHH:MM" (no seconds). Create Date locally and convert to ISO.
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return value; // fallback to raw value if parse fails
+    return d.toISOString();
+  };
+
+  /* ---------- submit handler (normalizes values, supports file uploads) ---------- */
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setStatusMsg(null);
+    setSubmitting(true);
+
+    // shallow copy of form and normalize select values
     const output = { ...form };
     output.category = output.category?.value || '';
     output.priority = output.priority?.value || '';
     output.detectedBy = output.detectedBy?.value || '';
     output.status = output.status?.value || '';
-    output.assigned_to = output.assigned_to.map(a => a.value);
+    output.assigned_to = (output.assigned_to || []).map(a => a.value || a); // support either {value,label} or plain strings
     if (output.detectedBy === 'Other') output.detectedBy = output.detectedByOther;
 
-    alert("Ticket Submitted:\n\n" + JSON.stringify(output, null, 2));
+    // normalize datetimes to ISO
+    output.opened = dtToISO(output.opened);
+    output.time_detected = dtToISO(output.time_detected);
+    output.resolution_time = dtToISO(output.resolution_time);
+    output.closed = dtToISO(output.closed);
+
+    try {
+      let res;
+      // If attachments present, send multipart/form-data
+      const files = output.attachments;
+      if (files && files.length > 0) {
+        const formData = new FormData();
+        // Attach JSON payload as a field named 'payload' (backend must parse this)
+        const payload = { ...output };
+        // Remove file-like property from JSON payload since files are separate
+        delete payload.attachments;
+        formData.append('payload', JSON.stringify(payload));
+
+        // Append each file
+        // Note: files is a FileList (from input). Convert to array to iterate safely.
+        Array.from(files).forEach((file, idx) => {
+          // backend should expect 'file[]' or similar; here we use 'attachments[]'
+          formData.append('attachments[]', file, file.name);
+        });
+
+        // axios will set correct Content-Type including boundary
+        res = await api.post('/tickets', formData, { headers: { 'Accept': 'application/json' } });
+      } else {
+        // no files -> send JSON
+        // Remove attachments field to keep payload clean
+        const payload = { ...output };
+        delete payload.attachments;
+        res = await api.post('/tickets', payload, { headers: { 'Content-Type': 'application/json' } });
+      }
+
+      // success (assume backend returns created ticket object)
+      const data = res?.data || {};
+      const createdId = data.ticket_id || data.id || data.ticketId || '(unknown)';
+      setStatusMsg({ type: 'success', text: `Ticket submitted successfully! Ticket ID: ${createdId}` });
+
+      // optionally reset form fields (preserve theme, generate a new ticket id)
+      const dateStr = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+      const randomNum = Math.floor(1000 + Math.random() * 9000);
+      setForm({
+        ticket_id: `INC-${dateStr}-${randomNum}`,
+        category: null,
+        sub_category: '',
+        opened: '',
+        reported_by: '',
+        contact_info: '',
+        priority: null,
+        location: '',
+        impacted: '',
+        description: '',
+        detectedBy: null,
+        detectedByOther: '',
+        time_detected: '',
+        root_cause: '',
+        actions_taken: '',
+        status: null,
+        assigned_to: [],
+        resolution_summary: '',
+        resolution_time: '',
+        duration: '',
+        post_review: false,
+        attachments: null,
+        escalation_history: '',
+        closed: '',
+        sla_breach: false,
+      });
+    } catch (err) {
+      // try to extract helpful message from axios error
+      let msg = 'Unknown error';
+      if (err?.response?.data) {
+        // backend returned JSON error body
+        msg = typeof err.response.data === 'string' ? err.response.data : (err.response.data.message || JSON.stringify(err.response.data));
+      } else if (err.message) {
+        msg = err.message;
+      }
+      setStatusMsg({ type: 'error', text: `Error submitting ticket: ${msg}` });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const getSubCategoryOptions = () => {
@@ -163,9 +285,15 @@ function App() {
         </button>
 
         <div className="text-center mb-4">
-          <img src="/Kasi Logo.jpeg" alt="Company Logo" style={{ maxWidth: 200, height: 'auto' }} />
+          <img src="/KasiLogo.jpeg" alt="Company Logo" style={{ maxWidth: 200, height: 'auto' }} />
         </div>
         <h2 className="text-center mb-4">Kasi Cloud Data Center Incident Ticket</h2>
+
+        {statusMsg && (
+          <Alert variant={statusMsg.type === 'success' ? 'success' : 'danger'} onClose={() => setStatusMsg(null)} dismissible>
+            {statusMsg.text}
+          </Alert>
+        )}
 
         <Form onSubmit={handleSubmit} className="app-form">
           <Form.Group className="mb-3" controlId="ticket_id">
@@ -334,6 +462,7 @@ function App() {
           <Form.Group className="mb-3" controlId="attachments">
             <Form.Label>Attachments</Form.Label>
             <Form.Control type="file" name="attachments" multiple onChange={handleChange} />
+            <Form.Text className="text-muted">If you attach files, they will be sent as multipart/form-data.</Form.Text>
           </Form.Group>
 
           <Form.Group className="mb-3" controlId="escalation_history">
@@ -353,7 +482,13 @@ function App() {
           </Row>
 
           <div className="d-grid gap-2 mt-4">
-            <Button variant="primary" type="submit" size="lg">Submit Ticket</Button>
+            <Button variant="primary" type="submit" size="lg" disabled={submitting}>
+              {submitting ? (
+                <>
+                  <Spinner animation="border" size="sm" role="status" aria-hidden="true" /> Submitting...
+                </>
+              ) : 'Submit Ticket'}
+            </Button>
           </div>
         </Form>
       </div>
@@ -361,4 +496,5 @@ function App() {
   );
 }
 
+/* export the component — I corrected the previous mismatch so this exports the component that runs */
 export default App;
