@@ -498,7 +498,6 @@ function App() {
   );
 }
 
-/* export the component — I corrected the previous mismatch so this exports the component that runs */
 // keep your existing App (form) component unchanged above.
 // Now export a Router that exposes /frontend and /ticketspage routes:
 
@@ -514,4 +513,3 @@ export default function AppRouter() {
     </Router>
   );
 }
-
