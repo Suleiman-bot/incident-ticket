@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Container, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import Select from 'react-select';
 import axios from "axios";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import TicketsPage from './TicketsPage';   // adjust exact filename/casing if needed
 
 /**
@@ -84,8 +84,24 @@ const assignedEngineerOptions = [
 
 const subOptionFromValue = (val) => (val ? { value: val, label: val } : null);
 
+/* helper: convert ISO datetime (or other) to "datetime-local" value: YYYY-MM-DDTHH:MM */
+const isoToLocalDatetime = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+/* helper: map primitive value to react-select option object (if falsy returns null) */
+const toOption = (val) => (val ? { value: val, label: String(val) } : null);
+
 /* ---------- component (kept fields, layout, theme, styles) ---------- */
 function App() {
+  // use react-router hooks to read incoming navigation state for "edit"
+  const location = useLocation();
+  const navigate = useNavigate();
+
   // theme state (persisted)
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
 
@@ -125,15 +141,54 @@ function App() {
     sla_breach: false,
   });
 
+  // determine if we are editing (ticket passed in navigation state)
+  const ticketToEdit = location?.state?.ticketToEdit ?? null;
+  const isEditing = Boolean(ticketToEdit);
+
   // status UI
   const [statusMsg, setStatusMsg] = useState(null); // { type: 'success'|'error', text: '...' }
   const [submitting, setSubmitting] = useState(false);
 
+  // generate a ticket id only when creating new ticket (not when editing)
   useEffect(() => {
-    const dateStr = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
-    const randomNum = Math.floor(1000 + Math.random() * 9000);
-    setForm(f => ({ ...f, ticket_id: `INC-${dateStr}-${randomNum}` }));
-  }, []);
+    if (isEditing) {
+      // populate form fields from ticketToEdit (map types to react-select shapes and datetime-local)
+      const t = ticketToEdit;
+      setForm({
+        ticket_id: t.ticket_id ?? t.id ?? '',
+        category: t.category ? toOption(t.category) : null,
+        sub_category: t.sub_category ?? '',
+        opened: isoToLocalDatetime(t.opened) || (t.opened ?? ''),
+        reported_by: t.reported_by ?? '',
+        contact_info: t.contact_info ?? '',
+        priority: t.priority ? toOption(t.priority) : null,
+        location: t.location ?? '',
+        impacted: t.impacted ?? '',
+        description: t.description ?? '',
+        detectedBy: t.detectedBy ? toOption(t.detectedBy) : null,
+        detectedByOther: t.detectedByOther ?? '',
+        time_detected: isoToLocalDatetime(t.time_detected) || (t.time_detected ?? ''),
+        root_cause: t.root_cause ?? '',
+        actions_taken: t.actions_taken ?? '',
+        status: t.status ? toOption(t.status) : null,
+        assigned_to: Array.isArray(t.assigned_to) ? t.assigned_to.map(a => ({ value: a, label: a })) : (t.assigned_to ? [ { value: t.assigned_to, label: t.assigned_to } ] : []),
+        resolution_summary: t.resolution_summary ?? '',
+        resolution_time: isoToLocalDatetime(t.resolution_time) || (t.resolution_time ?? ''),
+        duration: t.duration ?? '',
+        post_review: Boolean(t.post_review),
+        attachments: null,
+        escalation_history: t.escalation_history ?? '',
+        closed: isoToLocalDatetime(t.closed) || (t.closed ?? ''),
+        sla_breach: Boolean(t.sla_breach),
+      });
+    } else {
+      // only run generation when creating new ticket
+      const dateStr = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+      const randomNum = Math.floor(1000 + Math.random() * 9000);
+      setForm(f => ({ ...f, ticket_id: `INC-${dateStr}-${randomNum}` }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing]); // run when isEditing changes (i.e., page navigated with/without ticketToEdit)
 
   // native input handler
   const handleChange = (e) => {
@@ -167,7 +222,9 @@ function App() {
     return d.toISOString();
   };
 
-  /* ---------- submit handler (normalizes values, supports file uploads) ---------- */
+  /* ---------- submit handler (normalizes values, supports file uploads)
+     If editing, performs PUT to /tickets/:id, otherwise POST to create.
+  ---------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatusMsg(null);
@@ -192,6 +249,8 @@ function App() {
       let res;
       // If attachments present, send multipart/form-data
       const files = output.attachments;
+      const identifier = ticketToEdit ? (ticketToEdit.id ?? ticketToEdit.ticket_id ?? ticketToEdit.id) : null;
+
       if (files && files.length > 0) {
         const formData = new FormData();
         // Attach JSON payload as a field named 'payload' (backend must parse this)
@@ -201,28 +260,40 @@ function App() {
         formData.append('payload', JSON.stringify(payload));
 
         // Append each file
-        // Note: files is a FileList (from input). Convert to array to iterate safely.
         Array.from(files).forEach((file, idx) => {
-          // backend should expect 'file[]' or similar; here we use 'attachments[]'
           formData.append('attachments[]', file, file.name);
         });
 
-        // axios will set correct Content-Type including boundary
-        res = await api.post('/tickets', formData, { headers: { 'Accept': 'application/json' } });
+        if (isEditing && identifier) {
+          res = await api.put(`/tickets/${identifier}`, formData, { headers: { 'Accept': 'application/json' } });
+        } else {
+          res = await api.post('/tickets', formData, { headers: { 'Accept': 'application/json' } });
+        }
       } else {
         // no files -> send JSON
-        // Remove attachments field to keep payload clean
         const payload = { ...output };
         delete payload.attachments;
-        res = await api.post('/tickets', payload, { headers: { 'Content-Type': 'application/json' } });
+
+        if (isEditing) {
+          const identifier = ticketToEdit.id ?? ticketToEdit.ticket_id ?? ticketToEdit.id;
+          res = await api.put(`/tickets/${identifier}`, payload, { headers: { 'Content-Type': 'application/json' } });
+        } else {
+          res = await api.post('/tickets', payload, { headers: { 'Content-Type': 'application/json' } });
+        }
       }
 
-      // success (assume backend returns created ticket object)
+      // success (assume backend returns created/updated ticket object)
       const data = res?.data || {};
       const createdId = data.ticket_id || data.id || data.ticketId || '(unknown)';
-      setStatusMsg({ type: 'success', text: `Ticket submitted successfully! Ticket ID: ${createdId}` });
+      setStatusMsg({ type: 'success', text: isEditing ? `Ticket updated successfully! ID: ${createdId}` : `Ticket submitted successfully! Ticket ID: ${createdId}` });
 
-      // optionally reset form fields (preserve theme, generate a new ticket id)
+      // if editing, navigate back to ticket list so changes are visible
+      if (isEditing) {
+        navigate('/ticketspage');
+        return;
+      }
+
+      // optionally reset form fields for new submission (preserve theme, generate a new ticket id)
       const dateStr = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
       const randomNum = Math.floor(1000 + Math.random() * 9000);
       setForm({
@@ -489,7 +560,7 @@ function App() {
                 <>
                   <Spinner animation="border" size="sm" role="status" aria-hidden="true" /> Submitting...
                 </>
-              ) : 'Submit Ticket'}
+              ) : (isEditing ? 'Update Ticket' : 'Submit Ticket')}
             </Button>
           </div>
         </Form>
