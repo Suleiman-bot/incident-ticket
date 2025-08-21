@@ -109,7 +109,7 @@ function TicketRow({ ticket, index, theme }) {
     h.style.height = "auto";          // allow container to adjust height
     const img = document.createElement("img");
     img.src = KasiLogo;
-    img.style.height = "60px";       // keeps the logo height consistent
+    img.style.height = "80px";       // keeps the logo height consistent
     img.style.width = "auto";        // maintain aspect ratio
     img.style.maxWidth = "100%";     // prevent overflow/cropping
     img.style.objectFit = "contain"; // ensures the full logo fits
@@ -363,7 +363,16 @@ export default function TicketsPage() {
         sx={{ mb: 2 }}
       >
         <Stack direction="row" spacing={2} alignItems="center">
-          <Avatar src={KasiLogo} alt="Kasi" sx={{ width: 56, height: 56 }} />
+         <img 
+  src={KasiLogo} 
+  alt="Kasi" 
+  style={{ 
+    height: '80px', 
+    width: 'auto', 
+    maxWidth: '100%', 
+    objectFit: 'contain' 
+  }} 
+/>
           <Box>
             <Typography variant="h6">Kasi Cloud Data Centers</Typography>
             <Typography variant="body2" color="text.secondary">
