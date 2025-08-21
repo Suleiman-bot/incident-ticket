@@ -5,7 +5,7 @@ import { CSVLink } from "react-csv";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import logo from "./KasiLogo.jpeg"; // same logo as ticket form
+import logo from "./Kasi Logo.jpeg"; // same logo as ticket form
 import "./TicketsPage.css"; // optional custom styling
 
 const TicketsPage = () => {
