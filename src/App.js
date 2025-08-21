@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Container, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import Select from 'react-select';
 import axios from "axios";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import TicketsPage from './TicketsPage';   // adjust exact filename/casing if needed
 
 /**
  * axios instance that respects REACT_APP_API_URL.
@@ -497,4 +499,19 @@ function App() {
 }
 
 /* export the component — I corrected the previous mismatch so this exports the component that runs */
-export default App;
+// keep your existing App (form) component unchanged above.
+// Now export a Router that exposes /frontend and /ticketspage routes:
+
+export default function AppRouter() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/frontend" element={<App />} />
+        <Route path="/ticketspage" element={<TicketsPage />} />
+        {/* default route -> show the form */}
+        <Route path="*" element={<App />} />
+      </Routes>
+    </Router>
+  );
+}
+
