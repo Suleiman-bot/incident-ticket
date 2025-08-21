@@ -111,6 +111,7 @@ function TicketRow({ ticket, index, theme }) {
     img.src = KasiLogo;
     img.style.height = "60px";       // keeps the logo height consistent
     img.style.width = "auto";        // maintain aspect ratio
+    img.style.maxWidth = "100%";     // prevent overflow/cropping
     img.style.objectFit = "contain"; // ensures the full logo fits
     img.style.display = "block";     // remove any extra inline spacing
     const title = document.createElement("div");
