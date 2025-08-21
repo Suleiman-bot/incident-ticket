@@ -1,163 +1,145 @@
 // src/TicketsPage.js
-import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
-import {
-  Box,
-  TextField,
-  Collapse,
-  Typography,
-  IconButton,
-  Paper,
-  Button,
-  Stack
-} from '@mui/material';
-import { KeyboardArrowDown, KeyboardArrowUp, Download } from '@mui/icons-material';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { CSVLink } from "react-csv";
+import { saveAs } from "file-saver";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import logo from "./KasiLogo.jpeg"; // same logo as ticket form
+import "./TicketsPage.css"; // optional custom styling
 
-function TicketRow({ ticket }) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Box sx={{ mb: 1 }}>
-      <Box display="flex" alignItems="center" sx={{ px: 1 }}>
-        <IconButton size="small" onClick={() => setOpen(!open)} aria-label="expand row">
-          {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-        </IconButton>
-        <Box flex={1}>
-          <Typography variant="subtitle1">
-            <strong>{ticket.ticket_id}</strong> — {ticket.category || '—'} <Typography component="span" sx={{ ml: 1, color: 'text.secondary' }}>({ticket.status || '—'})</Typography>
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Reported by: {ticket.reported_by || '—'} • Priority: {ticket.priority || '—'}
-          </Typography>
-        </Box>
-      </Box>
-
-      <Collapse in={open} timeout="auto" unmountOnExit>
-        <Paper elevation={1} sx={{ p: 2, m: 1 }}>
-          <Stack spacing={1}>
-            <Typography variant="body2"><strong>Sub-Category:</strong> {ticket.sub_category || '—'}</Typography>
-            <Typography variant="body2"><strong>Opened:</strong> {ticket.opened || '—'}</Typography>
-            <Typography variant="body2"><strong>Contact:</strong> {ticket.contact_info || '—'}</Typography>
-            <Typography variant="body2"><strong>Location:</strong> {ticket.location || '—'}</Typography>
-            <Typography variant="body2"><strong>Impacted:</strong> {ticket.impacted || '—'}</Typography>
-            <Typography variant="body2"><strong>Description:</strong> {ticket.description || '—'}</Typography>
-            <Typography variant="body2"><strong>Actions Taken:</strong> {ticket.actions_taken || '—'}</Typography>
-            <Typography variant="body2"><strong>Assigned To:</strong> {ticket.assigned_to || '—'}</Typography>
-            <Typography variant="body2"><strong>Attachments:</strong> {ticket.attachments || '—'}</Typography>
-            <Typography variant="body2"><strong>Escalation History:</strong> {ticket.escalation_history || '—'}</Typography>
-          </Stack>
-        </Paper>
-      </Collapse>
-    </Box>
-  );
-}
-
-export default function TicketsPage() {
+const TicketsPage = () => {
   const [tickets, setTickets] = useState([]);
-  const [filteredTickets, setFilteredTickets] = useState([]);
-  const [search, setSearch] = useState('');
-  const listRef = useRef(null);
+  const [filters, setFilters] = useState({
+    priority: "",
+    status: "",
+    engineer: "",
+    startDate: "",
+    endDate: "",
+  });
+  const [theme, setTheme] = useState("light");
 
   useEffect(() => {
-    axios.get('http://192.168.0.3:8000/api/tickets')
-      .then(res => {
-        setTickets(res.data || []);
-        setFilteredTickets(res.data || []);
+    axios
+      .get("/api/data/tickets.csv")
+      .then((res) => {
+        const lines = res.data.split("\n").filter((line) => line.trim() !== "");
+        const headers = lines[0].split(",");
+        const data = lines.slice(1).map((line) => {
+          const values = line.split(",");
+          let ticket = {};
+          headers.forEach((h, i) => (ticket[h] = values[i] ?? ""));
+          return ticket;
+        });
+        setTickets(data);
       })
-      .catch(err => console.error('Failed to fetch tickets', err));
+      .catch((err) => console.error(err));
   }, []);
 
-  useEffect(() => {
-    if (!search) {
-      setFilteredTickets(tickets);
-      return;
-    }
-    const lower = search.toLowerCase();
-    setFilteredTickets(
-      tickets.filter(t =>
-        Object.values(t).some(v =>
-          String(v || '').toLowerCase().includes(lower)
-        )
-      )
-    );
-  }, [search, tickets]);
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
 
-  // Download visible list area to PDF
-  const handleDownloadPDF = async () => {
-    const el = listRef.current;
-    if (!el) return;
+  const filteredTickets = tickets.filter((t) => {
+    let pass = true;
+    if (filters.priority && t.priority !== filters.priority) pass = false;
+    if (filters.status && t.status !== filters.status) pass = false;
+    if (filters.engineer && !t.assigned_to.includes(filters.engineer)) pass = false;
+    if (filters.startDate && new Date(t.opened) < new Date(filters.startDate)) pass = false;
+    if (filters.endDate && new Date(t.opened) > new Date(filters.endDate)) pass = false;
+    return pass;
+  });
 
-    try {
-      // Increase scale for better resolution
-      const canvas = await html2canvas(el, { scale: 2 });
-      const imgData = canvas.toDataURL('image/png');
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      // image dimensions in mm
-      const imgProps = canvas;
-      const imgWidthPx = imgProps.width;
-      const imgHeightPx = imgProps.height;
-      const pxToMm = pdfWidth / imgWidthPx;
-      const imgHeightMm = imgHeightPx * pxToMm;
-
-      // if the content fits on a single page
-      if (imgHeightMm <= pdfHeight) {
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeightMm);
-      } else {
-        // split into pages
-        let heightLeft = imgHeightMm;
-        let position = 0;
-        // convert canvas to image and add slices by adjusting y offset
-        // We'll add the full image and shift using addImage with negative y position on subsequent pages
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeightMm);
-        heightLeft -= pdfHeight;
-        while (heightLeft > 0) {
-          position -= pdfHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeightMm);
-          heightLeft -= pdfHeight;
-        }
-      }
-
-      pdf.save(`tickets_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'_')}.pdf`);
-    } catch (err) {
-      console.error('Failed to generate PDF', err);
-    }
+  const downloadPDF = (ticket) => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text(`Ticket ID: ${ticket.ticket_id}`, 14, 20);
+    doc.autoTable({
+      startY: 30,
+      head: [["Field", "Value"]],
+      body: Object.entries(ticket).map(([key, value]) => [key, value]),
+    });
+    doc.save(`ticket_${ticket.ticket_id}.pdf`);
   };
 
   return (
-    <Box sx={{ width: '100%', p: 2 }}>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
-        <TextField
-          label="Search Tickets"
-          variant="outlined"
-          fullWidth
-          value={search}
-          onChange={e => setSearch(e.target.value)}
+    <div className={`tickets-page ${theme}`}>
+      <header className="header">
+        <img src={logo} alt="Logo" className="logo" />
+        <h1>Kasi Cloud Data Centers Incident Tickets</h1>
+        <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+          Toggle {theme === "light" ? "Dark" : "Light"} Theme
+        </button>
+      </header>
+
+      <div className="filters">
+        <select name="priority" value={filters.priority} onChange={handleFilterChange}>
+          <option value="">All Priorities</option>
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+          <option value="Critical">Critical</option>
+        </select>
+
+        <select name="status" value={filters.status} onChange={handleFilterChange}>
+          <option value="">All Status</option>
+          <option value="Open">Open</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Closed">Closed</option>
+        </select>
+
+        <select name="engineer" value={filters.engineer} onChange={handleFilterChange}>
+          <option value="">All Engineers</option>
+          {Array.from(new Set(tickets.flatMap((t) => t.assigned_to.split("|")))).map((eng) => (
+            <option key={eng} value={eng}>
+              {eng}
+            </option>
+          ))}
+        </select>
+
+        <input
+          type="date"
+          name="startDate"
+          value={filters.startDate}
+          onChange={handleFilterChange}
         />
+        <input
+          type="date"
+          name="endDate"
+          value={filters.endDate}
+          onChange={handleFilterChange}
+        />
+      </div>
 
-        <Stack direction="row" spacing={1}>
-          <Button variant="contained" startIcon={<Download />} onClick={handleDownloadPDF}>
-            Download PDF
-          </Button>
-        </Stack>
-      </Stack>
-
-      {/* area that will be captured for PDF */}
-      <Box ref={listRef}>
-        {filteredTickets.length === 0 ? (
-          <Typography variant="h6" sx={{ mt: 2 }}>No tickets found.</Typography>
-        ) : (
-          filteredTickets.map(ticket => (
-            <TicketRow key={ticket.ticket_id} ticket={ticket} />
-          ))
-        )}
-      </Box>
-    </Box>
+      <table className="tickets-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            {Object.keys(tickets[0] || {}).map((field) => (
+              <th key={field}>{field}</th>
+            ))}
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredTickets.map((ticket, index) => (
+            <React.Fragment key={ticket.ticket_id}>
+              <tr>
+                <td>{index + 1}</td>
+                {Object.keys(ticket).map((field) => (
+                  <td key={field}>{ticket[field]}</td>
+                ))}
+                <td>
+                  <button onClick={() => downloadPDF(ticket)}>Download PDF</button>
+                </td>
+              </tr>
+            </React.Fragment>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
-}
+};
+
+export default TicketsPage;
