@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
-import { Box, TextField } from '@mui/material';
+import { Box, TextField, Chip, Tooltip } from '@mui/material';
 
 export default function TicketsPage() {
   const [tickets, setTickets] = useState([]);
@@ -30,6 +30,25 @@ export default function TicketsPage() {
     );
   }, [search, tickets]);
 
+  const priorityColor = (priority) => {
+    switch(priority?.toLowerCase()) {
+      case 'high': return 'error';
+      case 'medium': return 'warning';
+      case 'low': return 'success';
+      default: return 'default';
+    }
+  };
+
+  const statusColor = (status) => {
+    switch(status?.toLowerCase()) {
+      case 'open': return 'primary';
+      case 'in progress': return 'info';
+      case 'closed': return 'success';
+      case 'pending': return 'warning';
+      default: return 'default';
+    }
+  };
+
   const columns = [
     { field: 'ticket_id', headerName: 'Ticket ID', width: 150 },
     { field: 'category', headerName: 'Category', width: 120 },
@@ -37,15 +56,38 @@ export default function TicketsPage() {
     { field: 'opened', headerName: 'Opened', width: 100 },
     { field: 'reported_by', headerName: 'Reported By', width: 130 },
     { field: 'contact_info', headerName: 'Contact Info', width: 150 },
-    { field: 'priority', headerName: 'Priority', width: 100 },
+    { 
+      field: 'priority', 
+      headerName: 'Priority', 
+      width: 120,
+      renderCell: (params) => (
+        <Chip label={params.value} color={priorityColor(params.value)} size="small" />
+      )
+    },
     { field: 'location', headerName: 'Location', width: 120 },
     { field: 'impacted', headerName: 'Impacted', width: 150 },
-    { field: 'description', headerName: 'Description', width: 200 },
+    { 
+      field: 'description', 
+      headerName: 'Description', 
+      width: 200,
+      renderCell: (params) => (
+        <Tooltip title={params.value || ''}>
+          <span>{params.value}</span>
+        </Tooltip>
+      )
+    },
     { field: 'detectedBy', headerName: 'Detected By', width: 130 },
     { field: 'time_detected', headerName: 'Time Detected', width: 150 },
     { field: 'root_cause', headerName: 'Root Cause', width: 150 },
     { field: 'actions_taken', headerName: 'Actions Taken', width: 150 },
-    { field: 'status', headerName: 'Status', width: 120 },
+    { 
+      field: 'status', 
+      headerName: 'Status', 
+      width: 120,
+      renderCell: (params) => (
+        <Chip label={params.value} color={statusColor(params.value)} size="small" />
+      )
+    },
     { field: 'assigned_to', headerName: 'Assigned To', width: 150 },
     { field: 'resolution_summary', headerName: 'Resolution Summary', width: 200 },
     { field: 'resolution_time', headerName: 'Resolution Time', width: 150 },
