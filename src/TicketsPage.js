@@ -105,9 +105,11 @@ function TicketRow({ ticket, index, theme }) {
     h.style.display = "flex";
     h.style.alignItems = "center";
     h.style.gap = "12px";
+    h.style.flexWrap = "nowrap";      // prevent wrapping
+    h.style.height = "auto";          // allow container to adjust height
     const img = document.createElement("img");
     img.src = KasiLogo;
-    img.style.height = "40px";       // keeps the logo height consistent
+    img.style.height = "60px";       // keeps the logo height consistent
     img.style.width = "auto";        // maintain aspect ratio
     img.style.objectFit = "contain"; // ensures the full logo fits
     img.style.display = "block";     // remove any extra inline spacing
@@ -115,6 +117,7 @@ function TicketRow({ ticket, index, theme }) {
     title.innerText = `Ticket ${ticket.ticket_id}`;
     title.style.fontSize = "18px";
     title.style.fontWeight = "700";
+    title.style.whiteSpace = "nowrap"; // prevent title from wrapping
     h.appendChild(img);
     h.appendChild(title);
     container.appendChild(h);
