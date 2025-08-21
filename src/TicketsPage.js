@@ -1,8 +1,51 @@
 // TicketsPage.js
 import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
+import { Box, TextField, Collapse, Typography, IconButton, Paper } from '@mui/material';
+import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material';
 import axios from 'axios';
-import { Box, TextField, Chip, Tooltip } from '@mui/material';
+
+function TicketRow({ ticket }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <React.Fragment>
+      <Box display="flex" alignItems="center">
+        <IconButton size="small" onClick={() => setOpen(!open)}>
+          {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+        </IconButton>
+        <Box flex={1}>
+          <Typography variant="body2">{ticket.ticket_id} - {ticket.category} - {ticket.status}</Typography>
+        </Box>
+      </Box>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <Paper elevation={2} sx={{ p: 2, my: 1 }}>
+          <Typography><strong>Sub-Category:</strong> {ticket.sub_category}</Typography>
+          <Typography><strong>Opened:</strong> {ticket.opened}</Typography>
+          <Typography><strong>Reported By:</strong> {ticket.reported_by}</Typography>
+          <Typography><strong>Contact Info:</strong> {ticket.contact_info}</Typography>
+          <Typography><strong>Priority:</strong> {ticket.priority}</Typography>
+          <Typography><strong>Location:</strong> {ticket.location}</Typography>
+          <Typography><strong>Impacted:</strong> {ticket.impacted}</Typography>
+          <Typography><strong>Description:</strong> {ticket.description}</Typography>
+          <Typography><strong>Detected By:</strong> {ticket.detectedBy}</Typography>
+          <Typography><strong>Time Detected:</strong> {ticket.time_detected}</Typography>
+          <Typography><strong>Root Cause:</strong> {ticket.root_cause}</Typography>
+          <Typography><strong>Actions Taken:</strong> {ticket.actions_taken}</Typography>
+          <Typography><strong>Assigned To:</strong> {ticket.assigned_to}</Typography>
+          <Typography><strong>Resolution Summary:</strong> {ticket.resolution_summary}</Typography>
+          <Typography><strong>Resolution Time:</strong> {ticket.resolution_time}</Typography>
+          <Typography><strong>Duration:</strong> {ticket.duration}</Typography>
+          <Typography><strong>Post Review:</strong> {ticket.post_review}</Typography>
+          <Typography><strong>Attachments:</strong> {ticket.attachments}</Typography>
+          <Typography><strong>Escalation History:</strong> {ticket.escalation_history}</Typography>
+          <Typography><strong>Closed:</strong> {ticket.closed}</Typography>
+          <Typography><strong>SLA Breach:</strong> {ticket.sla_breach}</Typography>
+        </Paper>
+      </Collapse>
+    </React.Fragment>
+  );
+}
 
 export default function TicketsPage() {
   const [tickets, setTickets] = useState([]);
@@ -30,79 +73,8 @@ export default function TicketsPage() {
     );
   }, [search, tickets]);
 
-  const priorityColor = (priority) => {
-    switch(priority?.toLowerCase()) {
-      case 'high': return 'error';
-      case 'medium': return 'warning';
-      case 'low': return 'success';
-      default: return 'default';
-    }
-  };
-
-  const statusColor = (status) => {
-    switch(status?.toLowerCase()) {
-      case 'open': return 'primary';
-      case 'in progress': return 'info';
-      case 'closed': return 'success';
-      case 'pending': return 'warning';
-      default: return 'default';
-    }
-  };
-
-  const columns = [
-    { field: 'ticket_id', headerName: 'Ticket ID', width: 150 },
-    { field: 'category', headerName: 'Category', width: 120 },
-    { field: 'sub_category', headerName: 'Sub-Category', width: 120 },
-    { field: 'opened', headerName: 'Opened', width: 100 },
-    { field: 'reported_by', headerName: 'Reported By', width: 130 },
-    { field: 'contact_info', headerName: 'Contact Info', width: 150 },
-    { 
-      field: 'priority', 
-      headerName: 'Priority', 
-      width: 120,
-      renderCell: (params) => (
-        <Chip label={params.value} color={priorityColor(params.value)} size="small" />
-      )
-    },
-    { field: 'location', headerName: 'Location', width: 120 },
-    { field: 'impacted', headerName: 'Impacted', width: 150 },
-    { 
-      field: 'description', 
-      headerName: 'Description', 
-      width: 200,
-      renderCell: (params) => (
-        <Tooltip title={params.value || ''}>
-          <span>{params.value}</span>
-        </Tooltip>
-      )
-    },
-    { field: 'detectedBy', headerName: 'Detected By', width: 130 },
-    { field: 'time_detected', headerName: 'Time Detected', width: 150 },
-    { field: 'root_cause', headerName: 'Root Cause', width: 150 },
-    { field: 'actions_taken', headerName: 'Actions Taken', width: 150 },
-    { 
-      field: 'status', 
-      headerName: 'Status', 
-      width: 120,
-      renderCell: (params) => (
-        <Chip label={params.value} color={statusColor(params.value)} size="small" />
-      )
-    },
-    { field: 'assigned_to', headerName: 'Assigned To', width: 150 },
-    { field: 'resolution_summary', headerName: 'Resolution Summary', width: 200 },
-    { field: 'resolution_time', headerName: 'Resolution Time', width: 150 },
-    { field: 'duration', headerName: 'Duration', width: 100 },
-    { field: 'post_review', headerName: 'Post Review', width: 120 },
-    { field: 'attachments', headerName: 'Attachments', width: 200 },
-    { field: 'escalation_history', headerName: 'Escalation History', width: 200 },
-    { field: 'closed', headerName: 'Closed', width: 100 },
-    { field: 'sla_breach', headerName: 'SLA Breach', width: 100 },
-  ];
-
-  const rows = filteredTickets.map(t => ({ id: t.ticket_id, ...t }));
-
   return (
-    <Box sx={{ height: '80vh', width: '100%', padding: 2 }}>
+    <Box sx={{ width: '100%', padding: 2 }}>
       <TextField
         label="Search Tickets"
         variant="outlined"
@@ -111,14 +83,9 @@ export default function TicketsPage() {
         value={search}
         onChange={e => setSearch(e.target.value)}
       />
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10, 25, 50]}
-        disableSelectionOnClick
-        autoHeight
-      />
+      {filteredTickets.map(ticket => (
+        <TicketRow key={ticket.ticket_id} ticket={ticket} />
+      ))}
     </Box>
   );
 }
