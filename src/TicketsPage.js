@@ -1,5 +1,6 @@
 // src/TicketsPage.js
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   TextField,
@@ -18,6 +19,8 @@ import {
   OutlinedInput,
   Switch,
   FormControlLabel,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {
   KeyboardArrowDown,
@@ -87,7 +90,7 @@ function RowKV({ label, value }) {
 }
 
 /* TicketRow: collapsible ticket with details and per-ticket PDF */
-function TicketRow({ ticket, index, theme }) {
+function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
   const [open, setOpen] = useState(false);
 
   // create a DOM node content for PDF capture (off-screen)
@@ -105,15 +108,15 @@ function TicketRow({ ticket, index, theme }) {
     h.style.display = "flex";
     h.style.alignItems = "center";
     h.style.gap = "12px";
-    h.style.flexWrap = "nowrap";      // prevent wrapping
-    h.style.height = "auto";          // allow container to adjust height
+    h.style.flexWrap = "nowrap"; // prevent wrapping
+    h.style.height = "auto"; // allow container to adjust height
     const img = document.createElement("img");
     img.src = KasiLogo;
-    img.style.height = "80px";       // keeps the logo height consistent
-    img.style.width = "auto";        // maintain aspect ratio
-    img.style.maxWidth = "100%";     // prevent overflow/cropping
+    img.style.height = "80px"; // keeps the logo height consistent
+    img.style.width = "auto"; // maintain aspect ratio
+    img.style.maxWidth = "100%"; // prevent overflow/cropping
     img.style.objectFit = "contain"; // ensures the full logo fits
-    img.style.display = "block";     // remove any extra inline spacing
+    img.style.display = "block"; // remove any extra inline spacing
     const title = document.createElement("div");
     title.innerText = `Ticket ${ticket.ticket_id}`;
     title.style.fontSize = "18px";
@@ -231,13 +234,37 @@ function TicketRow({ ticket, index, theme }) {
         </IconButton>
 
         <Box sx={{ flex: 1, display: "flex", alignItems: "center", gap: 2 }}>
+          {/* small avatar to keep per-ticket branding but avoid duplicate header */}
+          <Avatar src={KasiLogo} alt="Kasi" sx={{ width: 32, height: 32 }} />
+
           <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
             {ticket.ticket_id}
           </Typography>
+
           <Typography variant="body2" color="text.secondary">
             {ticket.category || "—"}
           </Typography>
-          <Chip label={ticket.status || "—"} size="small" />
+
+          <FormControl size="small" sx={{ minWidth: 160 }}>
+            <Select
+              value={ticket.status || ""}
+              onChange={(e) =>
+                onStatusChange && onStatusChange(ticket, e.target.value)
+              }
+              displayEmpty
+              inputProps={{ "aria-label": "status" }}
+            >
+              <MenuItem value="">— Status —</MenuItem>
+              {statusOptions
+                .filter((s) => s.value)
+                .map((s) => (
+                  <MenuItem key={s.value} value={s.value}>
+                    {s.label}
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+
           <Typography variant="body2" color="text.secondary" sx={{ ml: "auto" }}>
             {ticket.opened ? new Date(ticket.opened).toLocaleString() : ""}
           </Typography>
@@ -255,32 +282,45 @@ function TicketRow({ ticket, index, theme }) {
 
       <Collapse in={open} timeout="auto" unmountOnExit>
         <Paper sx={{ p: 2, mt: 1 }}>
-          <Stack spacing={1}>
-            <RowKV label="Ticket ID" value={ticket.ticket_id} />
-            <RowKV label="Category" value={ticket.category} />
-            <RowKV label="Sub-category" value={ticket.sub_category} />
-            <RowKV label="Opened" value={ticket.opened} />
-            <RowKV label="Reported By" value={ticket.reported_by} />
-            <RowKV label="Contact Info" value={ticket.contact_info} />
-            <RowKV label="Priority" value={ticket.priority} />
-            <RowKV label="Location" value={ticket.location} />
-            <RowKV label="Impacted" value={ticket.impacted} />
-            <RowKV label="Description" value={ticket.description} />
-            <RowKV label="Detected By" value={ticket.detectedBy} />
-            <RowKV label="Time Detected" value={ticket.time_detected} />
-            <RowKV label="Root Cause" value={ticket.root_cause} />
-            <RowKV label="Actions Taken" value={ticket.actions_taken} />
-            <RowKV label="Status" value={ticket.status} />
-            <RowKV label="Assigned To" value={parseAssigned(ticket.assigned_to).join(", ")} />
-            <RowKV label="Resolution Summary" value={ticket.resolution_summary} />
-            <RowKV label="Resolution Time" value={ticket.resolution_time} />
-            <RowKV label="Duration" value={ticket.duration} />
-            <RowKV label="Post Review" value={ticket.post_review} />
-            <RowKV label="Attachments" value={ticket.attachments} />
-            <RowKV label="Escalation History" value={ticket.escalation_history} />
-            <RowKV label="Closed" value={ticket.closed} />
-            <RowKV label="SLA Breach" value={ticket.sla_breach} />
-          </Stack>
+          <Box sx={{ position: "relative" }}>
+            <Stack spacing={1}>
+              <RowKV label="Category" value={ticket.category} />
+              <RowKV label="Sub-category" value={ticket.sub_category} />
+              <RowKV label="Opened" value={ticket.opened} />
+              <RowKV label="Reported By" value={ticket.reported_by} />
+              <RowKV label="Contact Info" value={ticket.contact_info} />
+              <RowKV label="Priority" value={ticket.priority} />
+              <RowKV label="Location" value={ticket.location} />
+              <RowKV label="Impacted" value={ticket.impacted} />
+              <RowKV label="Description" value={ticket.description} />
+              <RowKV label="Detected By" value={ticket.detectedBy} />
+              <RowKV label="Time Detected" value={ticket.time_detected} />
+              <RowKV label="Root Cause" value={ticket.root_cause} />
+              <RowKV label="Actions Taken" value={ticket.actions_taken} />
+              <RowKV
+                label="Assigned To"
+                value={parseAssigned(ticket.assigned_to).join(", ")}
+              />
+              <RowKV label="Resolution Summary" value={ticket.resolution_summary} />
+              <RowKV label="Resolution Time" value={ticket.resolution_time} />
+              <RowKV label="Duration" value={ticket.duration} />
+              <RowKV label="Post Review" value={ticket.post_review} />
+              <RowKV label="Attachments" value={ticket.attachments} />
+              <RowKV label="Escalation History" value={ticket.escalation_history} />
+              <RowKV label="Closed" value={ticket.closed} />
+              <RowKV label="SLA Breach" value={ticket.sla_breach} />
+            </Stack>
+
+            {/* edit button, positioned bottom-right of the expanded panel */}
+            <Button
+              size="small"
+              variant="contained"
+              sx={{ position: "absolute", right: 12, bottom: 12 }}
+              onClick={() => onEdit && onEdit(ticket)}
+            >
+              Edit
+            </Button>
+          </Box>
         </Paper>
       </Collapse>
     </Paper>
@@ -289,6 +329,7 @@ function TicketRow({ ticket, index, theme }) {
 
 /* ---------- main TicketsPage component ---------- */
 export default function TicketsPage() {
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [search, setSearch] = useState("");
   const [priority, setPriority] = useState("");
@@ -297,6 +338,40 @@ export default function TicketsPage() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [theme, setTheme] = useState(() => localStorage.getItem("tc_theme") || "light");
+
+  // snackbar state for minor UX polish
+  const [snack, setSnack] = useState({ open: false, message: "", severity: "info" });
+
+  // update ticket status (receives the ticket object now)
+  const handleStatusChange = async (ticket, newStatus) => {
+    if (!ticket) return;
+    const identifier = ticket.id ?? ticket.ticket_id ?? ticket.id;
+    // optimistic update
+    const prevTickets = tickets;
+    setTickets((prev) =>
+      prev.map((t) => (t.ticket_id === ticket.ticket_id ? { ...t, status: newStatus } : t))
+    );
+
+    try {
+      // try both likely endpoints: if your API expects DB id, use identifier
+      await axios.put(`http://192.168.0.3:8000/api/tickets/${identifier}`, {
+        status: newStatus,
+      });
+
+      // success feedback
+      setSnack({ open: true, message: "Status updated", severity: "success" });
+    } catch (err) {
+      console.error("Failed to update status", err);
+      // rollback
+      setTickets(prevTickets);
+      setSnack({ open: true, message: "Failed to update status. Try again.", severity: "error" });
+    }
+  };
+
+  // navigate to edit form
+  const handleEdit = (ticket) => {
+    navigate("/frontend", { state: { ticketToEdit: ticket } });
+  };
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -363,16 +438,16 @@ export default function TicketsPage() {
         sx={{ mb: 2 }}
       >
         <Stack direction="row" spacing={2} alignItems="center">
-         <img 
-  src={KasiLogo} 
-  alt="Kasi" 
-  style={{ 
-    height: '80px', 
-    width: 'auto', 
-    maxWidth: '100%', 
-    objectFit: 'contain' 
-  }} 
-/>
+          <img
+            src={KasiLogo}
+            alt="Kasi"
+            style={{
+              height: "80px",
+              width: "auto",
+              maxWidth: "100%",
+              objectFit: "contain",
+            }}
+          />
           <Box>
             <Typography variant="h6">Kasi Cloud Data Centers</Typography>
             <Typography variant="body2" color="text.secondary">
@@ -529,10 +604,33 @@ export default function TicketsPage() {
           <Typography variant="body1">No tickets found.</Typography>
         ) : (
           filtered.map((t, idx) => (
-            <TicketRow key={t.ticket_id || `${idx}`} ticket={t} index={idx} theme={theme} />
+            <TicketRow
+              key={t.ticket_id || idx}
+              ticket={t}
+              index={idx}
+              theme={theme}
+              onStatusChange={handleStatusChange}
+              onEdit={handleEdit}
+            />
           ))
         )}
       </Box>
+
+      {/* Snackbar for success/error messages */}
+      <Snackbar
+        open={snack.open}
+        autoHideDuration={3500}
+        onClose={() => setSnack((s) => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setSnack((s) => ({ ...s, open: false }))}
+          severity={snack.severity}
+          sx={{ width: "100%" }}
+        >
+          {snack.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
