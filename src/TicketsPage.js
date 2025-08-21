@@ -107,8 +107,10 @@ function TicketRow({ ticket, index, theme }) {
     h.style.gap = "12px";
     const img = document.createElement("img");
     img.src = KasiLogo;
-    img.style.height = "40px";
-    img.style.objectFit = "contain";
+    img.style.height = "40px";       // keeps the logo height consistent
+    img.style.width = "auto";        // maintain aspect ratio
+    img.style.objectFit = "contain"; // ensures the full logo fits
+    img.style.display = "block";     // remove any extra inline spacing
     const title = document.createElement("div");
     title.innerText = `Ticket ${ticket.ticket_id}`;
     title.style.fontSize = "18px";
