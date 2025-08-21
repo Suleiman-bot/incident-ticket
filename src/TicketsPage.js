@@ -2,13 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import axios from 'axios';
-import { Box, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Grid } from '@mui/material';
+import { Box, TextField, Chip, Tooltip } from '@mui/material';
 
 export default function TicketsPage() {
   const [tickets, setTickets] = useState([]);
   const [filteredTickets, setFilteredTickets] = useState([]);
   const [search, setSearch] = useState('');
-  const [selectedTicket, setSelectedTicket] = useState(null); // Modal state
 
   useEffect(() => {
     axios.get('http://192.168.0.3:8000/api/tickets')
@@ -31,25 +30,76 @@ export default function TicketsPage() {
     );
   }, [search, tickets]);
 
+  const priorityColor = (priority) => {
+    switch(priority?.toLowerCase()) {
+      case 'high': return 'error';
+      case 'medium': return 'warning';
+      case 'low': return 'success';
+      default: return 'default';
+    }
+  };
+
+  const statusColor = (status) => {
+    switch(status?.toLowerCase()) {
+      case 'open': return 'primary';
+      case 'in progress': return 'info';
+      case 'closed': return 'success';
+      case 'pending': return 'warning';
+      default: return 'default';
+    }
+  };
+
   const columns = [
     { field: 'ticket_id', headerName: 'Ticket ID', width: 150 },
     { field: 'category', headerName: 'Category', width: 120 },
     { field: 'sub_category', headerName: 'Sub-Category', width: 120 },
     { field: 'opened', headerName: 'Opened', width: 100 },
     { field: 'reported_by', headerName: 'Reported By', width: 130 },
-    { field: 'status', headerName: 'Status', width: 120 },
-    { field: 'priority', headerName: 'Priority', width: 100 },
+    { field: 'contact_info', headerName: 'Contact Info', width: 150 },
+    { 
+      field: 'priority', 
+      headerName: 'Priority', 
+      width: 120,
+      renderCell: (params) => (
+        <Chip label={params.value} color={priorityColor(params.value)} size="small" />
+      )
+    },
+    { field: 'location', headerName: 'Location', width: 120 },
+    { field: 'impacted', headerName: 'Impacted', width: 150 },
+    { 
+      field: 'description', 
+      headerName: 'Description', 
+      width: 200,
+      renderCell: (params) => (
+        <Tooltip title={params.value || ''}>
+          <span>{params.value}</span>
+        </Tooltip>
+      )
+    },
+    { field: 'detectedBy', headerName: 'Detected By', width: 130 },
+    { field: 'time_detected', headerName: 'Time Detected', width: 150 },
+    { field: 'root_cause', headerName: 'Root Cause', width: 150 },
+    { field: 'actions_taken', headerName: 'Actions Taken', width: 150 },
+    { 
+      field: 'status', 
+      headerName: 'Status', 
+      width: 120,
+      renderCell: (params) => (
+        <Chip label={params.value} color={statusColor(params.value)} size="small" />
+      )
+    },
     { field: 'assigned_to', headerName: 'Assigned To', width: 150 },
+    { field: 'resolution_summary', headerName: 'Resolution Summary', width: 200 },
+    { field: 'resolution_time', headerName: 'Resolution Time', width: 150 },
+    { field: 'duration', headerName: 'Duration', width: 100 },
+    { field: 'post_review', headerName: 'Post Review', width: 120 },
+    { field: 'attachments', headerName: 'Attachments', width: 200 },
+    { field: 'escalation_history', headerName: 'Escalation History', width: 200 },
+    { field: 'closed', headerName: 'Closed', width: 100 },
+    { field: 'sla_breach', headerName: 'SLA Breach', width: 100 },
   ];
 
   const rows = filteredTickets.map(t => ({ id: t.ticket_id, ...t }));
-
-  // Handle row click
-  const handleRowClick = (params) => {
-    setSelectedTicket(params.row);
-  };
-
-  const handleClose = () => setSelectedTicket(null);
 
   return (
     <Box sx={{ height: '80vh', width: '100%', padding: 2 }}>
@@ -61,7 +111,6 @@ export default function TicketsPage() {
         value={search}
         onChange={e => setSearch(e.target.value)}
       />
-
       <DataGrid
         rows={rows}
         columns={columns}
@@ -69,28 +118,7 @@ export default function TicketsPage() {
         rowsPerPageOptions={[10, 25, 50]}
         disableSelectionOnClick
         autoHeight
-        onRowClick={handleRowClick} // Row click opens modal
       />
-
-      {/* Modal for ticket details */}
-      <Dialog open={!!selectedTicket} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogTitle>Ticket Details</DialogTitle>
-        <DialogContent dividers>
-          {selectedTicket && (
-            <Grid container spacing={2}>
-              {Object.entries(selectedTicket).map(([key, value]) => (
-                <Grid item xs={12} sm={6} key={key}>
-                  <Typography variant="subtitle2" color="textSecondary">{key.replace('_', ' ').toUpperCase()}</Typography>
-                  <Typography variant="body1">{String(value)}</Typography>
-                </Grid>
-              ))}
-            </Grid>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} variant="contained">Close</Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 }
