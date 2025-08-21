@@ -32,7 +32,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 // import the logo with space in filename as requested
-import KasiLogo from "./Kasi Logo.jpeg";
+import KasiLogo from "./KasiLogo.jpeg";
 
 /* ---------- engineer options (from your form) ---------- */
 const assignedEngineerOptions = [
