@@ -509,7 +509,7 @@ export default function TicketsPage() {
 {/* FILTER BAR */}
 <Paper sx={{ p: 2, mb: 2 }}>
   <Grid container spacing={2} alignItems="center">
-    <Grid item xs={12} sm={6} md={3}>
+    <Grid item xs={12} sm={6} md>
       <TextField
         fullWidth
         label="Search (free text)"
@@ -519,8 +519,8 @@ export default function TicketsPage() {
       />
     </Grid>
 
-    <Grid item xs={12} sm={6} md={2}>
-      <FormControl fullWidth size="small">
+    <Grid item xs={12} sm={6} md>
+      <FormControl fullWidth size="small" sx={{ minWidth: 160 }}>
         <InputLabel>Priority</InputLabel>
         <Select value={priority} label="Priority" onChange={(e) => setPriority(e.target.value)}>
           {priorityOptions.map((p) => (
@@ -532,8 +532,8 @@ export default function TicketsPage() {
       </FormControl>
     </Grid>
 
-    <Grid item xs={12} sm={6} md={2}>
-      <FormControl fullWidth size="small">
+    <Grid item xs={12} sm={6} md>
+      <FormControl fullWidth size="small" sx={{ minWidth: 160 }}>
         <InputLabel>Status</InputLabel>
         <Select value={status} label="Status" onChange={(e) => setStatus(e.target.value)}>
           {statusOptions.map((s) => (
@@ -545,7 +545,7 @@ export default function TicketsPage() {
       </FormControl>
     </Grid>
 
-    <Grid item xs={12} sm={6} md={3}>
+    <Grid item xs={12} sm={6} md>
       <ReactSelect
         isMulti
         options={engineerOptions}
@@ -555,8 +555,8 @@ export default function TicketsPage() {
       />
     </Grid>
 
-    <Grid item xs={12} sm={6} md={2}>
-      <FormControl fullWidth size="small">
+    <Grid item xs={12} sm={6} md>
+      <FormControl fullWidth size="small" sx={{ minWidth: 160 }}>
         <InputLabel>Sort by Date</InputLabel>
         <Select
           value={sortOrder}
@@ -569,7 +569,7 @@ export default function TicketsPage() {
       </FormControl>
     </Grid>
 
-    <Grid item xs={12} sm={6} md={2}>
+    <Grid item xs={12} sm={6} md>
       <TextField
         fullWidth
         label="Start date"
@@ -581,7 +581,7 @@ export default function TicketsPage() {
       />
     </Grid>
 
-    <Grid item xs={12} sm={6} md={2}>
+    <Grid item xs={12} sm={6} md>
       <TextField
         fullWidth
         label="End date"
@@ -663,7 +663,6 @@ export default function TicketsPage() {
     </Grid>
   </Grid>
 </Paper>
-
 
       {/* LIST */}
       <Box>
