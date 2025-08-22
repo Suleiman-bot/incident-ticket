@@ -505,145 +505,164 @@ export default function TicketsPage() {
         </Stack>
       </Stack>
 
-      {/* FILTER BAR */}
-      <Paper sx={{ p: 2, mb: 2 }}>
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2} alignItems="center">
-          <TextField
-            label="Search (free text)"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            size="small"
-            sx={{ minWidth: 220 }}
-          />
+{/* FILTER BAR */}
+<Paper sx={{ p: 2, mb: 2 }}>
+  <Grid container spacing={2} alignItems="center">
+    <Grid item xs={12} sm={6} md={3}>
+      <TextField
+        fullWidth
+        label="Search (free text)"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        size="small"
+      />
+    </Grid>
 
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Priority</InputLabel>
-            <Select value={priority} label="Priority" onChange={(e) => setPriority(e.target.value)}>
-              {priorityOptions.map((p) => (
-                <MenuItem key={p.value} value={p.value}>
-                  {p.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+    <Grid item xs={12} sm={6} md={2}>
+      <FormControl fullWidth size="small">
+        <InputLabel>Priority</InputLabel>
+        <Select value={priority} label="Priority" onChange={(e) => setPriority(e.target.value)}>
+          {priorityOptions.map((p) => (
+            <MenuItem key={p.value} value={p.value}>
+              {p.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </Grid>
 
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel>Status</InputLabel>
-            <Select value={status} label="Status" onChange={(e) => setStatus(e.target.value)}>
-              {statusOptions.map((s) => (
-                <MenuItem key={s.value} value={s.value}>
-                  {s.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+    <Grid item xs={12} sm={6} md={2}>
+      <FormControl fullWidth size="small">
+        <InputLabel>Status</InputLabel>
+        <Select value={status} label="Status" onChange={(e) => setStatus(e.target.value)}>
+          {statusOptions.map((s) => (
+            <MenuItem key={s.value} value={s.value}>
+              {s.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </Grid>
 
-          <Box sx={{ minWidth: 260 }}>
-            <ReactSelect
-              isMulti
-              options={engineerOptions}
-              value={engineers}
-              onChange={(val) => setEngineers(val || [])}
-              placeholder="Filter by engineers..."
-            />
-          </Box>
-       {/* ===== INSERT SORT BY DATE HERE ===== */}
-<FormControl size="small" sx={{ minWidth: 180 }}>
-  <InputLabel>Sort by Date</InputLabel>
-  <Select
-    value={sortOrder}
-    label="Sort by Date"
-    onChange={(e) => setSortOrder(e.target.value)}
-  >
-    <MenuItem value="latest">Latest → Oldest</MenuItem>
-    <MenuItem value="oldest">Oldest → Latest</MenuItem>
-  </Select>
-</FormControl>
-          <TextField
-            label="Start date"
-            type="date"
-            size="small"
-            InputLabelProps={{ shrink: true }}
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-          <TextField
-            label="End date"
-            type="date"
-            size="small"
-            InputLabelProps={{ shrink: true }}
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
+    <Grid item xs={12} sm={6} md={3}>
+      <ReactSelect
+        isMulti
+        options={engineerOptions}
+        value={engineers}
+        onChange={(val) => setEngineers(val || [])}
+        placeholder="Filter by engineers..."
+      />
+    </Grid>
 
-          <Stack direction="row" spacing={1} sx={{ ml: "auto" }}>
-            <Button
-              variant="outlined"
-              onClick={() => {
-                setSearch("");
-                setPriority("");
-                setStatus("");
-                setEngineers([]);
-                setStartDate("");
-                setEndDate("");
-              }}
-            >
-              Clear
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => {
-                // quick export visible tickets as CSV
-                const rows = filtered.map((t) => ({
-                  ticket_id: t.ticket_id,
-                  category: t.category,
-                  sub_category: t.sub_category,
-                  opened: t.opened,
-                  reported_by: t.reported_by,
-                  contact_info: t.contact_info,
-                  priority: t.priority,
-                  location: t.location,
-                  impacted: t.impacted,
-                  description: t.description,
-                  detectedBy: t.detectedBy,
-                  time_detected: t.time_detected,
-                  root_cause: t.root_cause,
-                  actions_taken: t.actions_taken,
-                  status: t.status,
-                  assigned_to: t.assigned_to,
-                  resolution_summary: t.resolution_summary,
-                  resolution_time: t.resolution_time,
-                  duration: t.duration,
-                  post_review: t.post_review,
-                  attachments: t.attachments,
-                  escalation_history: t.escalation_history,
-                  closed: t.closed,
-                  sla_breach: t.sla_breach,
-                }));
-                const csvContent =
-                  "data:text/csv;charset=utf-8," +
-                  [
-                    Object.keys(rows[0] || {}).join(","),
-                    ...rows.map((r) =>
-                      Object.values(r)
-                        .map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`)
-                        .join(",")
-                    ),
-                  ].join("\n");
-                const encoded = encodeURI(csvContent);
-                const link = document.createElement("a");
-                link.setAttribute("href", encoded);
-                link.setAttribute("download", `tickets_export_${new Date().toISOString()}.csv`);
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-              }}
-            >
-              Export CSV
-            </Button>
-          </Stack>
-        </Stack>
-      </Paper>
+    <Grid item xs={12} sm={6} md={2}>
+      <FormControl fullWidth size="small">
+        <InputLabel>Sort by Date</InputLabel>
+        <Select
+          value={sortOrder}
+          label="Sort by Date"
+          onChange={(e) => setSortOrder(e.target.value)}
+        >
+          <MenuItem value="latest">Latest → Oldest</MenuItem>
+          <MenuItem value="oldest">Oldest → Latest</MenuItem>
+        </Select>
+      </FormControl>
+    </Grid>
+
+    <Grid item xs={12} sm={6} md={2}>
+      <TextField
+        fullWidth
+        label="Start date"
+        type="date"
+        size="small"
+        InputLabelProps={{ shrink: true }}
+        value={startDate}
+        onChange={(e) => setStartDate(e.target.value)}
+      />
+    </Grid>
+
+    <Grid item xs={12} sm={6} md={2}>
+      <TextField
+        fullWidth
+        label="End date"
+        type="date"
+        size="small"
+        InputLabelProps={{ shrink: true }}
+        value={endDate}
+        onChange={(e) => setEndDate(e.target.value)}
+      />
+    </Grid>
+
+    {/* Clear & Export Buttons */}
+    <Grid item xs={12} md="auto" sx={{ ml: "auto" }}>
+      <Stack direction="row" spacing={1}>
+        <Button
+          variant="outlined"
+          onClick={() => {
+            setSearch("");
+            setPriority("");
+            setStatus("");
+            setEngineers([]);
+            setStartDate("");
+            setEndDate("");
+          }}
+        >
+          Clear
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => {
+            const rows = filtered.map((t) => ({
+              ticket_id: t.ticket_id,
+              category: t.category,
+              sub_category: t.sub_category,
+              opened: t.opened,
+              reported_by: t.reported_by,
+              contact_info: t.contact_info,
+              priority: t.priority,
+              location: t.location,
+              impacted: t.impacted,
+              description: t.description,
+              detectedBy: t.detectedBy,
+              time_detected: t.time_detected,
+              root_cause: t.root_cause,
+              actions_taken: t.actions_taken,
+              status: t.status,
+              assigned_to: t.assigned_to,
+              resolution_summary: t.resolution_summary,
+              resolution_time: t.resolution_time,
+              duration: t.duration,
+              post_review: t.post_review,
+              attachments: t.attachments,
+              escalation_history: t.escalation_history,
+              closed: t.closed,
+              sla_breach: t.sla_breach,
+            }));
+            const csvContent =
+              "data:text/csv;charset=utf-8," +
+              [
+                Object.keys(rows[0] || {}).join(","),
+                ...rows.map((r) =>
+                  Object.values(r)
+                    .map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`)
+                    .join(",")
+                ),
+              ].join("\n");
+            const encoded = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encoded);
+            link.setAttribute("download", `tickets_export_${new Date().toISOString()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+          }}
+        >
+          Export CSV
+        </Button>
+      </Stack>
+    </Grid>
+  </Grid>
+</Paper>
+
 
       {/* LIST */}
       <Box>
