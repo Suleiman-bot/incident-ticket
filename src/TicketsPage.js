@@ -362,6 +362,7 @@ export default function TicketsPage() {
   const [priority, setPriority] = useState("");
   const [status, setStatus] = useState("");
   const [engineers, setEngineers] = useState([]); // array of values
+  const [sortOrder, setSortOrder] = useState("latest"); // "latest" or "oldest"
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [theme, setTheme] = useState(() => localStorage.getItem("tc_theme") || "light");
@@ -454,6 +455,14 @@ export default function TicketsPage() {
       return true;
     });
   }, [tickets, search, priority, status, engineers, startDate, endDate]);
+  const sortedTickets = useMemo(() => {
+  return [...filtered].sort((a, b) => {
+    const timeA = new Date(a.opened).getTime();
+    const timeB = new Date(b.opened).getTime();
+    return sortOrder === "latest" ? timeB - timeA : timeA - timeB;
+  });
+}, [filtered, sortOrder]);
+
 
   return (
     <Box sx={{ p: 2, width: "100%" }}>
@@ -538,7 +547,18 @@ export default function TicketsPage() {
               placeholder="Filter by engineers..."
             />
           </Box>
-
+       {/* ===== INSERT SORT BY DATE HERE ===== */}
+<FormControl size="small" sx={{ minWidth: 180 }}>
+  <InputLabel>Sort by Date</InputLabel>
+  <Select
+    value={sortOrder}
+    label="Sort by Date"
+    onChange={(e) => setSortOrder(e.target.value)}
+  >
+    <MenuItem value="latest">Latest → Oldest</MenuItem>
+    <MenuItem value="oldest">Oldest → Latest</MenuItem>
+  </Select>
+</FormControl>
           <TextField
             label="Start date"
             type="date"
@@ -627,20 +647,21 @@ export default function TicketsPage() {
 
       {/* LIST */}
       <Box>
-        {filtered.length === 0 ? (
-          <Typography variant="body1">No tickets found.</Typography>
-        ) : (
-          filtered.map((t, idx) => (
-            <TicketRow
-              key={t.ticket_id || idx}
-              ticket={t}
-              index={idx}
-              theme={theme}
-              onStatusChange={handleStatusChange}
-              onEdit={handleEdit}
-            />
-          ))
-        )}
+       {sortedTickets.length === 0 ? (
+  <Typography variant="body1">No tickets found.</Typography>
+) : (
+  sortedTickets.map((t, idx) => (
+    <TicketRow
+      key={t.ticket_id || idx}
+      ticket={t}
+      index={idx}
+      theme={theme}
+      onStatusChange={handleStatusChange}
+      onEdit={handleEdit}
+    />
+  ))
+)}
+        
       </Box>
 
       {/* Snackbar for success/error messages */}
