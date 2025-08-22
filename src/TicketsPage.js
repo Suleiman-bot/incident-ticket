@@ -608,6 +608,7 @@ export default function TicketsPage() {
           }}
         >
           Clear
+        </Button>
 <Button
   variant="contained"
   onClick={() => {
