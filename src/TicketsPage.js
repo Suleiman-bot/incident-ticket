@@ -305,7 +305,30 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
               <RowKV label="Resolution Time" value={ticket.resolution_time} />
               <RowKV label="Duration" value={ticket.duration} />
               <RowKV label="Post Review" value={ticket.post_review} />
-              <RowKV label="Attachments" value={ticket.attachments} />
+              <RowKV
+  label="Attachments"
+  value={
+    ticket.attachments
+      ? ticket.attachments.split(';').map((file, idx) => {
+          const url = `http://192.168.0.3:8000${file}`;
+          const name = file.split('/').pop();
+          return (
+            <Button
+              key={idx}
+              component="a"
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ mr: 1 }}
+            >
+              {name}
+            </Button>
+          );
+        })
+      : "No attachments"
+  }
+/>
+
               <RowKV label="Escalation History" value={ticket.escalation_history} />
               <RowKV label="Closed" value={ticket.closed} />
               <RowKV label="SLA Breach" value={ticket.sla_breach} />
