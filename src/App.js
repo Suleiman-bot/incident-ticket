@@ -181,12 +181,10 @@ function App() {
         closed: isoToLocalDatetime(t.closed) || (t.closed ?? ''),
         sla_breach: Boolean(t.sla_breach),
       });
-    } else {
-      // only run generation when creating new ticket
-      const dateStr = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
-      const randomNum = Math.floor(1000 + Math.random() * 9000);
-      setForm(f => ({ ...f, ticket_id: `INC-${dateStr}-${randomNum}` }));
-    }
+} else {
+  // for new tickets, keep ticket_id empty; backend will generate
+  setForm(f => ({ ...f, ticket_id: '' }));
+}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditing]); // run when isEditing changes (i.e., page navigated with/without ticketToEdit)
 
@@ -297,7 +295,7 @@ function App() {
       const dateStr = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
       const randomNum = Math.floor(1000 + Math.random() * 9000);
       setForm({
-        ticket_id: `INC-${dateStr}-${randomNum}`,
+        ticket_id: '',
         category: null,
         sub_category: '',
         opened: '',
