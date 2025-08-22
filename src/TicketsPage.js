@@ -608,57 +608,59 @@ export default function TicketsPage() {
           }}
         >
           Clear
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => {
-            const rows = filtered.map((t) => ({
-              ticket_id: t.ticket_id,
-              category: t.category,
-              sub_category: t.sub_category,
-              opened: t.opened,
-              reported_by: t.reported_by,
-              contact_info: t.contact_info,
-              priority: t.priority,
-              location: t.location,
-              impacted: t.impacted,
-              description: t.description,
-              detectedBy: t.detectedBy,
-              time_detected: t.time_detected,
-              root_cause: t.root_cause,
-              actions_taken: t.actions_taken,
-              status: t.status,
-              assigned_to: t.assigned_to,
-              resolution_summary: t.resolution_summary,
-              resolution_time: t.resolution_time,
-              duration: t.duration,
-              post_review: t.post_review,
-              attachments: t.attachments,
-              escalation_history: t.escalation_history,
-              closed: t.closed,
-              sla_breach: t.sla_breach,
-            }));
-            const csvContent =
-              "data:text/csv;charset=utf-8," +
-              [
-                Object.keys(rows[0] || {}).join(","),
-                ...rows.map((r) =>
-                  Object.values(r)
-                    .map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`)
-                    .join(",")
-                ),
-              ].join("\n");
-            const encoded = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encoded);
-            link.setAttribute("download", `tickets_export_${new Date().toISOString()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-          }}
-        >
-          Export CSV
-        </Button>
+<Button
+  variant="contained"
+  onClick={() => {
+    const rows = tickets.map((t) => ({
+      ticket_id: t.ticket_id,
+      category: t.category,
+      sub_category: t.sub_category,
+      opened: t.opened,
+      reported_by: t.reported_by,
+      contact_info: t.contact_info,
+      priority: t.priority,
+      location: t.location,
+      impacted: t.impacted,
+      description: t.description,
+      detectedBy: t.detectedBy,
+      time_detected: t.time_detected,
+      root_cause: t.root_cause,
+      actions_taken: t.actions_taken,
+      status: t.status,
+      assigned_to: t.assigned_to,
+      resolution_summary: t.resolution_summary,
+      resolution_time: t.resolution_time,
+      duration: t.duration,
+      post_review: t.post_review,
+      attachments: t.attachments,
+      escalation_history: t.escalation_history,
+      closed: t.closed,
+      sla_breach: t.sla_breach,
+    }));
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        Object.keys(rows[0] || {}).join(","), // headers
+        ...rows.map((r) =>
+          Object.values(r)
+            .map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`)
+            .join(",")
+        ),
+      ].join("\n");
+
+    const encoded = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encoded);
+    link.setAttribute("download", `tickets_export_${new Date().toISOString()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }}
+>
+  Export CSV
+</Button>
+
       </Stack>
     </Grid>
   </Grid>
