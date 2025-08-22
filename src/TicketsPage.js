@@ -308,8 +308,13 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
               <RowKV
   label="Attachments"
   value={
-    ticket.attachments
-      ? ticket.attachments.split(';').map((file, idx) => {
+    ticket.attachments && ticket.attachments.length > 0
+      ? (
+          Array.isArray(ticket.attachments)
+            ? ticket.attachments
+            : String(ticket.attachments).split(';')
+        ).map((file, idx) => {
+          if (!file) return null; // skip empty entries
           const url = `http://192.168.0.3:8000${file}`;
           const name = file.split('/').pop();
           return (
@@ -328,7 +333,6 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
       : "No attachments"
   }
 />
-
               <RowKV label="Escalation History" value={ticket.escalation_history} />
               <RowKV label="Closed" value={ticket.closed} />
               <RowKV label="SLA Breach" value={ticket.sla_breach} />
