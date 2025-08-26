@@ -657,7 +657,7 @@ export default function TicketsPage() {
       reported_by: t.reported_by,
       contact_info: t.contact_info,
       priority: t.priority,
-      building: typeof t.building === "object" ? t.building.value : t.building,   // 👈 add this
+      building: typeof t.building === "object" ? t.building.value : t.building,
       location: t.location,
       impacted: t.impacted,
       description: t.description,
