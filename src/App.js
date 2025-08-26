@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Container, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import Select from 'react-select';
@@ -52,14 +53,6 @@ const priorityOptions = [
   { value: "P2", label: "P2 - High" },
   { value: "P3", label: "P3 - Medium" },
   { value: "P4", label: "P4 - Low" },
-];
-
-const buildingOptions = [
-  { value: "LOS1", label: "LOS1" },
-  { value: "LOS2", label: "LOS2" },
-  { value: "LOS3", label: "LOS3" },
-  { value: "LOS4", label: "LOS4" },
-  { value: "LOS5", label: "LOS5" },
 ];
 
 const detectedByOptions = [
@@ -129,7 +122,6 @@ function App() {
     reported_by: '',
     contact_info: '',
     priority: null,
-    building: null,   // <--- add this
     location: '',
     impacted: '',
     description: '',
@@ -171,7 +163,6 @@ function App() {
         reported_by: t.reported_by ?? '',
         contact_info: t.contact_info ?? '',
         priority: t.priority ? toOption(t.priority) : null,
-        building: t.building ? toOption(t.building) : null,   // <-- ADD THIS
         location: t.location ?? '',
         impacted: t.impacted ?? '',
         description: t.description ?? '',
@@ -220,7 +211,6 @@ function App() {
   const handleStatusChange = (selected) => setForm(f => ({ ...f, status: selected }));
   const handleAssignedToChange = (selectedArray) => setForm(f => ({ ...f, assigned_to: selectedArray || [] }));
   const handleSubCategorySelectChange = (selected) => setForm(f => ({ ...f, sub_category: selected ? selected.value : '' }));
-  const handleBuildingChange = (selected) => setForm(f => ({ ...f, building: selected }));
 
   /* utility: convert datetime-local to ISO (returns empty string if not set) */
   const dtToISO = (value) => {
@@ -243,7 +233,6 @@ function App() {
     const output = { ...form };
     output.category = output.category?.value || '';
     output.priority = output.priority?.value || '';
-    output.building = output.building?.value || '';
     output.detectedBy = output.detectedBy?.value || '';
     output.status = output.status?.value || '';
     output.assigned_to = (output.assigned_to || []).map(a => a.value || a); // support either {value,label} or plain strings
@@ -314,7 +303,6 @@ function App() {
         reported_by: '',
         contact_info: '',
         priority: null,
-        building: null,   // <-- ADD HERE
         location: '',
         impacted: '',
         description: '',
@@ -441,20 +429,6 @@ function App() {
               isClearable
             />
           </Form.Group>
-
-                <Form.Group className="mb-3" controlId="building">
-  <Form.Label>Building</Form.Label>
-  <Select
-    classNamePrefix="rs"
-    options={buildingOptions}
-    value={form.building}
-    onChange={handleBuildingChange}
-    name="building"
-    placeholder="-- Select Building --"
-    isClearable
-  />
-</Form.Group>
-
 
           <Row>
             <Form.Group as={Col} md={6} className="mb-3" controlId="location">
