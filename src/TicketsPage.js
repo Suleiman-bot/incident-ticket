@@ -303,9 +303,12 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
               <RowKV label="Priority" value={ticket.priority} />
              <RowKV 
   label="Building" 
-  value={typeof ticket.building === "object" ? ticket.building.value : ticket.building} 
+  value={ticket.building ? (typeof ticket.building === "object" ? ticket.building.value : ticket.building) : ""} 
 />
-              <RowKV label="Location" value={ticket.location} />
+<RowKV 
+  label="Location" 
+  value={ticket.location ? ticket.location : ""} 
+/>
               <RowKV label="Impacted" value={ticket.impacted} />
               <RowKV label="Description" value={ticket.description} />
               <RowKV label="Detected By" value={ticket.detectedBy} />
@@ -657,7 +660,7 @@ export default function TicketsPage() {
       reported_by: t.reported_by,
       contact_info: t.contact_info,
       priority: t.priority,
-      building: typeof t.building === "object" ? t.building.value : t.building,
+      building: t.building ? (typeof t.building === "object" ? t.building.value : t.building) : "",
       location: t.location,
       impacted: t.impacted,
       description: t.description,
