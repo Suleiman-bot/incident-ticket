@@ -1,3 +1,4 @@
+
 // src/TicketsPage.js
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -63,15 +64,6 @@ const statusOptions = [
   { value: "In Progress", label: "In Progress" },
   { value: "Resolved", label: "Resolved" },
   { value: "Closed", label: "Closed" },
-];
-
-const buildingOptions = [
-  { value: "", label: "All Buildings" },
-  { value: "LOS1", label: "LOS1" },
-  { value: "LOS2", label: "LOS2" },
-  { value: "LOS3", label: "LOS3" },
-  { value: "LOS4", label: "LOS4" },
-  { value: "LOS5", label: "LOS5" },
 ];
 
 /* helper to parse assigned_to field (CSV stores semicolon-separated) */
@@ -145,7 +137,6 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
       "reported_by",
       "contact_info",
       "priority",
-      "building", 
       "location",
       "impacted",
       "description",
@@ -301,14 +292,7 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
               <RowKV label="Reported By" value={ticket.reported_by} />
               <RowKV label="Contact Info" value={ticket.contact_info} />
               <RowKV label="Priority" value={ticket.priority} />
-             <RowKV 
-  label="Building" 
-  value={ticket.building ? (typeof ticket.building === "object" ? ticket.building.value : ticket.building) : ""} 
-/>
-<RowKV 
-  label="Location" 
-  value={ticket.location ? ticket.location : ""} 
-/>
+              <RowKV label="Location" value={ticket.location} />
               <RowKV label="Impacted" value={ticket.impacted} />
               <RowKV label="Description" value={ticket.description} />
               <RowKV label="Detected By" value={ticket.detectedBy} />
@@ -379,7 +363,6 @@ export default function TicketsPage() {
   const [search, setSearch] = useState("");
   const [priority, setPriority] = useState("");
   const [status, setStatus] = useState("");
-  const [filterBuilding, setFilterBuilding] = useState("");
   const [engineers, setEngineers] = useState([]); // array of values
   const [sortOrder, setSortOrder] = useState("latest"); // "latest" or "oldest"
   const [startDate, setStartDate] = useState("");
@@ -471,12 +454,9 @@ export default function TicketsPage() {
         if (!d || d > new Date(endDate + "T23:59:59")) return false;
       }
 
-// --- NEW: filter by building if selected
-      if (filterBuilding && (t.building || "") !== filterBuilding) return false;
- 
       return true;
     });
-  }, [tickets, search, priority, status, engineers, startDate, endDate, filterBuilding]);
+  }, [tickets, search, priority, status, engineers, startDate, endDate]);
   const sortedTickets = useMemo(() => {
   return [...filtered].sort((a, b) => {
     const timeA = new Date(a.opened).getTime();
@@ -566,24 +546,6 @@ export default function TicketsPage() {
       </FormControl>
     </Grid>
 
-<Grid item xs={12} sm={6} md>
-  <FormControl fullWidth size="small" sx={{ minWidth: 160 }}>
-    <InputLabel>Building</InputLabel>
-    <Select
-      value={filterBuilding}
-      label="Building"
-      onChange={(e) => setFilterBuilding(e.target.value)}
-    >
-      {buildingOptions.map((b) => (
-        <MenuItem key={b.value} value={b.value}>
-          {b.label}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-</Grid>
-
-            
     <Grid item xs={12} sm={6} md>
       <ReactSelect
         isMulti
@@ -641,7 +603,6 @@ export default function TicketsPage() {
             setSearch("");
             setPriority("");
             setStatus("");
-            setFilterBuilding("");   // <--- reset building filter
             setEngineers([]);
             setStartDate("");
             setEndDate("");
@@ -660,7 +621,6 @@ export default function TicketsPage() {
       reported_by: t.reported_by,
       contact_info: t.contact_info,
       priority: t.priority,
-      building: t.building ? (typeof t.building === "object" ? t.building.value : t.building) : "",
       location: t.location,
       impacted: t.impacted,
       description: t.description,
