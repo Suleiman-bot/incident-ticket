@@ -298,7 +298,7 @@ function App() {
       // success (assume backend returns created/updated ticket object)
       const data = res?.data || {};
       const createdId = data.ticket_id || data.id || data.ticketId || '(unknown)';
-      setStatusMsg({ type: 'success', text: isEditing ? `Ticket updated successfully! ID: ${createdId}` : `Ticket submitted successfully! Ticket ID: ${createdId}` });
+      setStatusMsg({ type: 'success', text: isEditing ? `Ticket updated successfully!` : `Ticket submitted successfully!` });
 
       // if editing, navigate back to ticket list so changes are visible
       if (isEditing) {
