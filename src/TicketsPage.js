@@ -76,6 +76,20 @@ const parseAssigned = (raw) => {
     .filter(Boolean);
 };
 
+// Convert ISO or timestamp string to "YYYY-MM-DD HH:mm:ss.SSS"
+function formatDateTimeFrontend(dt) {
+  if (!dt) return "";
+  const d = new Date(dt);
+  if (isNaN(d)) return dt; // fallback if invalid date
+  const pad = (n, z = 2) => n.toString().padStart(z, "0");
+  return (
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
+    `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.` +
+    `${pad(d.getMilliseconds(), 3)}`
+  );
+}
+
+
 /* small reusable label-value row */
 function RowKV({ label, value }) {
   return (
@@ -268,7 +282,7 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
           </FormControl>
 
           <Typography variant="body2" color="text.secondary" sx={{ ml: "auto" }}>
-            {ticket.opened ? new Date(ticket.opened).toLocaleString() : ""}
+            {formatDateTimeFrontend(ticket.opened)}
           </Typography>
         </Box>
 
@@ -288,7 +302,7 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
             <Stack spacing={1}>
               <RowKV label="Category" value={ticket.category} />
               <RowKV label="Sub-category" value={ticket.sub_category} />
-              <RowKV label="Opened" value={ticket.opened} />
+              <RowKV label="Opened" value={formatDateTimeFrontend(ticket.opened)} />
               <RowKV label="Reported By" value={ticket.reported_by} />
               <RowKV label="Contact Info" value={ticket.contact_info} />
               <RowKV label="Priority" value={ticket.priority} />
@@ -297,7 +311,7 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
               <RowKV label="Impacted" value={ticket.impacted} />
               <RowKV label="Description" value={ticket.description} />
               <RowKV label="Detected By" value={ticket.detectedBy} />
-              <RowKV label="Time Detected" value={ticket.time_detected} />
+              <RowKV label="Time Detected" value={formatDateTimeFrontend(ticket.time_detected)} />
               <RowKV label="Root Cause" value={ticket.root_cause} />
               <RowKV label="Actions Taken" value={ticket.actions_taken} />
               <RowKV
@@ -305,7 +319,7 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
                 value={parseAssigned(ticket.assigned_to).join(", ")}
               />
               <RowKV label="Resolution Summary" value={ticket.resolution_summary} />
-              <RowKV label="Resolution Time" value={ticket.resolution_time} />
+              <RowKV label="Resolution Time" value={formatDateTimeFrontend(ticket.resolution_time)} />
               <RowKV label="Duration" value={ticket.duration} />
               <RowKV label="Post Review" value={ticket.post_review} />
               <RowKV
@@ -337,7 +351,7 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
                 }
               />
               <RowKV label="Escalation History" value={ticket.escalation_history} />
-              <RowKV label="Closed" value={ticket.closed} />
+              <RowKV label="Closed" value={formatDateTimeFrontend(ticket.closed)} />
               <RowKV label="SLA Breach" value={ticket.sla_breach} />
             </Stack>
 
