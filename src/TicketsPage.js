@@ -24,7 +24,6 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useTheme, ThemeProvider, createTheme } from "@mui/material/styles";
-import { fetchTickets, updateTicketStatus } from "./apiService";
 
 const parseAssigned = (assigned) => {
   if (!assigned) return [];
@@ -113,9 +112,7 @@ const TicketRow = ({ ticket, onStatusChange }) => {
         <FormControl size="small">
           <Select
             value={ticket.status}
-            onChange={(e) =>
-              onStatusChange(ticket.id, e.target.value)
-            }
+            onChange={(e) => onStatusChange(ticket.id, e.target.value)}
           >
             <MenuItem value="New">New</MenuItem>
             <MenuItem value="Open">Open</MenuItem>
@@ -154,6 +151,23 @@ const TicketsPage = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   const theme = useTheme();
+
+  // direct API calls instead of apiService
+  const fetchTickets = async () => {
+    const res = await fetch("/tickets");
+    if (!res.ok) throw new Error("Failed to fetch tickets");
+    return res.json();
+  };
+
+  const updateTicketStatus = async (ticketId, newStatus) => {
+    const res = await fetch(`/tickets/${ticketId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    if (!res.ok) throw new Error("Failed to update status");
+    return res.json();
+  };
 
   useEffect(() => {
     const loadTickets = async () => {
