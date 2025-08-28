@@ -279,7 +279,7 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
           </FormControl>
 
           <Typography variant="body2" color="text.secondary" sx={{ ml: "auto" }}>
-            {ticket.opened ? new Date(ticket.opened).toLocaleString() : ""}
+           {formatDateTimeFrontend(ticket.opened)}
           </Typography>
         </Box>
 
