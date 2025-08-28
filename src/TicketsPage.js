@@ -81,13 +81,10 @@ function formatDateTimeFrontend(dt) {
   if (!dt) return "";
   const d = new Date(dt);
   if (isNaN(d)) return dt; // fallback if invalid date
-  const pad = (n, z = 2) => n.toString().padStart(z, "0");
-  return (
-    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
-    `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.` +
-    `${pad(d.getMilliseconds(), 3)}`
-  );
+  const pad = (n) => n.toString().padStart(2, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
 
 
 /* small reusable label-value row */
