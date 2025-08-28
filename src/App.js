@@ -55,6 +55,14 @@ const priorityOptions = [
   { value: "P4", label: "P4 - Low" },
 ];
 
+const buildingOptions = [
+  { value: 'LOS1', label: 'LOS1' },
+  { value: 'LOS2', label: 'LOS2' },
+  { value: 'LOS3', label: 'LOS3' },
+  { value: 'LOS4', label: 'LOS4' },
+  { value: 'LOS5', label: 'LOS5' },
+];
+
 const detectedByOptions = [
   { value: "", label: "-- Select --" },
   { value: "Monitoring Tool", label: "Monitoring Tool" },
@@ -122,6 +130,7 @@ function App() {
     reported_by: '',
     contact_info: '',
     priority: null,
+    building: '', // <-- add this line somewhere near priority/location
     location: '',
     impacted: '',
     description: '',
@@ -163,6 +172,7 @@ function App() {
         reported_by: t.reported_by ?? '',
         contact_info: t.contact_info ?? '',
         priority: t.priority ? toOption(t.priority) : null,
+        building: t.building ?? '', // <-- add near priority/location
         location: t.location ?? '',
         impacted: t.impacted ?? '',
         description: t.description ?? '',
@@ -204,6 +214,9 @@ function App() {
   // react-select handlers
   const handleCategoryChange = (selected) => setForm(f => ({ ...f, category: selected, sub_category: '' }));
   const handlePriorityChange = (selected) => setForm(f => ({ ...f, priority: selected }));
+  const handleBuildingChange = (selected) => {
+  setForm(f => ({ ...f, building: selected ? selected.value : '' }));
+};
   const handleDetectedByChange = (selected) => {
     setForm(f => ({ ...f, detectedBy: selected }));
     if (!selected || selected.value !== 'Other') setForm(f => ({ ...f, detectedByOther: '' }));
@@ -233,6 +246,7 @@ function App() {
     const output = { ...form };
     output.category = output.category?.value || '';
     output.priority = output.priority?.value || '';
+    output.building = output.building || '';
     output.detectedBy = output.detectedBy?.value || '';
     output.status = output.status?.value || '';
     output.assigned_to = (output.assigned_to || []).map(a => a.value || a); // support either {value,label} or plain strings
@@ -303,6 +317,7 @@ function App() {
         reported_by: '',
         contact_info: '',
         priority: null,
+        building: null,
         location: '',
         impacted: '',
         description: '',
@@ -430,6 +445,20 @@ function App() {
             />
           </Form.Group>
 
+         <Form.Group as={Col} md={6} className="mb-3" controlId="building">
+  <Form.Label>Building</Form.Label>
+  <Select
+    classNamePrefix="rs"
+    options={buildingOptions}
+    value={form.building ? { value: form.building, label: form.building } : null}
+    onChange={handleBuildingChange}
+    name="building"
+    placeholder="-- Select Building --"
+    isClearable
+  />
+</Form.Group>
+
+              
           <Row>
             <Form.Group as={Col} md={6} className="mb-3" controlId="location">
               <Form.Label>Affected Location (Rack/Zone/Room)</Form.Label>
