@@ -1,4 +1,3 @@
-
 // src/TicketsPage.js
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -128,7 +127,7 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
     h.appendChild(title);
     container.appendChild(h);
 
-    // table-like content
+    // table-like content (include building)
     const fields = [
       "ticket_id",
       "category",
@@ -137,6 +136,7 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
       "reported_by",
       "contact_info",
       "priority",
+      "building",
       "location",
       "impacted",
       "description",
@@ -292,6 +292,7 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
               <RowKV label="Reported By" value={ticket.reported_by} />
               <RowKV label="Contact Info" value={ticket.contact_info} />
               <RowKV label="Priority" value={ticket.priority} />
+              <RowKV label="Building" value={ticket.building} />
               <RowKV label="Location" value={ticket.location} />
               <RowKV label="Impacted" value={ticket.impacted} />
               <RowKV label="Description" value={ticket.description} />
@@ -308,33 +309,33 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
               <RowKV label="Duration" value={ticket.duration} />
               <RowKV label="Post Review" value={ticket.post_review} />
               <RowKV
-  label="Attachments"
-  value={
-    ticket.attachments && ticket.attachments.length > 0
-      ? (
-          Array.isArray(ticket.attachments)
-            ? ticket.attachments
-            : String(ticket.attachments).split(';')
-        ).map((file, idx) => {
-          if (!file) return null; // skip empty entries
-          const url = `http://192.168.0.3:8000${file}`;
-          const name = file.split('/').pop();
-          return (
-            <Button
-              key={idx}
-              component="a"
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{ mr: 1 }}
-            >
-              {name}
-            </Button>
-          );
-        })
-      : "No attachments"
-  }
-/>
+                label="Attachments"
+                value={
+                  ticket.attachments && ticket.attachments.length > 0
+                    ? (
+                        Array.isArray(ticket.attachments)
+                          ? ticket.attachments
+                          : String(ticket.attachments).split(';')
+                      ).map((file, idx) => {
+                        if (!file) return null; // skip empty entries
+                        const url = `http://192.168.0.3:8000${file}`;
+                        const name = file.split('/').pop();
+                        return (
+                          <Button
+                            key={idx}
+                            component="a"
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{ mr: 1 }}
+                          >
+                            {name}
+                          </Button>
+                        );
+                      })
+                    : "No attachments"
+                }
+              />
               <RowKV label="Escalation History" value={ticket.escalation_history} />
               <RowKV label="Closed" value={ticket.closed} />
               <RowKV label="SLA Breach" value={ticket.sla_breach} />
@@ -364,6 +365,7 @@ export default function TicketsPage() {
   const [priority, setPriority] = useState("");
   const [status, setStatus] = useState("");
   const [engineers, setEngineers] = useState([]); // array of values
+  const [building, setBuilding] = useState(""); // <-- building filter state
   const [sortOrder, setSortOrder] = useState("latest"); // "latest" or "oldest"
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -436,6 +438,7 @@ export default function TicketsPage() {
 
       if (priority && (t.priority || "") !== priority) return false;
       if (status && (t.status || "") !== status) return false;
+      if (building && (t.building || "") !== building) return false;
 
       if (engineers && engineers.length > 0) {
         const wanted = engineers.map((e) => e.value || e);
@@ -456,14 +459,14 @@ export default function TicketsPage() {
 
       return true;
     });
-  }, [tickets, search, priority, status, engineers, startDate, endDate]);
+  }, [tickets, search, priority, status, engineers, startDate, endDate, building]);
   const sortedTickets = useMemo(() => {
-  return [...filtered].sort((a, b) => {
-    const timeA = new Date(a.opened).getTime();
-    const timeB = new Date(b.opened).getTime();
-    return sortOrder === "latest" ? timeB - timeA : timeA - timeB;
-  });
-}, [filtered, sortOrder]);
+    return [...filtered].sort((a, b) => {
+      const timeA = new Date(a.opened).getTime();
+      const timeB = new Date(b.opened).getTime();
+      return sortOrder === "latest" ? timeB - timeA : timeA - timeB;
+    });
+  }, [filtered, sortOrder]);
 
 
   return (
@@ -518,6 +521,21 @@ export default function TicketsPage() {
         onChange={(e) => setSearch(e.target.value)}
         size="small"
       />
+    </Grid>
+
+    {/* Building filter dropdown (LOS1..LOS5) */}
+    <Grid item xs={12} sm={6} md>
+      <FormControl fullWidth size="small" sx={{ minWidth: 160 }}>
+        <InputLabel>Building</InputLabel>
+        <Select value={building} label="Building" onChange={(e) => setBuilding(e.target.value)}>
+          <MenuItem value="">All Buildings</MenuItem>
+          <MenuItem value="LOS1">LOS1</MenuItem>
+          <MenuItem value="LOS2">LOS2</MenuItem>
+          <MenuItem value="LOS3">LOS3</MenuItem>
+          <MenuItem value="LOS4">LOS4</MenuItem>
+          <MenuItem value="LOS5">LOS5</MenuItem>
+        </Select>
+      </FormControl>
     </Grid>
 
     <Grid item xs={12} sm={6} md>
@@ -606,6 +624,7 @@ export default function TicketsPage() {
             setEngineers([]);
             setStartDate("");
             setEndDate("");
+            setBuilding("");
           }}
         >
           Clear
@@ -621,6 +640,7 @@ export default function TicketsPage() {
       reported_by: t.reported_by,
       contact_info: t.contact_info,
       priority: t.priority,
+      building: t.building,
       location: t.location,
       impacted: t.impacted,
       description: t.description,
