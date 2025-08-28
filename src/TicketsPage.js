@@ -180,10 +180,16 @@ function TicketRow({ ticket, index, theme, onStatusChange, onEdit }) {
       const v = document.createElement("div");
       v.style.flex = "1";
       let val = ticket[f];
-      if (f === "assigned_to") val = parseAssigned(val).join(", ");
-      row.appendChild(k);
-      row.appendChild(v);
-      v.innerText = val ?? "";
+if (f === "assigned_to") {
+  val = parseAssigned(val).join(", ");
+} else if (
+  ["opened", "time_detected", "resolution_time", "closed"].includes(f)
+) {
+  val = formatDateTimeFrontend(val);
+}
+row.appendChild(k);
+row.appendChild(v);
+v.innerText = val ?? "";
       container.appendChild(row);
     });
 
