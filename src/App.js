@@ -6,11 +6,11 @@ import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from
 import TicketsPage from './TicketsPage'; // adjust filename if needed
 
 const priorityOptions = [
-  { value: 'P0', label: 'P0' },
-  { value: 'P1', label: 'P1' },
-  { value: 'P2', label: 'P2' },
-  { value: 'P3', label: 'P3' },
-  { value: 'P4', label: 'P4' }
+  { value: "P0", label: "P0 - Catastrophic" },
+  { value: "P1", label: "P1 - Critical" },
+  { value: "P2", label: "P2 - High" },
+  { value: "P3", label: "P3 - Medium" },
+  { value: "P4", label: "P4 - Low" },
 ];
 
 const buildingOptions = [
