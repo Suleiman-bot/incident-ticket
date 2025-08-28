@@ -153,11 +153,12 @@ const TicketsPage = () => {
   const theme = useTheme();
 
   // direct API calls instead of apiService
-  const fetchTickets = async () => {
-    const res = await fetch("/tickets");
-    if (!res.ok) throw new Error("Failed to fetch tickets");
-    return res.json();
-  };
+const fetchTickets = async () => {
+  const res = await fetch("http://192.168.0.3:8000/api/tickets"); // same as old
+  if (!res.ok) throw new Error("Failed to fetch tickets");
+  return res.json();
+};
+
 
   const updateTicketStatus = async (ticketId, newStatus) => {
     const res = await fetch(`/tickets/${ticketId}`, {
@@ -184,21 +185,28 @@ const TicketsPage = () => {
   }, []);
 
   const handleStatusChange = async (ticketId, newStatus) => {
-    try {
-      setTickets((prev) =>
-        prev.map((t) => (t.id === ticketId ? { ...t, status: newStatus } : t))
-      );
-      await updateTicketStatus(ticketId, newStatus);
-      setSnackbar({ open: true, message: "Ticket status updated successfully!" });
-    } catch {
-      setTickets((prev) =>
-        prev.map((t) =>
-          t.id === ticketId ? { ...t, status: t.status } : t
-        )
-      );
-      setSnackbar({ open: true, message: "Failed to update status." });
-    }
-  };
+  try {
+    setTickets((prev) =>
+      prev.map((t) =>
+        t.ticket_id === ticketId ? { ...t, status: newStatus } : t
+      )
+    );
+    await fetch(`http://192.168.0.3:8000/api/tickets/${ticketId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    });
+    setSnackbar({ open: true, message: "Ticket status updated successfully!" });
+  } catch {
+    setTickets((prev) =>
+      prev.map((t) =>
+        t.ticket_id === ticketId ? { ...t, status: t.status } : t
+      )
+    );
+    setSnackbar({ open: true, message: "Failed to update status." });
+  }
+};
+
 
   const filteredTickets = tickets
     .filter((ticket) => !priorityFilter || ticket.priority === priorityFilter)
