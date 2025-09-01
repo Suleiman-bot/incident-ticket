@@ -184,180 +184,187 @@ const borderColor = theme === 'dark' ? fieldBg : '#ccc';    // match borders to 
         <h2 className="text-center mb-4" style={{ color: textColor }}>
           Kasi Cloud Data Center Incident Ticket
         </h2>
- <Form onSubmit={handleSubmit}>
-<Card className="p-3" style={{ border: `2px solid ${borderColor}`, backgroundColor: cardBg }}>
-  {/* Square 1 */}
-  <Card className="p-3 mb-3" style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}>
-    <Row>
-      <Col md={6}>
-        <Form.Group>
-          <Form.Label style={{ color: textColor }}>Category</Form.Label>
-          <Select
-            classNamePrefix="rs"
-            options={categoryOptions}
-            value={form.category}
-            onChange={handleCategoryChange}
-            placeholder="-- Select Category --"
-            isClearable
-          />
-        </Form.Group>
-      </Col>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label style={{ color: textColor }}>Sub-category</Form.Label>
-                  <Select
-                    classNamePrefix="rs"
-                    options={getSubCategoryOptions()}
-                    value={subOptionFromValue(form.sub_category)}
-                    onChange={(s) => setForm(f => ({ ...f, sub_category: s ? s.value : '' }))}
-                    placeholder="-- Select Sub-category --"
-                    isClearable
-                    isDisabled={!form.category}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label style={{ color: textColor }}>Priority Level</Form.Label>
-                  <Select
-                    classNamePrefix="rs"
-                    options={priorityOptions}
-                    value={form.priority}
-                    onChange={handlePriorityChange}
-                    placeholder="-- Select Priority --"
-                    isClearable
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label style={{ color: textColor }}>Building</Form.Label>
-                  <Select
-                    classNamePrefix="rs"
-                    options={buildingOptions}
-                    value={form.building ? { value: form.building, label: form.building } : null}
-                    onChange={handleBuildingChange}
-                    placeholder="-- Select Building --"
-                    isClearable
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label style={{ color: textColor }}>Affected Area</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="location"
-                    value={form.location}
-                    onChange={handleChange}
-                    style={{ color: textColor, backgroundColor: fieldBg }}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label style={{ color: textColor }}>Impacted Systems</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="impacted"
-                    value={form.impacted}
-                    onChange={handleChange}
-                    style={{ color: textColor, backgroundColor: fieldBg }}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Form.Group>
-              <Form.Label style={{ color: textColor }}>Incident Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={5}
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                style={{ color: textColor, backgroundColor: fieldBg }}
-              />
-            </Form.Group>
-          </Card>
+<Form onSubmit={handleSubmit}>
+  <Card className="p-3" style={{ border: `2px solid ${borderColor}`, backgroundColor: cardBg }}>
+    
+    {/* Square 1 */}
+    <Card className="p-3 mb-3" style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}>
+      <Row>
+        <Col md={6}>
+          <Form.Group>
+            <Form.Label style={{ color: textColor }}>Category</Form.Label>
+            <Select
+              classNamePrefix="rs"
+              options={categoryOptions}
+              value={form.category}
+              onChange={handleCategoryChange}
+              placeholder="-- Select Category --"
+              isClearable
+            />
+          </Form.Group>
+        </Col>
+        <Col md={6}>
+          <Form.Group>
+            <Form.Label style={{ color: textColor }}>Sub-category</Form.Label>
+            <Select
+              classNamePrefix="rs"
+              options={getSubCategoryOptions()}
+              value={subOptionFromValue(form.sub_category)}
+              onChange={(s) => setForm(f => ({ ...f, sub_category: s ? s.value : '' }))}
+              placeholder="-- Select Sub-category --"
+              isClearable
+              isDisabled={!form.category}
+            />
+          </Form.Group>
+        </Col>
+      </Row>
 
-          {/* Square 2 */}
-          <Card className="p-3" style={{ border: `2px solid ${borderColor}`, backgroundColor: cardBg }}>
-            <Row>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label style={{ color: textColor }}>Detected By</Form.Label>
-                  <Select
-                    classNamePrefix="rs"
-                    options={detectedByOptions}
-                    value={form.detectedBy}
-                    onChange={handleDetectedByChange}
-                    placeholder="-- Select --"
-                    isClearable
-                  />
-                </Form.Group>
-                {form.detectedBy?.value === 'Other' && (
-                  <Form.Group className="mt-2">
-                    <Form.Label style={{ color: textColor }}>Please specify</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="detectedByOther"
-                      value={form.detectedByOther}
-                      onChange={handleChange}
-                      placeholder="Enter custom detection source"
-                      style={{ color: textColor, backgroundColor: fieldBg }}
-                    />
-                  </Form.Group>
-                )}
-              </Col>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label style={{ color: textColor }}>Time Detected</Form.Label>
-                  <Form.Control
-                    type="datetime-local"
-                    name="time_detected"
-                    value={form.time_detected}
-                    onChange={handleChange}
-                    style={{ color: textColor, backgroundColor: fieldBg }}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Form.Group className="mt-3">
-              <Form.Label style={{ color: textColor }}>Root Cause</Form.Label>
+      <Row>
+        <Col md={6}>
+          <Form.Group>
+            <Form.Label style={{ color: textColor }}>Priority Level</Form.Label>
+            <Select
+              classNamePrefix="rs"
+              options={priorityOptions}
+              value={form.priority}
+              onChange={handlePriorityChange}
+              placeholder="-- Select Priority --"
+              isClearable
+            />
+          </Form.Group>
+        </Col>
+        <Col md={6}>
+          <Form.Group>
+            <Form.Label style={{ color: textColor }}>Building</Form.Label>
+            <Select
+              classNamePrefix="rs"
+              options={buildingOptions}
+              value={form.building ? { value: form.building, label: form.building } : null}
+              onChange={handleBuildingChange}
+              placeholder="-- Select Building --"
+              isClearable
+            />
+          </Form.Group>
+        </Col>
+      </Row>
+
+      <Row>
+        <Col md={6}>
+          <Form.Group>
+            <Form.Label style={{ color: textColor }}>Affected Area</Form.Label>
+            <Form.Control
+              type="text"
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+              style={{ color: textColor, backgroundColor: fieldBg }}
+            />
+          </Form.Group>
+        </Col>
+        <Col md={6}>
+          <Form.Group>
+            <Form.Label style={{ color: textColor }}>Impacted Systems</Form.Label>
+            <Form.Control
+              type="text"
+              name="impacted"
+              value={form.impacted}
+              onChange={handleChange}
+              style={{ color: textColor, backgroundColor: fieldBg }}
+            />
+          </Form.Group>
+        </Col>
+      </Row>
+
+      <Form.Group>
+        <Form.Label style={{ color: textColor }}>Incident Description</Form.Label>
+        <Form.Control
+          as="textarea"
+          rows={5}
+          name="description"
+          value={form.description}
+          onChange={handleChange}
+          style={{ color: textColor, backgroundColor: fieldBg }}
+        />
+      </Form.Group>
+    </Card>
+
+    {/* Square 2 */}
+    <Card className="p-3" style={{ border: `2px solid ${borderColor}`, backgroundColor: cardBg }}>
+      <Row>
+        <Col md={6}>
+          <Form.Group>
+            <Form.Label style={{ color: textColor }}>Detected By</Form.Label>
+            <Select
+              classNamePrefix="rs"
+              options={detectedByOptions}
+              value={form.detectedBy}
+              onChange={handleDetectedByChange}
+              placeholder="-- Select --"
+              isClearable
+            />
+          </Form.Group>
+          {form.detectedBy?.value === 'Other' && (
+            <Form.Group className="mt-2">
+              <Form.Label style={{ color: textColor }}>Please specify</Form.Label>
               <Form.Control
                 type="text"
-                name="root_cause"
-                value={form.root_cause}
+                name="detectedByOther"
+                value={form.detectedByOther}
                 onChange={handleChange}
+                placeholder="Enter custom detection source"
                 style={{ color: textColor, backgroundColor: fieldBg }}
               />
             </Form.Group>
-            <Form.Group className="mt-3">
-              <Form.Label style={{ color: textColor }}>Action Taken</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                name="actions_taken"
-                value={form.actions_taken}
-                onChange={handleChange}
-                style={{ color: textColor, backgroundColor: fieldBg }}
-              />
-            </Form.Group>
-          </Card>
-      
+          )}
+        </Col>
 
-          <div className="d-grid gap-2 mt-4">
-            <Button type="submit" variant="primary" size="lg">
-              {isEditing ? 'Update Ticket' : 'Create Ticket'}
-            </Button>
-          </div>
-        </Card>
-      </div>
-      </Form>
+        <Col md={6}>
+          <Form.Group>
+            <Form.Label style={{ color: textColor }}>Time Detected</Form.Label>
+            <Form.Control
+              type="datetime-local"
+              name="time_detected"
+              value={form.time_detected}
+              onChange={handleChange}
+              style={{ color: textColor, backgroundColor: fieldBg }}
+            />
+          </Form.Group>
+        </Col>
+      </Row>
+
+      <Form.Group className="mt-3">
+        <Form.Label style={{ color: textColor }}>Root Cause</Form.Label>
+        <Form.Control
+          type="text"
+          name="root_cause"
+          value={form.root_cause}
+          onChange={handleChange}
+          style={{ color: textColor, backgroundColor: fieldBg }}
+        />
+      </Form.Group>
+
+      <Form.Group className="mt-3">
+        <Form.Label style={{ color: textColor }}>Action Taken</Form.Label>
+        <Form.Control
+          as="textarea"
+          rows={3}
+          name="actions_taken"
+          value={form.actions_taken}
+          onChange={handleChange}
+          style={{ color: textColor, backgroundColor: fieldBg }}
+        />
+      </Form.Group>
+    </Card>
+
+    {/* Submit Button */}
+    <div className="d-grid gap-2 mt-4">
+      <Button type="submit" variant="primary" size="lg">
+        {isEditing ? 'Update Ticket' : 'Create Ticket'}
+      </Button>
+    </div>
+  </Card>
+</Form>
+
     </Container>
   );
 }
