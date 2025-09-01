@@ -149,10 +149,12 @@ function App() {
     }
   };
 
-  const textColor = theme === 'dark' ? '#fff' : '#000';
-  const bgColor = theme === 'dark' ? '#121212' : '#ffffff';   // page/container background
-const cardBg = theme === 'dark' ? '#1e1e1e' : '#ffffff';   // card background
-const borderColor = theme === 'dark' ? '#333' : '#ccc';    // borders
+const textColor = theme === 'dark' ? '#fff' : '#000';
+const bgColor = theme === 'dark' ? '#121212' : '#ffffff';   // page/container background
+const cardBg = theme === 'dark' ? '#1e1e1e' : '#ffffff';    // card background
+const fieldBg = theme === 'dark' ? '#333' : '#fff';         // inputs + textareas
+const borderColor = theme === 'dark' ? fieldBg : '#ccc';    // match borders to field background
+
 
 
   return (
@@ -252,7 +254,7 @@ const borderColor = theme === 'dark' ? '#333' : '#ccc';    // borders
                     name="location"
                     value={form.location}
                     onChange={handleChange}
-                    style={{ color: textColor, backgroundColor: theme === 'dark' ? '#333' : '#fff' }}
+                    style={{ color: textColor, backgroundColor: fieldBg }}
                   />
                 </Form.Group>
               </Col>
@@ -264,7 +266,7 @@ const borderColor = theme === 'dark' ? '#333' : '#ccc';    // borders
                     name="impacted"
                     value={form.impacted}
                     onChange={handleChange}
-                    style={{ color: textColor, backgroundColor: theme === 'dark' ? '#333' : '#fff' }}
+                    style={{ color: textColor, backgroundColor: fieldBg }}
                   />
                 </Form.Group>
               </Col>
@@ -277,7 +279,7 @@ const borderColor = theme === 'dark' ? '#333' : '#ccc';    // borders
                 name="description"
                 value={form.description}
                 onChange={handleChange}
-                style={{ textAlign: 'center', color: textColor, backgroundColor: theme === 'dark' ? '#333' : '#fff' }}
+                style={{ color: textColor, backgroundColor: fieldBg }}
               />
             </Form.Group>
           </Card>
@@ -306,7 +308,7 @@ const borderColor = theme === 'dark' ? '#333' : '#ccc';    // borders
                       value={form.detectedByOther}
                       onChange={handleChange}
                       placeholder="Enter custom detection source"
-                      style={{ color: textColor, backgroundColor: theme === 'dark' ? '#333' : '#fff' }}
+                      style={{ color: textColor, backgroundColor: fieldBg }}
                     />
                   </Form.Group>
                 )}
@@ -319,7 +321,7 @@ const borderColor = theme === 'dark' ? '#333' : '#ccc';    // borders
                     name="time_detected"
                     value={form.time_detected}
                     onChange={handleChange}
-                    style={{ color: textColor, backgroundColor: theme === 'dark' ? '#333' : '#fff' }}
+                    style={{ color: textColor, backgroundColor: fieldBg }}
                   />
                 </Form.Group>
               </Col>
@@ -331,7 +333,7 @@ const borderColor = theme === 'dark' ? '#333' : '#ccc';    // borders
                 name="root_cause"
                 value={form.root_cause}
                 onChange={handleChange}
-                style={{ color: textColor, backgroundColor: theme === 'dark' ? '#333' : '#fff' }}
+                style={{ color: textColor, backgroundColor: fieldBg }}
               />
             </Form.Group>
             <Form.Group className="mt-3">
@@ -342,7 +344,7 @@ const borderColor = theme === 'dark' ? '#333' : '#ccc';    // borders
                 name="actions_taken"
                 value={form.actions_taken}
                 onChange={handleChange}
-                style={{ color: textColor, backgroundColor: theme === 'dark' ? '#333' : '#fff' }}
+                style={{ color: textColor, backgroundColor: fieldBg }}
               />
             </Form.Group>
           </Card>
