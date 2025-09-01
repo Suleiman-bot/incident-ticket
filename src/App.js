@@ -1,88 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Container, Row, Col, Alert, Spinner } from 'react-bootstrap';
+import { Form, Button, Container, Row, Col, Alert, Spinner, Card } from 'react-bootstrap';
 import Select from 'react-select';
 import axios from "axios";
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import TicketsPage from './TicketsPage';   // adjust exact filename/casing if needed
 
 /**
- * axios instance that respects REACT_APP_API_BASE_URL
+ * axios instance that respects REACT_APP_API_URL
  */
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || "http://localhost:8000/api",
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8000",
 });
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 function TicketForm() {
-  const [categories, setCategories] = useState([]);
-  const [subCategories, setSubCategories] = useState([]);
-  const [formData, setFormData] = useState({
-    category: "",
-    subCategory: "",
-    priority: "",
-    building: "",
-    affectedArea: "",
-    impactedSystems: "",
-    incidentDescription: "",
-    detectedBy: "",
-    timeDetected: "",
-    rootCause: "",
-    actionTaken: ""
-  });
-
+  const [category, setCategory] = useState("");
+  const [subCategory, setSubCategory] = useState("");
+  const [priority, setPriority] = useState("");
+  const [building, setBuilding] = useState("");
+  const [affectedArea, setAffectedArea] = useState("");
+  const [impactedSystems, setImpactedSystems] = useState([]);
+  const [incidentDescription, setIncidentDescription] = useState("");
+  const [detectedBy, setDetectedBy] = useState("");
+  const [timeDetected, setTimeDetected] = useState("");
+  const [rootCause, setRootCause] = useState("");
+  const [actionTaken, setActionTaken] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
+  const query = useQuery();
+  const navigate = useNavigate();
+
+  // Prefill from query if editing existing
   useEffect(() => {
-    setCategories([
-      { value: "Network", label: "Network" },
-      { value: "Server", label: "Server" },
-      { value: "Application", label: "Application" },
-      { value: "Security", label: "Security" },
-    ]);
-  }, []);
-
-  const handleCategoryChange = (selectedOption) => {
-    setFormData({ ...formData, category: selectedOption?.value || "", subCategory: "" });
-    if (selectedOption?.value === "Network") {
-      setSubCategories([
-        { value: "Switch", label: "Switch" },
-        { value: "Router", label: "Router" },
-        { value: "Access Point", label: "Access Point" },
-      ]);
-    } else if (selectedOption?.value === "Server") {
-      setSubCategories([
-        { value: "Database", label: "Database" },
-        { value: "Web", label: "Web" },
-        { value: "File", label: "File" },
-      ]);
-    } else {
-      setSubCategories([]);
-    }
-  };
+    if (query.get("category")) setCategory(query.get("category"));
+    if (query.get("subCategory")) setSubCategory(query.get("subCategory"));
+    if (query.get("priority")) setPriority(query.get("priority"));
+    if (query.get("building")) setBuilding(query.get("building"));
+    if (query.get("affectedArea")) setAffectedArea(query.get("affectedArea"));
+    if (query.get("impactedSystems")) setImpactedSystems(query.get("impactedSystems").split(","));
+    if (query.get("incidentDescription")) setIncidentDescription(query.get("incidentDescription"));
+    if (query.get("detectedBy")) setDetectedBy(query.get("detectedBy"));
+    if (query.get("timeDetected")) setTimeDetected(query.get("timeDetected"));
+    if (query.get("rootCause")) setRootCause(query.get("rootCause"));
+    if (query.get("actionTaken")) setActionTaken(query.get("actionTaken"));
+  }, [query]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage({ type: "", text: "" });
+    setError(null);
+    setSuccess(null);
 
     try {
-      await api.post("/tickets", formData);
-      setMessage({ type: "success", text: "Ticket created successfully!" });
-      setFormData({
-        category: "",
-        subCategory: "",
-        priority: "",
-        building: "",
-        affectedArea: "",
-        impactedSystems: "",
-        incidentDescription: "",
-        detectedBy: "",
-        timeDetected: "",
-        rootCause: "",
-        actionTaken: ""
-      });
-    } catch (error) {
-      setMessage({ type: "danger", text: "Error creating ticket. Please try again." });
+      const payload = {
+        category,
+        subCategory,
+        priority,
+        building,
+        affectedArea,
+        impactedSystems,
+        incidentDescription,
+        detectedBy,
+        timeDetected,
+        rootCause,
+        actionTaken,
+      };
+
+      await api.post("/save_ticket.php", payload);
+      setSuccess("Ticket created successfully!");
+      setTimeout(() => navigate("/tickets"), 1200);
+    } catch (err) {
+      setError("Failed to create ticket. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -90,149 +83,176 @@ function TicketForm() {
 
   return (
     <Container className="mt-4">
-      <h2 className="text-center mb-4">Create New Ticket</h2>
-      {message.text && <Alert variant={message.type}>{message.text}</Alert>}
+      <Card className="p-4 shadow-lg">
+        <h2 className="text-center mb-4">Create New Ticket</h2>
 
-      <Form onSubmit={handleSubmit}>
-        {/* Outer square (big card) */}
-        <div className="border rounded p-4 mb-4">
+        {error && <Alert variant="danger">{error}</Alert>}
+        {success && <Alert variant="success">{success}</Alert>}
 
-          {/* First inner square */}
-          <div className="border rounded p-3 mb-4">
+        <Form onSubmit={handleSubmit}>
+          {/* First big square */}
+          <Card className="p-3 mb-4">
             <Row className="mb-3">
-              <Col md={6}>
-                <Form.Label>Category</Form.Label>
-                <Select
-                  options={categories}
-                  onChange={handleCategoryChange}
-                  value={categories.find(opt => opt.value === formData.category) || null}
-                  placeholder="-- Select Category --"
-                />
+              <Col>
+                <Form.Group controlId="category">
+                  <Form.Label>Category</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter category"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                  />
+                </Form.Group>
               </Col>
-              <Col md={6}>
-                <Form.Label>Sub-Category</Form.Label>
-                <Select
-                  options={subCategories}
-                  onChange={(opt) => setFormData({ ...formData, subCategory: opt?.value || "" })}
-                  value={subCategories.find(opt => opt.value === formData.subCategory) || null}
-                  placeholder="-- Select Sub-Category --"
-                />
+              <Col>
+                <Form.Group controlId="subCategory">
+                  <Form.Label>Sub-Category</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter sub-category"
+                    value={subCategory}
+                    onChange={(e) => setSubCategory(e.target.value)}
+                  />
+                </Form.Group>
               </Col>
             </Row>
 
             <Row className="mb-3">
-              <Col md={6}>
-                <Form.Label>Priority Level</Form.Label>
-                <Form.Select
-                  value={formData.priority}
-                  onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                >
-                  <option value="">-- Select Priority --</option>
-                  <option value="P0">P0</option>
-                  <option value="P1">P1</option>
-                  <option value="P2">P2</option>
-                  <option value="P3">P3</option>
-                  <option value="P4">P4</option>
-                </Form.Select>
+              <Col>
+                <Form.Group controlId="priority">
+                  <Form.Label>Priority Level (P0–P4)</Form.Label>
+                  <Form.Select
+                    value={priority}
+                    onChange={(e) => setPriority(e.target.value)}
+                  >
+                    <option>-- Select Priority --</option>
+                    <option value="P0">P0</option>
+                    <option value="P1">P1</option>
+                    <option value="P2">P2</option>
+                    <option value="P3">P3</option>
+                    <option value="P4">P4</option>
+                  </Form.Select>
+                </Form.Group>
               </Col>
-              <Col md={6}>
-                <Form.Label>Building</Form.Label>
-                <Form.Select
-                  value={formData.building}
-                  onChange={(e) => setFormData({ ...formData, building: e.target.value })}
-                >
-                  <option value="">-- Select Building --</option>
-                  <option value="LOS1">LOS1</option>
-                  <option value="LOS2">LOS2</option>
-                  <option value="LOS3">LOS3</option>
-                  <option value="LOS4">LOS4</option>
-                  <option value="LOS5">LOS5</option>
-                </Form.Select>
+              <Col>
+                <Form.Group controlId="building">
+                  <Form.Label>Building</Form.Label>
+                  <Form.Select
+                    value={building}
+                    onChange={(e) => setBuilding(e.target.value)}
+                  >
+                    <option>-- Select Building --</option>
+                    <option value="LOS1">LOS1</option>
+                    <option value="LOS2">LOS2</option>
+                    <option value="LOS3">LOS3</option>
+                    <option value="LOS4">LOS4</option>
+                    <option value="LOS5">LOS5</option>
+                  </Form.Select>
+                </Form.Group>
               </Col>
             </Row>
 
             <Row className="mb-3">
-              <Col md={6}>
-                <Form.Label>Affected Area</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={formData.affectedArea}
-                  onChange={(e) => setFormData({ ...formData, affectedArea: e.target.value })}
-                />
+              <Col>
+                <Form.Group controlId="affectedArea">
+                  <Form.Label>Affected Location (Rack/Zone/Room)</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter affected area"
+                    value={affectedArea}
+                    onChange={(e) => setAffectedArea(e.target.value)}
+                  />
+                </Form.Group>
               </Col>
-              <Col md={6}>
-                <Form.Label>Impacted Systems</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={formData.impactedSystems}
-                  onChange={(e) => setFormData({ ...formData, impactedSystems: e.target.value })}
-                />
+              <Col>
+                <Form.Group controlId="impactedSystems">
+                  <Form.Label>Impacted Systems/Services</Form.Label>
+                  <Select
+                    isMulti
+                    options={[
+                      { value: "Network", label: "Network" },
+                      { value: "Server", label: "Server" },
+                      { value: "Storage", label: "Storage" },
+                      { value: "Database", label: "Database" },
+                      { value: "Application", label: "Application" },
+                    ]}
+                    value={impactedSystems.map((s) => ({ value: s, label: s }))}
+                    onChange={(selected) =>
+                      setImpactedSystems(selected.map((s) => s.value))
+                    }
+                  />
+                </Form.Group>
               </Col>
             </Row>
 
-            <Form.Group className="mb-3">
+            <Form.Group className="mb-3" controlId="incidentDescription">
               <Form.Label>Incident Description</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={4}
-                value={formData.incidentDescription}
-                onChange={(e) => setFormData({ ...formData, incidentDescription: e.target.value })}
-                style={{ textAlign: "center" }}
+                placeholder="Enter detailed incident description"
+                value={incidentDescription}
+                onChange={(e) => setIncidentDescription(e.target.value)}
               />
             </Form.Group>
-          </div>
+          </Card>
 
-          {/* Second inner square */}
-          <div className="border rounded p-3 mb-4">
+          {/* Second square */}
+          <Card className="p-3 mb-4">
             <Row className="mb-3">
-              <Col md={6}>
-                <Form.Label>Detected By</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={formData.detectedBy}
-                  onChange={(e) => setFormData({ ...formData, detectedBy: e.target.value })}
-                />
+              <Col>
+                <Form.Group controlId="detectedBy">
+                  <Form.Label>Detected By</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter who detected"
+                    value={detectedBy}
+                    onChange={(e) => setDetectedBy(e.target.value)}
+                  />
+                </Form.Group>
               </Col>
-              <Col md={6}>
-                <Form.Label>Time Detected</Form.Label>
-                <Form.Control
-                  type="datetime-local"
-                  value={formData.timeDetected}
-                  onChange={(e) => setFormData({ ...formData, timeDetected: e.target.value })}
-                />
+              <Col>
+                <Form.Group controlId="timeDetected">
+                  <Form.Label>Time Detected</Form.Label>
+                  <Form.Control
+                    type="datetime-local"
+                    value={timeDetected}
+                    onChange={(e) => setTimeDetected(e.target.value)}
+                  />
+                </Form.Group>
               </Col>
             </Row>
 
-            <Form.Group className="mb-3">
+            <Form.Group className="mb-3" controlId="rootCause">
               <Form.Label>Root Cause</Form.Label>
               <Form.Control
                 as="textarea"
-                rows={3}
-                value={formData.rootCause}
-                onChange={(e) => setFormData({ ...formData, rootCause: e.target.value })}
+                rows={2}
+                placeholder="Enter root cause"
+                value={rootCause}
+                onChange={(e) => setRootCause(e.target.value)}
               />
             </Form.Group>
 
-            <Form.Group className="mb-3">
+            <Form.Group className="mb-3" controlId="actionTaken">
               <Form.Label>Action Taken</Form.Label>
               <Form.Control
                 as="textarea"
-                rows={3}
-                value={formData.actionTaken}
-                onChange={(e) => setFormData({ ...formData, actionTaken: e.target.value })}
+                rows={2}
+                placeholder="Enter action taken"
+                value={actionTaken}
+                onChange={(e) => setActionTaken(e.target.value)}
               />
             </Form.Group>
-          </div>
+          </Card>
 
-          {/* Submit Button */}
           <div className="text-center">
             <Button variant="primary" type="submit" disabled={loading}>
-              {loading ? <Spinner animation="border" size="sm" /> : "Create Ticket"}
+              {loading ? <Spinner size="sm" animation="border" /> : "Create Ticket"}
             </Button>
           </div>
-
-        </div>
-      </Form>
+        </Form>
+      </Card>
     </Container>
   );
 }
