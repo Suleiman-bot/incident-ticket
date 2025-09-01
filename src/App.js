@@ -1,4 +1,4 @@
-//src/App.js
+// src/App.js
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Container, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import Select from 'react-select';
@@ -25,7 +25,7 @@ const api = axios.create({
   baseURL: API_BASE,
 });
 
-/* ---------- your existing constants (unchanged) ---------- */
+/* ---------- existing constants (unchanged) ---------- */
 const subCategories = {
   Network: [
     "Router Failure",
@@ -121,7 +121,7 @@ function App() {
 
   const toggleTheme = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
 
-  // form state
+  // form state (resolution fields removed)
   const [form, setForm] = useState({
     ticket_id: '',
     category: null,
@@ -130,7 +130,7 @@ function App() {
     reported_by: '',
     contact_info: '',
     priority: null,
-    building: '', // <-- add this line somewhere near priority/location
+    building: '', // kept as string
     location: '',
     impacted: '',
     description: '',
@@ -141,9 +141,6 @@ function App() {
     actions_taken: '',
     status: null,
     assigned_to: [],
-    resolution_summary: '',
-    resolution_time: '',
-    duration: '',
     post_review: false,
     attachments: null,
     escalation_history: '',
@@ -159,10 +156,9 @@ function App() {
   const [statusMsg, setStatusMsg] = useState(null); // { type: 'success'|'error', text: '...' }
   const [submitting, setSubmitting] = useState(false);
 
-  // generate a ticket id only when creating new ticket (not when editing)
+  // populate when editing (map types to react-select shapes and datetime-local)
   useEffect(() => {
     if (isEditing) {
-      // populate form fields from ticketToEdit (map types to react-select shapes and datetime-local)
       const t = ticketToEdit;
       setForm({
         ticket_id: t.ticket_id ?? t.id ?? '',
@@ -172,7 +168,7 @@ function App() {
         reported_by: t.reported_by ?? '',
         contact_info: t.contact_info ?? '',
         priority: t.priority ? toOption(t.priority) : null,
-        building: t.building ?? '', // <-- add near priority/location
+        building: t.building ?? '',
         location: t.location ?? '',
         impacted: t.impacted ?? '',
         description: t.description ?? '',
@@ -183,21 +179,18 @@ function App() {
         actions_taken: t.actions_taken ?? '',
         status: t.status ? toOption(t.status) : null,
         assigned_to: Array.isArray(t.assigned_to) ? t.assigned_to.map(a => ({ value: a, label: a })) : (t.assigned_to ? [ { value: t.assigned_to, label: t.assigned_to } ] : []),
-        resolution_summary: t.resolution_summary ?? '',
-        resolution_time: isoToLocalDatetime(t.resolution_time) || (t.resolution_time ?? ''),
-        duration: t.duration ?? '',
         post_review: Boolean(t.post_review),
         attachments: null,
         escalation_history: t.escalation_history ?? '',
         closed: isoToLocalDatetime(t.closed) || (t.closed ?? ''),
         sla_breach: Boolean(t.sla_breach),
       });
-} else {
-  // for new tickets, keep ticket_id empty; backend will generate
-  setForm(f => ({ ...f, ticket_id: '' }));
-}
+    } else {
+      // for new tickets, keep ticket_id empty; backend will generate
+      setForm(f => ({ ...f, ticket_id: '' }));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditing]); // run when isEditing changes (i.e., page navigated with/without ticketToEdit)
+  }, [isEditing]);
 
   // native input handler
   const handleChange = (e) => {
@@ -215,8 +208,8 @@ function App() {
   const handleCategoryChange = (selected) => setForm(f => ({ ...f, category: selected, sub_category: '' }));
   const handlePriorityChange = (selected) => setForm(f => ({ ...f, priority: selected }));
   const handleBuildingChange = (selected) => {
-  setForm(f => ({ ...f, building: selected ? selected.value : '' }));
-};
+    setForm(f => ({ ...f, building: selected ? selected.value : '' }));
+  };
   const handleDetectedByChange = (selected) => {
     setForm(f => ({ ...f, detectedBy: selected }));
     if (!selected || selected.value !== 'Other') setForm(f => ({ ...f, detectedByOther: '' }));
@@ -228,7 +221,6 @@ function App() {
   /* utility: convert datetime-local to ISO (returns empty string if not set) */
   const dtToISO = (value) => {
     if (!value) return '';
-    // value likely in "YYYY-MM-DDTHH:MM" (no seconds). Create Date locally and convert to ISO.
     const d = new Date(value);
     if (isNaN(d.getTime())) return value; // fallback to raw value if parse fails
     return d.toISOString();
@@ -236,6 +228,7 @@ function App() {
 
   /* ---------- submit handler (normalizes values, supports file uploads)
      If editing, performs PUT to /tickets/:id, otherwise POST to create.
+     (resolution fields removed from payload here)
   ---------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -249,13 +242,12 @@ function App() {
     output.building = output.building || '';
     output.detectedBy = output.detectedBy?.value || '';
     output.status = output.status?.value || '';
-    output.assigned_to = (output.assigned_to || []).map(a => a.value || a); // support either {value,label} or plain strings
+    output.assigned_to = (output.assigned_to || []).map(a => a.value || a);
     if (output.detectedBy === 'Other') output.detectedBy = output.detectedByOther;
 
     // normalize datetimes to ISO
     output.opened = dtToISO(output.opened);
     output.time_detected = dtToISO(output.time_detected);
-    output.resolution_time = dtToISO(output.resolution_time);
     output.closed = dtToISO(output.closed);
 
     try {
@@ -298,7 +290,7 @@ function App() {
       // success (assume backend returns created/updated ticket object)
       const data = res?.data || {};
       const createdId = data.ticket_id || data.id || data.ticketId || '(unknown)';
-      setStatusMsg({ type: 'success', text: isEditing ? `Ticket updated successfully!` : `Ticket submitted successfully!` });
+      setStatusMsg({ type: 'success', text: isEditing ? `Ticket updated successfully!` : `Ticket created successfully!` });
 
       // if editing, navigate back to ticket list so changes are visible
       if (isEditing) {
@@ -306,9 +298,7 @@ function App() {
         return;
       }
 
-      // optionally reset form fields for new submission (preserve theme, generate a new ticket id)
-      const dateStr = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
-      const randomNum = Math.floor(1000 + Math.random() * 9000);
+      // reset form fields for new submission (preserve theme)
       setForm({
         ticket_id: '',
         category: null,
@@ -317,7 +307,7 @@ function App() {
         reported_by: '',
         contact_info: '',
         priority: null,
-        building: null,
+        building: '',
         location: '',
         impacted: '',
         description: '',
@@ -328,9 +318,6 @@ function App() {
         actions_taken: '',
         status: null,
         assigned_to: [],
-        resolution_summary: '',
-        resolution_time: '',
-        duration: '',
         post_review: false,
         attachments: null,
         escalation_history: '',
@@ -357,6 +344,11 @@ function App() {
     if (!catKey) return [];
     return (subCategories[catKey] || []).map(s => ({ value: s, label: s }));
   };
+
+  // simple styles for the squares
+  const outerSquareStyle = { border: '2px solid #e0e0e0', padding: 18, borderRadius: 10, background: '#fafafa' };
+  const innerSquareStyle = { border: '1px solid #ddd', padding: 14, borderRadius: 8, marginBottom: 16, background: '#fff' };
+  const centerTextAreaWrapper = { display: 'flex', justifyContent: 'center', alignItems: 'center' };
 
   return (
     <Container style={{ maxWidth: 900, marginTop: 20, marginBottom: 40, fontFamily: 'Arial, sans-serif' }}>
@@ -388,131 +380,144 @@ function App() {
             <Form.Control type="text" name="ticket_id" value={form.ticket_id} readOnly />
           </Form.Group>
 
-          <Form.Group className="mb-3" controlId="category">
-            <Form.Label>Incident Category</Form.Label>
-            <Select
-              classNamePrefix="rs"
-              options={categoryOptions}
-              value={form.category}
-              onChange={handleCategoryChange}
-              name="category"
-              placeholder="-- Select Category --"
-              isClearable
-            />
-          </Form.Group>
+          {/* Outer square wrapping the two inner squares */}
+          <div style={outerSquareStyle}>
+            {/* TOP inner square: category, subcategory, priority, building, location, impacted, description */}
+            <div style={innerSquareStyle}>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3" controlId="category">
+                    <Form.Label>Incident Category</Form.Label>
+                    <Select
+                      classNamePrefix="rs"
+                      options={categoryOptions}
+                      value={form.category}
+                      onChange={handleCategoryChange}
+                      name="category"
+                      placeholder="-- Select Category --"
+                      isClearable
+                    />
+                  </Form.Group>
+                </Col>
 
-          <Form.Group className="mb-3" controlId="sub_category">
-            <Form.Label>Sub-category</Form.Label>
-            <Select
-              classNamePrefix="rs"
-              options={getSubCategoryOptions()}
-              value={subOptionFromValue(form.sub_category)}
-              onChange={handleSubCategorySelectChange}
-              name="sub_category"
-              placeholder="-- Select Sub-category --"
-              isClearable
-              isDisabled={!form.category}
-            />
-          </Form.Group>
+                <Col md={6}>
+                  <Form.Group className="mb-3" controlId="sub_category">
+                    <Form.Label>Sub-category</Form.Label>
+                    <Select
+                      classNamePrefix="rs"
+                      options={getSubCategoryOptions()}
+                      value={subOptionFromValue(form.sub_category)}
+                      onChange={handleSubCategorySelectChange}
+                      name="sub_category"
+                      placeholder="-- Select Sub-category --"
+                      isClearable
+                      isDisabled={!form.category}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
 
-          <Row>
-            <Form.Group as={Col} md={6} className="mb-3" controlId="opened">
-              <Form.Label>Date/Time Opened</Form.Label>
-              <Form.Control type="datetime-local" name="opened" value={form.opened} onChange={handleChange} required />
-            </Form.Group>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3" controlId="priority">
+                    <Form.Label>Priority Level (P0–P4)</Form.Label>
+                    <Select
+                      classNamePrefix="rs"
+                      options={priorityOptions}
+                      value={form.priority}
+                      onChange={handlePriorityChange}
+                      name="priority"
+                      placeholder="-- Select Priority --"
+                      isClearable
+                    />
+                  </Form.Group>
+                </Col>
 
-            <Form.Group as={Col} md={6} className="mb-3" controlId="reported_by">
-              <Form.Label>Reported By</Form.Label>
-              <Form.Control type="text" name="reported_by" value={form.reported_by} onChange={handleChange} required />
-            </Form.Group>
-          </Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3" controlId="building">
+                    <Form.Label>Building</Form.Label>
+                    <Select
+                      classNamePrefix="rs"
+                      options={buildingOptions}
+                      value={form.building ? { value: form.building, label: form.building } : null}
+                      onChange={handleBuildingChange}
+                      name="building"
+                      placeholder="-- Select Building --"
+                      isClearable
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
 
-          <Form.Group className="mb-3" controlId="contact_info">
-            <Form.Label>Contact Information</Form.Label>
-            <Form.Control type="email" name="contact_info" placeholder="email@example.com" value={form.contact_info} onChange={handleChange} />
-          </Form.Group>
+              <Row>
+                <Form.Group as={Col} md={6} className="mb-3" controlId="location">
+                  <Form.Label>Affected Location (Rack/Zone/Room)</Form.Label>
+                  <Form.Control type="text" name="location" value={form.location} onChange={handleChange} />
+                </Form.Group>
 
-          <Form.Group className="mb-3" controlId="priority">
-            <Form.Label>Priority Level (P0–P4)</Form.Label>
-            <Select
-              classNamePrefix="rs"
-              options={priorityOptions}
-              value={form.priority}
-              onChange={handlePriorityChange}
-              name="priority"
-              placeholder="-- Select Priority --"
-              isClearable
-            />
-          </Form.Group>
+                <Form.Group as={Col} md={6} className="mb-3" controlId="impacted">
+                  <Form.Label>Impacted Systems/Services</Form.Label>
+                  <Form.Control type="text" name="impacted" value={form.impacted} onChange={handleChange} />
+                </Form.Group>
+              </Row>
 
-         <Form.Group as={Col} md={6} className="mb-3" controlId="building">
-  <Form.Label>Building</Form.Label>
-  <Select
-    classNamePrefix="rs"
-    options={buildingOptions}
-    value={form.building ? { value: form.building, label: form.building } : null}
-    onChange={handleBuildingChange}
-    name="building"
-    placeholder="-- Select Building --"
-    isClearable
-  />
-</Form.Group>
+              {/* Centrally placed, larger incident description */}
+              <div style={centerTextAreaWrapper}>
+                <Form.Group className="mb-3" controlId="description" style={{ width: '100%', maxWidth: 760 }}>
+                  <Form.Label className="text-center d-block">Incident Description</Form.Label>
+                  <Form.Control as="textarea" rows={8} name="description" value={form.description} onChange={handleChange} required />
+                </Form.Group>
+              </div>
+            </div>
 
-              
-          <Row>
-            <Form.Group as={Col} md={6} className="mb-3" controlId="location">
-              <Form.Label>Affected Location (Rack/Zone/Room)</Form.Label>
-              <Form.Control type="text" name="location" value={form.location} onChange={handleChange} />
-            </Form.Group>
+            {/* BOTTOM inner square: detected by, time detected, root cause, actions taken */}
+            <div style={innerSquareStyle}>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3" controlId="detectedBy">
+                    <Form.Label>Detected By</Form.Label>
+                    <Select
+                      classNamePrefix="rs"
+                      options={detectedByOptions}
+                      value={form.detectedBy}
+                      onChange={handleDetectedByChange}
+                      name="detectedBy"
+                      placeholder="-- Select --"
+                      isClearable
+                    />
+                  </Form.Group>
+                </Col>
 
-            <Form.Group as={Col} md={6} className="mb-3" controlId="impacted">
-              <Form.Label>Impacted Systems/Services</Form.Label>
-              <Form.Control type="text" name="impacted" value={form.impacted} onChange={handleChange} />
-            </Form.Group>
-          </Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3" controlId="time_detected">
+                    <Form.Label>Time Detected</Form.Label>
+                    <Form.Control type="datetime-local" name="time_detected" value={form.time_detected} onChange={handleChange} />
+                  </Form.Group>
+                </Col>
+              </Row>
 
-          <Form.Group className="mb-3" controlId="description">
-            <Form.Label>Incident Description</Form.Label>
-            <Form.Control as="textarea" rows={4} name="description" value={form.description} onChange={handleChange} required />
-          </Form.Group>
+              {form.detectedBy?.value === 'Other' && (
+                <Form.Group className="mb-3" controlId="detectedByOther">
+                  <Form.Label>Please specify</Form.Label>
+                  <Form.Control type="text" name="detectedByOther" value={form.detectedByOther} onChange={handleChange} placeholder="Enter custom detection source" required />
+                </Form.Group>
+              )}
 
-          <Form.Group className="mb-3" controlId="detectedBy">
-            <Form.Label>Detected By</Form.Label>
-            <Select
-              classNamePrefix="rs"
-              options={detectedByOptions}
-              value={form.detectedBy}
-              onChange={handleDetectedByChange}
-              name="detectedBy"
-              placeholder="-- Select --"
-              isClearable
-            />
-          </Form.Group>
+              <Row>
+                <Form.Group as={Col} md={6} className="mb-3" controlId="root_cause">
+                  <Form.Label>Root Cause (if known)</Form.Label>
+                  <Form.Control type="text" name="root_cause" value={form.root_cause} onChange={handleChange} />
+                </Form.Group>
 
-          {form.detectedBy?.value === 'Other' && (
-            <Form.Group className="mb-3" controlId="detectedByOther">
-              <Form.Label>Please specify</Form.Label>
-              <Form.Control type="text" name="detectedByOther" value={form.detectedByOther} onChange={handleChange} placeholder="Enter custom detection source" required />
-            </Form.Group>
-          )}
+                <Form.Group as={Col} md={6} className="mb-3" controlId="actions_taken">
+                  <Form.Label>Immediate Actions Taken</Form.Label>
+                  <Form.Control as="textarea" rows={3} name="actions_taken" value={form.actions_taken} onChange={handleChange} />
+                </Form.Group>
+              </Row>
+            </div>
+          </div>
 
-          <Row>
-            <Form.Group as={Col} md={6} className="mb-3" controlId="time_detected">
-              <Form.Label>Time Detected</Form.Label>
-              <Form.Control type="datetime-local" name="time_detected" value={form.time_detected} onChange={handleChange} />
-            </Form.Group>
-
-            <Form.Group as={Col} md={6} className="mb-3" controlId="root_cause">
-              <Form.Label>Root Cause (if known)</Form.Label>
-              <Form.Control type="text" name="root_cause" value={form.root_cause} onChange={handleChange} />
-            </Form.Group>
-          </Row>
-
-          <Form.Group className="mb-3" controlId="actions_taken">
-            <Form.Label>Immediate Actions Taken</Form.Label>
-            <Form.Control as="textarea" rows={3} name="actions_taken" value={form.actions_taken} onChange={handleChange} />
-          </Form.Group>
-
+          {/* Below the big square: other metadata kept (status, assigned_to, attachments, escalation, closed, sla etc.) */}
           <Form.Group className="mb-3" controlId="status">
             <Form.Label>Status</Form.Label>
             <Select
@@ -538,23 +543,6 @@ function App() {
               placeholder="Select assigned engineers"
             />
           </Form.Group>
-
-          <Form.Group className="mb-3" controlId="resolution_summary">
-            <Form.Label>Resolution Summary</Form.Label>
-            <Form.Control as="textarea" rows={3} name="resolution_summary" value={form.resolution_summary} onChange={handleChange} />
-          </Form.Group>
-
-          <Row>
-            <Form.Group as={Col} md={6} className="mb-3" controlId="resolution_time">
-              <Form.Label>Resolution Time</Form.Label>
-              <Form.Control type="datetime-local" name="resolution_time" value={form.resolution_time} onChange={handleChange} />
-            </Form.Group>
-
-            <Form.Group as={Col} md={6} className="mb-3" controlId="duration">
-              <Form.Label>Duration of Outage</Form.Label>
-              <Form.Control type="text" name="duration" placeholder="e.g., 2h 15m" value={form.duration} onChange={handleChange} />
-            </Form.Group>
-          </Row>
 
           <Form.Group className="mb-3" controlId="post_review">
             <Form.Check type="checkbox" label="Post-Incident Review Needed?" name="post_review" checked={form.post_review} onChange={handleChange} />
@@ -588,7 +576,7 @@ function App() {
                 <>
                   <Spinner animation="border" size="sm" role="status" aria-hidden="true" /> Submitting...
                 </>
-              ) : (isEditing ? 'Update Ticket' : 'Submit Ticket')}
+              ) : (isEditing ? 'Update Ticket' : 'Create Ticket')}
             </Button>
           </div>
         </Form>
@@ -597,9 +585,7 @@ function App() {
   );
 }
 
-// keep your existing App (form) component unchanged above.
-// Now export a Router that exposes /frontend and /ticketspage routes:
-
+// Router exposing /frontend and /ticketspage routes:
 export default function AppRouter() {
   return (
     <Router>
