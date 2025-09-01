@@ -152,7 +152,7 @@ function App() {
   const textColor = theme === 'dark' ? '#fff' : '#000';
   const bgColor = theme === 'dark' ? '#121212' : '#ffffff';   // page/container background
 const cardBg = theme === 'dark' ? '#1e1e1e' : '#ffffff';   // card background
-const borderColor = theme === 'dark' ? '#444' : '#ccc';    // borders
+const borderColor = theme === 'dark' ? '#333' : '#ccc';    // borders
 
 
   return (
