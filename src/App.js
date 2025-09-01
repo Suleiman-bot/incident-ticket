@@ -150,9 +150,22 @@ function App() {
   };
 
   const textColor = theme === 'dark' ? '#fff' : '#000';
+  const bgColor = theme === 'dark' ? '#121212' : '#ffffff';   // page/container background
+const cardBg = theme === 'dark' ? '#1e1e1e' : '#ffffff';   // card background
+const borderColor = theme === 'dark' ? '#444' : '#ccc';    // borders
+
 
   return (
-    <Container style={{ maxWidth: 900, marginTop: 20, marginBottom: 40 }}>
+   <Container 
+  style={{ 
+    maxWidth: 900, 
+    marginTop: 20, 
+    marginBottom: 40, 
+    backgroundColor: bgColor, 
+    minHeight: "100vh" 
+  }}
+>
+
       <div style={{ position: 'relative' }}>
         <button
           type="button"
@@ -170,23 +183,23 @@ function App() {
           Kasi Cloud Data Center Incident Ticket
         </h2>
 
-        <Card className="p-3" style={{ border: '2px solid #ccc' }}>
-          {/* Square 1 */}
-          <Card className="p-3 mb-3">
-            <Row>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label style={{ color: textColor }}>Category</Form.Label>
-                  <Select
-                    classNamePrefix="rs"
-                    options={categoryOptions}
-                    value={form.category}
-                    onChange={handleCategoryChange}
-                    placeholder="-- Select Category --"
-                    isClearable
-                  />
-                </Form.Group>
-              </Col>
+<Card className="p-3" style={{ border: `2px solid ${borderColor}`, backgroundColor: cardBg }}>
+  {/* Square 1 */}
+  <Card className="p-3 mb-3" style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}>
+    <Row>
+      <Col md={6}>
+        <Form.Group>
+          <Form.Label style={{ color: textColor }}>Category</Form.Label>
+          <Select
+            classNamePrefix="rs"
+            options={categoryOptions}
+            value={form.category}
+            onChange={handleCategoryChange}
+            placeholder="-- Select Category --"
+            isClearable
+          />
+        </Form.Group>
+      </Col>
               <Col md={6}>
                 <Form.Group>
                   <Form.Label style={{ color: textColor }}>Sub-category</Form.Label>
@@ -270,7 +283,7 @@ function App() {
           </Card>
 
           {/* Square 2 */}
-          <Card className="p-3">
+          <Card className="p-3" style={{ border: `2px solid ${borderColor}`, backgroundColor: cardBg }}>
             <Row>
               <Col md={6}>
                 <Form.Group>
