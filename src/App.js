@@ -364,7 +364,7 @@ const borderColor = theme === 'dark' ? fieldBg : '#ccc';    // match borders to 
     </div>
   </Card>
 </Form>
-
+ </div>
     </Container>
   );
 }
