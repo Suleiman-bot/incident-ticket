@@ -184,7 +184,7 @@ const borderColor = theme === 'dark' ? fieldBg : '#ccc';    // match borders to 
         <h2 className="text-center mb-4" style={{ color: textColor }}>
           Kasi Cloud Data Center Incident Ticket
         </h2>
-
+ <Form onSubmit={handleSubmit}>
 <Card className="p-3" style={{ border: `2px solid ${borderColor}`, backgroundColor: cardBg }}>
   {/* Square 1 */}
   <Card className="p-3 mb-3" style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}` }}>
@@ -348,14 +348,16 @@ const borderColor = theme === 'dark' ? fieldBg : '#ccc';    // match borders to 
               />
             </Form.Group>
           </Card>
+      
 
           <div className="d-grid gap-2 mt-4">
-            <Button type="submit" variant="primary" size="lg" onClick={handleSubmit}>
+            <Button type="submit" variant="primary" size="lg">
               {isEditing ? 'Update Ticket' : 'Create Ticket'}
             </Button>
           </div>
         </Card>
       </div>
+      </Form>
     </Container>
   );
 }
