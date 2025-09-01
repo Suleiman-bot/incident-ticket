@@ -78,6 +78,37 @@ const isoToLocalDatetime = (iso) => {
 };
 const toOption = (val) => (val ? { value: val, label: String(val) } : null);
 
+// custom react-select styling for dark/light theme
+const customSelectStyles = (theme) => ({
+  control: (base, state) => ({
+    ...base,
+    backgroundColor: theme === 'dark' ? '#333' : '#fff',
+    color: theme === 'dark' ? '#fff' : '#000',
+    borderColor: state.isFocused ? '#666' : base.borderColor,
+    boxShadow: state.isFocused ? '0 0 0 1px #666' : base.boxShadow,
+  }),
+  singleValue: (base) => ({
+    ...base,
+    color: theme === 'dark' ? '#fff' : '#000',
+  }),
+  placeholder: (base) => ({
+    ...base,
+    color: theme === 'dark' ? '#aaa' : '#666',
+  }),
+  menu: (base) => ({
+    ...base,
+    backgroundColor: theme === 'dark' ? '#333' : '#fff',
+    color: theme === 'dark' ? '#fff' : '#000',
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isFocused
+      ? (theme === 'dark' ? '#555' : '#eee')
+      : base.backgroundColor,
+    color: theme === 'dark' ? '#fff' : '#000',
+  }),
+});
+
 /* ---------- component (grouped UI, preserved styles & behavior) ---------- */
 function App() {
   const location = useLocation();
@@ -233,13 +264,16 @@ function App() {
     return (subCategories[catKey] || []).map(s => ({ value: s, label: s }));
   };
 
-  // styling for squares (keeps look simple and matches previous aesthetic)
+  // styling for squares
   const outerSquareStyle = { border: '2px solid #e6e6e6', padding: 18, borderRadius: 10, background: '#fafafa' };
   const innerSquareStyle = { border: '1px solid #ddd', padding: 14, borderRadius: 8, marginBottom: 16, background: '#fff' };
   const centerTextAreaWrapper = { display: 'flex', justifyContent: 'center', alignItems: 'center' };
 
+  // adaptive text color for dark mode
+  const textColor = theme === 'dark' ? '#fff' : '#000';
+
   return (
-    <Container style={{ maxWidth: 900, marginTop: 20, marginBottom: 40, fontFamily: 'Arial, sans-serif' }}>
+    <Container style={{ maxWidth: 900, marginTop: 20, marginBottom: 40, fontFamily: 'Arial, sans-serif', color: textColor }}>
       <div style={{ position: 'relative' }}>
         <button
           type="button"
@@ -265,12 +299,12 @@ function App() {
         <Form onSubmit={handleSubmit} className="app-form">
           {/* Outer big square */}
           <div style={outerSquareStyle}>
-            {/* TOP inner square: category, subcategory, priority, building, location, impacted, description */}
+            {/* TOP inner square */}
             <div style={innerSquareStyle}>
               <Row>
                 <Col md={6}>
                   <Form.Group className="mb-3" controlId="category">
-                    <Form.Label>Incident Category</Form.Label>
+                    <Form.Label style={{ color: textColor }}>Incident Category</Form.Label>
                     <Select
                       classNamePrefix="rs"
                       options={categoryOptions}
@@ -279,13 +313,14 @@ function App() {
                       name="category"
                       placeholder="-- Select Category --"
                       isClearable
+                      styles={customSelectStyles(theme)}
                     />
                   </Form.Group>
                 </Col>
 
                 <Col md={6}>
                   <Form.Group className="mb-3" controlId="sub_category">
-                    <Form.Label>Sub-category</Form.Label>
+                    <Form.Label style={{ color: textColor }}>Sub-category</Form.Label>
                     <Select
                       classNamePrefix="rs"
                       options={getSubCategoryOptions()}
@@ -295,6 +330,7 @@ function App() {
                       placeholder="-- Select Sub-category --"
                       isClearable
                       isDisabled={!form.category}
+                      styles={customSelectStyles(theme)}
                     />
                   </Form.Group>
                 </Col>
@@ -303,7 +339,7 @@ function App() {
               <Row>
                 <Col md={6}>
                   <Form.Group className="mb-3" controlId="priority">
-                    <Form.Label>Priority Level (P0–P4)</Form.Label>
+                    <Form.Label style={{ color: textColor }}>Priority Level (P0–P4)</Form.Label>
                     <Select
                       classNamePrefix="rs"
                       options={priorityOptions}
@@ -312,13 +348,14 @@ function App() {
                       name="priority"
                       placeholder="-- Select Priority --"
                       isClearable
+                      styles={customSelectStyles(theme)}
                     />
                   </Form.Group>
                 </Col>
 
                 <Col md={6}>
                   <Form.Group className="mb-3" controlId="building">
-                    <Form.Label>Building</Form.Label>
+                    <Form.Label style={{ color: textColor }}>Building</Form.Label>
                     <Select
                       classNamePrefix="rs"
                       options={buildingOptions}
@@ -327,6 +364,7 @@ function App() {
                       name="building"
                       placeholder="-- Select Building --"
                       isClearable
+                      styles={customSelectStyles(theme)}
                     />
                   </Form.Group>
                 </Col>
@@ -334,97 +372,10 @@ function App() {
 
               <Row>
                 <Form.Group as={Col} md={6} className="mb-3" controlId="location">
-                  <Form.Label>Affected Location (Rack/Zone/Room)</Form.Label>
-                  <Form.Control type="text" name="location" value={form.location} onChange={handleChange} />
+                  <Form.Label style={{ color: textColor }}>Affected Location (Rack/Zone/Room)</Form.Label>
+                  <Form.Control type="text" name="location" value={form.location} onChange={handleChange} style={{ color: textColor, backgroundColor: theme === 'dark' ? '#333' : '#fff' }} />
                 </Form.Group>
 
                 <Form.Group as={Col} md={6} className="mb-3" controlId="impacted">
-                  <Form.Label>Impacted Systems/Services</Form.Label>
-                  <Form.Control type="text" name="impacted" value={form.impacted} onChange={handleChange} />
-                </Form.Group>
-              </Row>
-
-              {/* Centrally placed, larger incident description */}
-              <div style={centerTextAreaWrapper}>
-                <Form.Group className="mb-3" controlId="description" style={{ width: '100%', maxWidth: 760 }}>
-                  <Form.Label className="text-center d-block">Incident Description</Form.Label>
-                  <Form.Control as="textarea" rows={8} name="description" value={form.description} onChange={handleChange} required />
-                </Form.Group>
-              </div>
-            </div>
-
-            {/* BOTTOM inner square: detected by, time detected, root cause, actions taken */}
-            <div style={innerSquareStyle}>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3" controlId="detectedBy">
-                    <Form.Label>Detected By</Form.Label>
-                    <Select
-                      classNamePrefix="rs"
-                      options={detectedByOptions}
-                      value={form.detectedBy}
-                      onChange={handleDetectedByChange}
-                      name="detectedBy"
-                      placeholder="-- Select --"
-                      isClearable
-                    />
-                  </Form.Group>
-                </Col>
-
-                <Col md={6}>
-                  <Form.Group className="mb-3" controlId="time_detected">
-                    <Form.Label>Time Detected</Form.Label>
-                    <Form.Control type="datetime-local" name="time_detected" value={form.time_detected} onChange={handleChange} />
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              {form.detectedBy?.value === 'Other' && (
-                <Form.Group className="mb-3" controlId="detectedByOther">
-                  <Form.Label>Please specify</Form.Label>
-                  <Form.Control type="text" name="detectedByOther" value={form.detectedByOther} onChange={handleChange} placeholder="Enter custom detection source" required />
-                </Form.Group>
-              )}
-
-              <Row>
-                <Form.Group as={Col} md={12} className="mb-3" controlId="root_cause">
-                  <Form.Label>Root Cause (if known)</Form.Label>
-                  <Form.Control type="text" name="root_cause" value={form.root_cause} onChange={handleChange} />
-                </Form.Group>
-              </Row>
-
-              <Form.Group className="mb-3" controlId="actions_taken">
-                <Form.Label>Immediate Actions Taken</Form.Label>
-                <Form.Control as="textarea" rows={3} name="actions_taken" value={form.actions_taken} onChange={handleChange} />
-              </Form.Group>
-            </div>
-          </div>
-
-          {/* Submit Button directly after the big square */}
-          <div className="d-grid gap-2 mt-4">
-            <Button variant="primary" type="submit" size="lg" disabled={submitting}>
-              {submitting ? (
-                <>
-                  <Spinner animation="border" size="sm" role="status" aria-hidden="true" /> Submitting...
-                </>
-              ) : (isEditing ? 'Update Ticket' : 'Create Ticket')}
-            </Button>
-          </div>
-        </Form>
-      </div>
-    </Container>
-  );
-}
-
-export default function AppRouter() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/frontend" element={<App />} />
-        <Route path="/ticketspage" element={<TicketsPage />} />
-        {/* default route -> show the form */}
-        <Route path="*" element={<App />} />
-      </Routes>
-    </Router>
-  );
-}
+                  <Form.Label style={{ color: textColor }}>Impacted Systems/Services</Form.Label>
+                  <Form.Control type
