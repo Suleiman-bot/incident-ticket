@@ -125,11 +125,23 @@ const fetchTickets = async () => {
     switch (modalType) {
       case "view":
         return (
-          <Box sx={{ p: 4, bgcolor: "background.paper" }}>
-            <Typography variant="h6">Ticket Details</Typography>
-            <pre>{JSON.stringify(selectedTicket, null, 2)}</pre>
-            <Button onClick={() => setModalType("")}>Close</Button>
-          </Box>
+<Box sx={{ p: 4, bgcolor: "background.paper" }}>
+  <Typography variant="h6" gutterBottom>Ticket Details</Typography>
+  
+  <Typography><strong>Ticket ID:</strong> {selectedTicket.ticketId}</Typography>
+  <Typography><strong>Category:</strong> {selectedTicket.category}</Typography>
+  <Typography><strong>Sub Category:</strong> {selectedTicket.subCategory}</Typography>
+  <Typography><strong>Priority:</strong> {selectedTicket.priority}</Typography>
+  <Typography><strong>Status:</strong> {selectedTicket.status}</Typography>
+  <Typography><strong>Date Opened:</strong> {selectedTicket.dateOpened}</Typography>
+  <Typography><strong>Date Closed:</strong> {selectedTicket.dateClosed || '-'}</Typography>
+  <Typography><strong>Building:</strong> {selectedTicket.building}</Typography>
+  <Typography><strong>Location:</strong> {selectedTicket.location}</Typography>
+  <Typography><strong>Impacted Systems/Services:</strong> {selectedTicket.impacted}</Typography>
+  <Typography><strong>Description:</strong> {selectedTicket.description}</Typography>
+  
+  <Button onClick={() => setModalType("")} sx={{ mt: 2 }}>Close</Button>
+</Box>
         );
       case "assign":
         return (
