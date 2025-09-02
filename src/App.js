@@ -5,6 +5,7 @@ import Select from 'react-select';
 import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import TicketsPage from './TicketsPage';
+import { Alert } from 'react-bootstrap';
 
 const API_BASE = (() => {
   const raw = process.env.REACT_APP_API_URL?.trim();
@@ -79,6 +80,7 @@ function App() {
     actions_taken: '',
   });
 
+  const [alert, setAlert] = useState({ type: '', message: '' });
   const ticketToEdit = location?.state?.ticketToEdit ?? null;
   const isEditing = Boolean(ticketToEdit);
 
@@ -136,17 +138,20 @@ function App() {
       root_cause: form.root_cause,
       actions_taken: form.actions_taken,
     };
-    try {
-      if (isEditing) {
-        const identifier = ticketToEdit.id ?? ticketToEdit.ticket_id;
-        await api.put(`/tickets/${identifier}`, output);
-      } else {
-        await api.post('/tickets', output);
-      }
-      navigate('/ticketspage');
-    } catch (err) {
-      console.error('Error submitting ticket:', err);
-    }
+try {
+  if (isEditing) {
+    const identifier = ticketToEdit.id ?? ticketToEdit.ticket_id;
+    await api.put(`/tickets/${identifier}`, output);
+    setAlert({ type: 'success', message: 'Ticket updated successfully!' });
+  } else {
+    await api.post('/tickets', output);
+    setAlert({ type: 'success', message: 'Ticket created successfully!' });
+  }
+  navigate('/ticketspage');
+} catch (err) {
+  console.error('Error submitting ticket:', err);
+  setAlert({ type: 'danger', message: 'Failed to submit ticket.' });
+}
   };
 
   const textColor = theme === 'dark' ? '#fff' : '#000';
@@ -165,9 +170,33 @@ function App() {
         <div className="text-center mb-4">
           <img src="/KasiLogo.jpeg" alt="Company Logo" style={{ maxWidth: 200 }} />
         </div>
-        <h2 className="text-center mb-4" style={{ color: textColor }}>Kasi Cloud Data Center Incident Ticket</h2>
+       // ====== Page Title (Heading) ======
+// This is the main heading shown at the top of the form page.
+<h2 className="text-center mb-4" style={{ color: textColor }}>
+  Kasi Cloud Data Center Incident Ticket
+</h2>
 
-        <Form onSubmit={handleSubmit}>
+// ====== Success / Error Alert Section ======
+// This block conditionally displays an alert message if "alert.message" is set.
+// - `variant={alert.type}` controls whether it's success or danger.
+// - `dismissible` allows the user to close it manually.
+// - `onClose` clears the alert when the user clicks "X".
+{alert.message && (
+  <Alert
+    variant={alert.type}
+    onClose={() => setAlert({ type: '', message: '' })}
+    dismissible
+    className="mt-3"
+  >
+    {alert.message}
+  </Alert>
+)}
+
+// ====== Ticket Form Start ======
+// The main form that handles creating a new ticket.
+// The "onSubmit" triggers the handleSubmit() function.
+<Form onSubmit={handleSubmit}>
+
           <Card className="p-3" style={{ border: `2px solid ${borderColor}`, backgroundColor: cardBg }}>
 
             {/* Square 1 */}
