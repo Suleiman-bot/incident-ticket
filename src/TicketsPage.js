@@ -45,6 +45,9 @@ const TicketsPage = ({ theme, setTheme }) => {
   });
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedTicket, setSelectedTicket] = useState(null);
+  // 🔹 PATCH 1: Store full ticket objects separately for modal
+const [allTickets, setAllTickets] = useState([]); 
+
   const [modalType, setModalType] = useState(""); // "view" | "assign" | "updateStatus" | "edit" | "resolve"
 
   const open = Boolean(anchorEl);
@@ -58,14 +61,18 @@ const fetchTickets = async () => {
     const res = await axios.get("http://192.168.0.3:8000/api/tickets");
     console.log("Fetched tickets: ", res.data);
 
+    // 🔹 PATCH 2: Store full objects for modal
+    setAllTickets(res.data);
+
+    // 🔹 PATCH 3: Normalize subset for table
     const normalized = res.data.map((t) => ({
       ticketId: t.ticket_id,
       category: t.category,
       subCategory: t.sub_category,
       priority: t.priority,
       status: t.status,
-      dateOpened: t.opened,   // correct field
-      dateClosed: t.closed,   // correct field
+      dateOpened: t.opened,
+      dateClosed: t.closed,
     }));
 
     setTickets(normalized);
@@ -77,9 +84,12 @@ const fetchTickets = async () => {
 
 
 
+
   const handleActionClick = (event, ticket) => {
     setAnchorEl(event.currentTarget);
-    setSelectedTicket(ticket);
+    // 🔹 PATCH 4: Find full ticket object by ticketId
+const fullTicket = allTickets.find(t => t.ticket_id === ticket.ticketId);
+setSelectedTicket(fullTicket);
   };
 
   const handleCloseMenu = () => {
