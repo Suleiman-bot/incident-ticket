@@ -69,16 +69,9 @@ const isoToLocalDatetime = (iso) => {
 };
 
 // ---------- App Component ----------
-function App() {
+function App({ theme, setTheme }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-  const toggleTheme = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
-
   const [form, setForm] = useState({
     category: null,
     sub_category: '',
@@ -317,15 +310,24 @@ try {
 
 // ---------- App Router ----------
 export default function AppRouter() {
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
   return (
     <Router>
       <Routes>
-        <Route path="/frontend" element={<App />} />
-        <Route path="/ticketspage"
-  element={<TicketsPage theme={theme} setTheme={setTheme} />}
-/>
-   <Route path="*" element={<App />} />
+        <Route path="/frontend" element={<App theme={theme} setTheme={setTheme} />} />
+        <Route
+          path="/ticketspage"
+          element={<TicketsPage theme={theme} setTheme={setTheme} />}
+        />
+        <Route path="*" element={<App theme={theme} setTheme={setTheme} />} />
       </Routes>
     </Router>
   );
 }
+
