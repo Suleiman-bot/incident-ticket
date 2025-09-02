@@ -71,7 +71,6 @@ const isoToLocalDatetime = (iso) => {
 // ---------- App Component ----------
 function App() {
   const location = useLocation();
-  const [theme, setTheme] = useState("light");  //Theme
   const navigate = useNavigate();
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   useEffect(() => {
