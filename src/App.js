@@ -170,17 +170,17 @@ try {
         <div className="text-center mb-4">
           <img src="/KasiLogo.jpeg" alt="Company Logo" style={{ maxWidth: 200 }} />
         </div>
-       // ====== Page Title (Heading) ======
-// This is the main heading shown at the top of the form page.
+       {/* ====== Page Title (Heading) ====== */}
+{/* This is the main heading shown at the top of the form page. */}
 <h2 className="text-center mb-4" style={{ color: textColor }}>
   Kasi Cloud Data Center Incident Ticket
 </h2>
 
-// ====== Success / Error Alert Section ======
-// This block conditionally displays an alert message if "alert.message" is set.
-// - `variant={alert.type}` controls whether it's success or danger.
-// - `dismissible` allows the user to close it manually.
-// - `onClose` clears the alert when the user clicks "X".
+{/* ====== Success / Error Alert Section ====== */}
+{/* This block conditionally displays an alert message if "alert.message" is set. 
+    - `variant={alert.type}` controls whether it's success or danger.
+    - `dismissible` allows the user to close it manually.
+    - `onClose` clears the alert when the user clicks "X". */}
 {alert.message && (
   <Alert
     variant={alert.type}
@@ -192,11 +192,10 @@ try {
   </Alert>
 )}
 
-// ====== Ticket Form Start ======
-// The main form that handles creating a new ticket.
-// The "onSubmit" triggers the handleSubmit() function.
+{/* ====== Ticket Form Start ====== */}
+{/* The main form that handles creating a new ticket.
+    The "onSubmit" triggers the handleSubmit() function. */}
 <Form onSubmit={handleSubmit}>
-
           <Card className="p-3" style={{ border: `2px solid ${borderColor}`, backgroundColor: cardBg }}>
 
             {/* Square 1 */}
