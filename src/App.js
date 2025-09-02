@@ -172,12 +172,26 @@ try {
   const fieldBg = theme === 'dark' ? '#333' : '#fff';
   const borderColor = theme === 'dark' ? fieldBg : '#ccc';
 
-  return (
-    <Container style={{ maxWidth: 900, marginTop: 20, marginBottom: 40, backgroundColor: bgColor, minHeight: "100vh" }}>
-      <div style={{ position: 'relative' }}>
-        <button type="button" onClick={toggleTheme} className="btn btn-sm btn-outline-secondary" style={{ position: 'absolute', right: 0, top: -10 }}>
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
+return (
+  <Container
+    style={{
+      maxWidth: 900,
+      marginTop: 20,
+      marginBottom: 40,
+      backgroundColor: bgColor,
+      minHeight: "100vh",
+    }}
+  >
+    <div style={{ position: "relative" }}>
+      <button
+        type="button"
+        onClick={() => setTheme(t => (t === "light" ? "dark" : "light"))}
+        className="btn btn-sm btn-outline-secondary"
+        style={{ position: "absolute", right: 0, top: -10 }}
+      >
+        {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+      </button>
+
 
         <div className="text-center mb-4">
           <img src="/KasiLogo.jpeg" alt="Company Logo" style={{ maxWidth: 200 }} />
