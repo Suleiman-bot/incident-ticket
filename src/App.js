@@ -150,8 +150,13 @@ try {
   navigate('/ticketspage');
 } catch (err) {
   console.error('Error submitting ticket:', err);
-  setAlert({ type: 'danger', message: 'Failed to submit ticket.' });
+
+  // Try to show backend error if available
+  const backendMessage = err.response?.data?.message || err.message || 'Unknown error';
+
+  setAlert({ type: 'danger', message: `Failed to submit ticket: ${backendMessage}` });
 }
+
   };
 
   const textColor = theme === 'dark' ? '#fff' : '#000';
