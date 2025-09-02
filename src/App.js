@@ -26,6 +26,7 @@ const api = axios.create({
   baseURL: API_BASE,
 });
 
+const [theme, setTheme] = useState("light");  //Theme
 
 // ---------- constants ----------
 const subCategories = {
