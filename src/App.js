@@ -320,8 +320,10 @@ export default function AppRouter() {
     <Router>
       <Routes>
         <Route path="/frontend" element={<App />} />
-        <Route path="/ticketspage" element={<TicketsPage />} />
-        <Route path="*" element={<App />} />
+        <Route path="/ticketspage"
+  element={<TicketsPage theme={theme} setTheme={setTheme} />}
+/>
+   <Route path="*" element={<App />} />
       </Routes>
     </Router>
   );
