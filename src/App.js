@@ -144,7 +144,7 @@ try {
     await api.put(`/tickets/${identifier}`, output);
     setAlert({ type: 'success', message: 'Ticket updated successfully!' });
   } else {
-    await api.post('/tickets', output);
+    await api.post('/tickets', output, { headers: { 'Content-Type': 'application/json' } });
     setAlert({ type: 'success', message: 'Ticket created successfully!' });
   }
   navigate('/ticketspage');
