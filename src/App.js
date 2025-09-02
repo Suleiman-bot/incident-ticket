@@ -7,12 +7,25 @@ import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from
 import TicketsPage from './TicketsPage';
 import { Alert } from 'react-bootstrap';
 
+/**
+ * axios instance that respects REACT_APP_API_URL.
+ * - If REACT_APP_API_URL is set (e.g., in Docker/prod), it will use `${REACT_APP_API_URL}/api`.
+ * - Otherwise (dev), it uses the CRA dev proxy `/api`.
+ */
 const API_BASE = (() => {
   const raw = process.env.REACT_APP_API_URL?.trim();
-  if (raw && raw.length > 0) return `${raw.replace(/\/$/, '')}/api`;
+  if (raw && raw.length > 0) {
+    // ensure no trailing slash, then append /api
+    return `${raw.replace(/\/$/, '')}/api`;
+  }
+  // CRA dev proxy will forward /api to http://localhost:8000
   return '/api';
 })();
-const api = axios.create({ baseURL: API_BASE });
+
+const api = axios.create({
+  baseURL: API_BASE,
+});
+
 
 // ---------- constants ----------
 const subCategories = {
