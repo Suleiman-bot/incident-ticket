@@ -49,25 +49,25 @@ const TicketsPage = () => {
 
 const fetchTickets = async () => {
   try {
-    const res = await axios.get("/api/tickets");
+    const res = await axios.get("http://192.168.0.3:8000/api/tickets");
     console.log("Fetched tickets: ", res.data);
 
-    // Map snake_case -> camelCase
     const normalized = res.data.map((t) => ({
       ticketId: t.ticket_id,
       category: t.category,
       subCategory: t.sub_category,
       priority: t.priority,
       status: t.status,
-      dateOpened: t.date_opened,
-      dateClosed: t.date_closed,
+      dateOpened: t.opened,   // correct field
+      dateClosed: t.closed,   // correct field
     }));
 
     setTickets(normalized);
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching tickets:", err);
   }
 };
+
 
 
 
