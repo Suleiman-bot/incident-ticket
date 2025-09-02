@@ -364,29 +364,23 @@ const fetchTickets = async () => {
         </Table>
       </TableContainer>
 
-      <Menu anchorEl={anchorEl} open={open} onClose={handleCloseMenu}>
-        <MenuItem onClick={() => handleOpenModal("view")}>View More</MenuItem>
-        <MenuItem onClick={() => handleOpenModal("assign")}>
-          Assign Engineers
-        </MenuItem>
-        <MenuItem onClick={() => handleOpenModal("updateStatus")}>
-          Update Status
-        </MenuItem>
-        <MenuItem onClick={() => handleOpenModal("edit")}>Edit</MenuItem>
-        <MenuItem onClick={() => handleOpenModal("resolve")}>
-          Resolution
-        <MenuItem
-  onClick={() =>
-    window.open(
-      `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticketId}/download`,
-      "_blank"
-    )
-  }
->
-  Download PDF
-</MenuItem>
-
-      </Menu>
+<Menu anchorEl={anchorEl} open={open} onClose={handleCloseMenu}>
+  <MenuItem onClick={() => handleOpenModal("view")}>View More</MenuItem>
+  <MenuItem onClick={() => handleOpenModal("assign")}>Assign Engineers</MenuItem>
+  <MenuItem onClick={() => handleOpenModal("updateStatus")}>Update Status</MenuItem>
+  <MenuItem onClick={() => handleOpenModal("edit")}>Edit</MenuItem>
+  <MenuItem onClick={() => handleOpenModal("resolve")}>Resolution</MenuItem>
+  <MenuItem
+    onClick={() =>
+      window.open(
+        `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticketId}/download`,
+        "_blank"
+      )
+    }
+  >
+    Download PDF
+  </MenuItem>
+</Menu>
 
       <Modal open={!!modalType} onClose={() => setModalType("")}>
         <Box
