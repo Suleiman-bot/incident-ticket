@@ -50,12 +50,25 @@ const TicketsPage = () => {
 const fetchTickets = async () => {
   try {
     const res = await axios.get("/api/tickets");
-    console.log("Fetched tickets: ", res.data); // Add this line
-    setTickets(res.data);
+    console.log("Fetched tickets: ", res.data);
+
+    // Map snake_case -> camelCase
+    const normalized = res.data.map((t) => ({
+      ticketId: t.ticket_id,
+      category: t.category,
+      subCategory: t.sub_category,
+      priority: t.priority,
+      status: t.status,
+      dateOpened: t.date_opened,
+      dateClosed: t.date_closed,
+    }));
+
+    setTickets(normalized);
   } catch (err) {
     console.error(err);
   }
 };
+
 
 
   const handleActionClick = (event, ticket) => {
