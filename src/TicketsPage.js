@@ -26,8 +26,14 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { CSVLink } from "react-csv";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+// import the logo with space in filename as requested
+import KasiLogo from "./KasiLogo.jpeg";
+import { Stack, FormControlLabel, Switch } from "@mui/material";
+import { DarkMode, LightMode } from "@mui/icons-material";
 
-const TicketsPage = () => {
+
+const TicketsPage = ({ theme, setTheme }) => {
+  // state, hooks, etc...
   const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [filter, setFilter] = useState({
@@ -210,6 +216,47 @@ const fetchTickets = async () => {
 
   return (
     <Box sx={{ p: 2 }}>
+      {/* 🔹 Title + Logo + Theme Switch */}
+    <Stack
+      direction={{ xs: "column", sm: "row" }}
+      alignItems="center"
+      spacing={2}
+      justifyContent="space-between"
+      sx={{ mb: 2 }}
+    >
+      <Stack direction="row" spacing={2} alignItems="center">
+        <img
+          src={KasiLogo}
+          alt="Kasi"
+          style={{
+            height: "80px",
+            width: "auto",
+            maxWidth: "100%",
+            objectFit: "contain",
+          }}
+        />
+        <Box>
+          <Typography variant="h6">Kasi Cloud Data Centers</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Incident Tickets
+          </Typography>
+        </Box>
+      </Stack>
+
+      <Stack direction="row" spacing={2} alignItems="center">
+        <FormControlLabel
+          control={
+            <Switch
+              checked={theme === "dark"}
+              onChange={() =>
+                setTheme((t) => (t === "dark" ? "light" : "dark"))
+              }
+            />
+          }
+          label={theme === "dark" ? <DarkMode /> : <LightMode />}
+        />
+      </Stack>
+    </Stack>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Box sx={{ display: "flex", gap: 2 }}>
           <TextField
@@ -328,14 +375,17 @@ const fetchTickets = async () => {
         <MenuItem onClick={() => handleOpenModal("edit")}>Edit</MenuItem>
         <MenuItem onClick={() => handleOpenModal("resolve")}>
           Resolution
-        </MenuItem>
         <MenuItem
-          onClick={() =>
-            window.open(`/api/download/${selectedTicket.ticketId}`, "_blank")
-          }
-        >
-          Download PDF
-        </MenuItem>
+  onClick={() =>
+    window.open(
+      `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticketId}/download`,
+      "_blank"
+    )
+  }
+>
+  Download PDF
+</MenuItem>
+
       </Menu>
 
       <Modal open={!!modalType} onClose={() => setModalType("")}>
