@@ -47,14 +47,16 @@ const TicketsPage = () => {
     fetchTickets();
   }, []);
 
-  const fetchTickets = async () => {
-    try {
-      const res = await axios.get("/api/tickets"); // your backend endpoint
-      setTickets(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+const fetchTickets = async () => {
+  try {
+    const res = await axios.get("/api/tickets");
+    console.log("Fetched tickets: ", res.data); // Add this line
+    setTickets(res.data);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 
   const handleActionClick = (event, ticket) => {
     setAnchorEl(event.currentTarget);
