@@ -125,33 +125,37 @@ const fetchTickets = async () => {
     switch (modalType) {
       case "view":
   return (
-    <Box sx={{ p: 4, bgcolor: "background.paper" }}>
-      <Typography variant="h6" gutterBottom>Ticket Details</Typography>
+<Box sx={{ p: 4, bgcolor: "background.paper" }}>
+  <Typography variant="h6" gutterBottom>Ticket Details</Typography>
 
-<Typography><strong>Ticket ID:</strong> {selectedTicket.ticket_id}</Typography>
-<Typography><strong>Category:</strong> {selectedTicket.category}</Typography>
-<Typography><strong>Sub Category:</strong> {selectedTicket.sub_category}</Typography>
-<Typography><strong>Priority:</strong> {selectedTicket.priority}</Typography>
-<Typography><strong>Status:</strong> {selectedTicket.status}</Typography>
-<Typography><strong>Date Opened:</strong> {selectedTicket.opened}</Typography>
-<Typography><strong>Date Closed:</strong> {selectedTicket.closed || '-'}</Typography>
-<Typography><strong>Building:</strong> {selectedTicket.building}</Typography>
-<Typography><strong>Location:</strong> {selectedTicket.location}</Typography>
-<Typography><strong>Impacted Systems/Services:</strong> {selectedTicket.impacted}</Typography>
-<Typography><strong>Description:</strong> {selectedTicket.description}</Typography>
-<Typography><strong>Detected By:</strong> {selectedTicket.detectedBy}</Typography>
-<Typography><strong>Time Detected:</strong> {selectedTicket.time_detected}</Typography>
-<Typography><strong>Root Cause:</strong> {selectedTicket.root_cause}</Typography>
-<Typography><strong>Actions Taken:</strong> {selectedTicket.actions_taken}</Typography>
-<Typography><strong>Assigned To:</strong> {selectedTicket.assigned_to}</Typography>
-<Typography><strong>Resolution Summary:</strong> {selectedTicket.resolution_summary}</Typography>
-<Typography><strong>Resolution Time:</strong> {selectedTicket.resolution_time}</Typography>
-<Typography><strong>SLA Breach:</strong> {selectedTicket.sla_breach}</Typography>
-<Typography><strong>Post Review:</strong> {selectedTicket.post_review}</Typography>
+  {selectedTicket && (
+    <div style={{ display: 'grid', rowGap: 8 }}>
+      <div><strong>Ticket ID:</strong> {selectedTicket.ticket_id}</div>
+      <div><strong>Category:</strong> {selectedTicket.category}</div>
+      <div><strong>Sub Category:</strong> {selectedTicket.sub_category}</div>
+      <div><strong>Priority:</strong> {selectedTicket.priority}</div>
+      <div><strong>Status:</strong> {selectedTicket.status}</div>
+      <div><strong>Date Opened:</strong> {selectedTicket.opened}</div>
+      <div><strong>Date Closed:</strong> {selectedTicket.closed || '-'}</div>
+      <div><strong>Building:</strong> {selectedTicket.building}</div>
+      <div><strong>Location:</strong> {selectedTicket.location}</div>
+      <div><strong>Impacted Systems/Services:</strong> {selectedTicket.impacted}</div>
+      <div><strong>Description:</strong> {selectedTicket.description}</div>
+      <div><strong>Detected By:</strong> {selectedTicket.detectedBy}</div>
+      <div><strong>Time Detected:</strong> {selectedTicket.time_detected}</div>
+      <div><strong>Root Cause:</strong> {selectedTicket.root_cause}</div>
+      <div><strong>Actions Taken:</strong> {selectedTicket.actions_taken}</div>
+      <div><strong>Assigned To:</strong> {selectedTicket.assigned_to}</div>
+      <div><strong>Resolution Summary:</strong> {selectedTicket.resolution_summary}</div>
+      <div><strong>Resolution Time:</strong> {selectedTicket.resolution_time}</div>
+      <div><strong>SLA Breach:</strong> {selectedTicket.sla_breach}</div>
+      <div><strong>Post Review:</strong> {selectedTicket.post_review}</div>
+    </div>
+  )}
 
+  <Button onClick={() => setModalType("")} sx={{ mt: 2 }}>Close</Button>
+</Box>
 
-      <Button onClick={() => setModalType("")} sx={{ mt: 2 }}>Close</Button>
-    </Box>
   );
 
       case "assign":
