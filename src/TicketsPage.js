@@ -256,7 +256,7 @@ case "assign":  //Assigned Engineers
                 <MenuItem value="Closed">Closed</MenuItem>
               </Select>
             </FormControl>
-            <Button
+<Button
   onClick={async () => {
     try {
       await fetch(
@@ -267,6 +267,8 @@ case "assign":  //Assigned Engineers
           body: JSON.stringify({ status: selectedTicket.status }),
         }
       );
+
+      // Update full tickets
       setAllTickets(prev =>
         prev.map(ticket =>
           ticket.ticket_id === selectedTicket.ticket_id
@@ -274,6 +276,22 @@ case "assign":  //Assigned Engineers
             : ticket
         )
       );
+
+      // Update normalized table tickets
+      setTickets(prev =>
+        prev.map(ticket =>
+          ticket.ticketId === selectedTicket.ticket_id
+            ? { ...ticket, status: selectedTicket.status }
+            : ticket
+        )
+      );
+
+      // Sync modal data too
+      setSelectedTicket(prev => ({
+        ...prev,
+        status: selectedTicket.status,
+      }));
+
       setModalType("");
     } catch (err) {
       console.error("Error updating status:", err);
@@ -282,9 +300,10 @@ case "assign":  //Assigned Engineers
 >
   Update
 </Button>
+
           </Box>
         );
-      case "edit":
+      case "edit":    //Edit Button
         return (
           <Box sx={{ p: 4, bgcolor: "background.paper" }}>
             <Typography variant="h6">Edit Ticket</Typography>
