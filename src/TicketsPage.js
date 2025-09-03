@@ -244,7 +244,7 @@ case "assign":
           <Box sx={{ p: 4, bgcolor: "background.paper" }}>
             <Typography variant="h6">Update Status</Typography>
             <FormControl fullWidth>
-              <Select
+              <ReactSelect
                 value={selectedTicket.status || "Open"}
                 onChange={(e) =>
                   setSelectedTicket({ ...selectedTicket, status: e.target.value })
@@ -256,7 +256,33 @@ case "assign":
                 <MenuItem value="Closed">Closed</MenuItem>
               </Select>
             </FormControl>
-            <Button onClick={() => setModalType("")}>Update</Button>
+            <Button
+  onClick={async () => {
+    try {
+      await fetch(
+        `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticket_id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: selectedTicket.status }),
+        }
+      );
+      setAllTickets(prev =>
+        prev.map(ticket =>
+          ticket.ticket_id === selectedTicket.ticket_id
+            ? { ...ticket, status: selectedTicket.status }
+            : ticket
+        )
+      );
+      setModalType("");
+    } catch (err) {
+      console.error("Error updating status:", err);
+    }
+  }}
+>
+  Update
+</Button>
+
           </Box>
         );
       case "edit":
