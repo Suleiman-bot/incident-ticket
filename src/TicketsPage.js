@@ -141,7 +141,7 @@ setSelectedTicket(fullTicket);
     if (!selectedTicket) return null;
 
     switch (modalType) {
-      case "view":
+      case "view": //View More
   return (
 <Box sx={{ p: 4, bgcolor: "background.paper" }}>
   <Typography variant="h6" gutterBottom>Ticket Details</Typography>
@@ -176,7 +176,7 @@ setSelectedTicket(fullTicket);
 
   );
 
-case "assign":
+case "assign":  //Assigned Engineers
   return (
     <Box sx={{ p: 4, bgcolor: "background.paper", borderRadius: 2 }}>
       <Typography variant="h6" gutterBottom>
@@ -239,12 +239,12 @@ case "assign":
     </Box>
   );
 
-      case "updateStatus":
+      case "updateStatus":   //Update Status
         return (
           <Box sx={{ p: 4, bgcolor: "background.paper" }}>
             <Typography variant="h6">Update Status</Typography>
             <FormControl fullWidth>
-              <ReactSelect
+              <Select
                 value={selectedTicket.status || "Open"}
                 onChange={(e) =>
                   setSelectedTicket({ ...selectedTicket, status: e.target.value })
@@ -282,7 +282,6 @@ case "assign":
 >
   Update
 </Button>
-
           </Box>
         );
       case "edit":
