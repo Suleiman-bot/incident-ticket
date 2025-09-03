@@ -30,7 +30,15 @@ import "react-datepicker/dist/react-datepicker.css";
 import KasiLogo from "./KasiLogo.jpeg";
 import { Stack, FormControlLabel, Switch } from "@mui/material";
 import { DarkMode, LightMode } from "@mui/icons-material";
-
+import ReactSelect from "react-select";
+const assignedEngineerOptions = [
+  { value: "Suleiman Abdulsalam", label: "Suleiman Abdulsalam" },
+  { value: "Jesse Etuk", label: "Jesse Etuk" },
+  { value: "Opeyemi Akintelure", label: "Opeyemi Akintelure" },
+  { value: "Gbenga Mabadeje", label: "Gbenga Mabadeje" },
+  { value: "Eloka Igbokwe", label: "Eloka Igbokwe" },
+  { value: "Ifeoma Ndudim", label: "Ifeoma Ndudim" },
+];
 
 const TicketsPage = ({ theme, setTheme }) => {
   // state, hooks, etc...
@@ -168,29 +176,69 @@ setSelectedTicket(fullTicket);
 
   );
 
-      case "assign":
-        return (
-          <Box sx={{ p: 4, bgcolor: "background.paper" }}>
-            <Typography variant="h6">Assign Engineers</Typography>
-            <FormControl fullWidth>
-              <Select
-                multiple
-                value={selectedTicket.assignedEngineers || []}
-                onChange={(e) =>
-                  setSelectedTicket({
-                    ...selectedTicket,
-                    assignedEngineers: e.target.value,
-                  })
+case "assign":
+  return (
+    <Box sx={{ p: 4, bgcolor: "background.paper", borderRadius: 2 }}>
+      <Typography variant="h6" gutterBottom>
+        Assign Engineers
+      </Typography>
+
+      <ReactSelect
+        isMulti
+        options={assignedEngineerOptions}
+        placeholder="Select engineers..."
+        value={(selectedTicket.assigned_to || "")
+          .split(",")
+          .filter(name => name.trim() !== "")
+          .map(name => ({ value: name, label: name }))}
+        onChange={(selected) => {
+          const engineers = selected.map(opt => opt.value).join(", ");
+          setSelectedTicket(prev => ({ ...prev, assigned_to: engineers }));
+        }}
+      />
+
+      <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
+        <Button
+          variant="contained"
+          onClick={async () => {
+            try {
+              // 1. Update backend (tickets.csv)
+              await fetch(
+                `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticket_id}`,
+                {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    assigned_to: selectedTicket.assigned_to,
+                  }),
                 }
-              >
-                {/* Populate engineers list */}
-                <MenuItem value="Engineer1">Engineer1</MenuItem>
-                <MenuItem value="Engineer2">Engineer2</MenuItem>
-              </Select>
-            </FormControl>
-            <Button onClick={() => setModalType("")}>Save</Button>
-          </Box>
-        );
+              );
+
+              // 2. Update frontend state
+              setAllTickets(prev =>
+                prev.map(ticket =>
+                  ticket.ticket_id === selectedTicket.ticket_id
+                    ? { ...ticket, assigned_to: selectedTicket.assigned_to }
+                    : ticket
+                )
+              );
+
+              setModalType(""); // close modal
+            } catch (err) {
+              console.error("Error assigning engineers:", err);
+              alert("Failed to update ticket. Please try again.");
+            }
+          }}
+        >
+          Save
+        </Button>
+        <Button variant="outlined" onClick={() => setModalType("")}>
+          Cancel
+        </Button>
+      </Box>
+    </Box>
+  );
+
       case "updateStatus":
         return (
           <Box sx={{ p: 4, bgcolor: "background.paper" }}>
