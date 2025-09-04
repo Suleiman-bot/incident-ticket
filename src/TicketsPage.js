@@ -31,6 +31,8 @@ import KasiLogo from "./KasiLogo.jpeg";
 import { Stack, FormControlLabel, Switch } from "@mui/material";
 import { DarkMode, LightMode } from "@mui/icons-material";
 import ReactSelect from "react-select";
+import { RBForm, Button } from "react-bootstrap";
+
 const assignedEngineerOptions = [
   { value: "Suleiman Abdulsalam", label: "Suleiman Abdulsalam" },
   { value: "Jesse Etuk", label: "Jesse Etuk" },
@@ -303,22 +305,137 @@ case "assign":  //Assigned Engineers
 
           </Box>
         );
-      case "edit":    //Edit Button
-        return (
-          <Box sx={{ p: 4, bgcolor: "background.paper" }}>
-            <Typography variant="h6">Edit Ticket</Typography>
-            <TextField
-              label="Category"
-              fullWidth
-              value={selectedTicket.category}
-              onChange={(e) =>
-                setSelectedTicket({ ...selectedTicket, category: e.target.value })
-              }
-            />
-            {/* Add other fields similarly */}
-            <Button onClick={() => setModalType("")}>Save</Button>
-          </Box>
-        );
+case "edit": // Edit Button
+  return (
+    <Box sx={{ p: 4, bgcolor: "background.paper" }}>
+      <Typography variant="h6" gutterBottom>Edit Ticket</Typography>
+
+      <Stack spacing={2}>
+        <TextField
+          label="Category"
+          fullWidth
+          value={selectedTicket.category || ""}
+          onChange={(e) =>
+            setSelectedTicket({ ...selectedTicket, category: e.target.value })
+          }
+        />
+        <TextField
+          label="Sub-Category"
+          fullWidth
+          value={selectedTicket.sub_category || ""}
+          onChange={(e) =>
+            setSelectedTicket({ ...selectedTicket, sub_category: e.target.value })
+          }
+        />
+        <FormControl fullWidth>
+          <InputLabel>Priority</InputLabel>
+          <Select
+            value={selectedTicket.priority || ""}
+            onChange={(e) =>
+              setSelectedTicket({ ...selectedTicket, priority: e.target.value })
+            }
+          >
+            <MenuItem value="P0">P0</MenuItem>
+            <MenuItem value="P1">P1</MenuItem>
+            <MenuItem value="P2">P2</MenuItem>
+            <MenuItem value="P3">P3</MenuItem>
+            <MenuItem value="P4">P4</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl fullWidth>
+          <InputLabel>Status</InputLabel>
+          <Select
+            value={selectedTicket.status || ""}
+            onChange={(e) =>
+              setSelectedTicket({ ...selectedTicket, status: e.target.value })
+            }
+          >
+            <MenuItem value="Open">Open</MenuItem>
+            <MenuItem value="In Progress">In Progress</MenuItem>
+            <MenuItem value="Resolved">Resolved</MenuItem>
+            <MenuItem value="Closed">Closed</MenuItem>
+          </Select>
+        </FormControl>
+        <TextField
+          label="Building"
+          fullWidth
+          value={selectedTicket.building || ""}
+          onChange={(e) =>
+            setSelectedTicket({ ...selectedTicket, building: e.target.value })
+          }
+        />
+        <TextField
+          label="Location"
+          fullWidth
+          value={selectedTicket.location || ""}
+          onChange={(e) =>
+            setSelectedTicket({ ...selectedTicket, location: e.target.value })
+          }
+        />
+        <TextField
+          label="Description"
+          fullWidth
+          multiline
+          rows={3}
+          value={selectedTicket.description || ""}
+          onChange={(e) =>
+            setSelectedTicket({ ...selectedTicket, description: e.target.value })
+          }
+        />
+      </Stack>
+
+      <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
+        <Button
+          variant="contained"
+          onClick={async () => {
+            try {
+              // 🔹 Update backend
+              await fetch(
+                `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticket_id}`,
+                {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(selectedTicket),
+                }
+              );
+
+              // 🔹 Update frontend state
+              setAllTickets((prev) =>
+                prev.map((t) =>
+                  t.ticket_id === selectedTicket.ticket_id ? selectedTicket : t
+                )
+              );
+
+              setTickets((prev) =>
+                prev.map((t) =>
+                  t.ticketId === selectedTicket.ticket_id
+                    ? {
+                        ...t,
+                        category: selectedTicket.category,
+                        subCategory: selectedTicket.sub_category,
+                        priority: selectedTicket.priority,
+                        status: selectedTicket.status,
+                      }
+                    : t
+                )
+              );
+
+              setModalType("");
+            } catch (err) {
+              console.error("Error saving edits:", err);
+              alert("Failed to update ticket. Please try again.");
+            }
+          }}
+        >
+          Save
+        </Button>
+        <Button variant="outlined" onClick={() => setModalType("")}>
+          Cancel
+        </Button>
+      </Box>
+    </Box>
+  );
+
       case "resolve":
         return (
           <Box sx={{ p: 4, bgcolor: "background.paper" }}>
