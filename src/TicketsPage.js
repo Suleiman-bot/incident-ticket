@@ -305,134 +305,247 @@ case "assign":  //Assigned Engineers
 
           </Box>
         );
-case "edit": // Edit Button
+case "edit":   //EDIT BUTTON
   return (
     <Box sx={{ p: 4, bgcolor: "background.paper" }}>
-      <Typography variant="h6" gutterBottom>Edit Ticket</Typography>
+      <Typography variant="h6" gutterBottom>
+        Edit Ticket
+      </Typography>
 
-      <Stack spacing={2}>
-        <TextField
-          label="Category"
-          fullWidth
-          value={selectedTicket.category || ""}
-          onChange={(e) =>
-            setSelectedTicket({ ...selectedTicket, category: e.target.value })
-          }
-        />
-        <TextField
-          label="Sub-Category"
-          fullWidth
-          value={selectedTicket.sub_category || ""}
-          onChange={(e) =>
-            setSelectedTicket({ ...selectedTicket, sub_category: e.target.value })
-          }
-        />
-        <FormControl fullWidth>
-          <InputLabel>Priority</InputLabel>
-          <Select
-            value={selectedTicket.priority || ""}
-            onChange={(e) =>
-              setSelectedTicket({ ...selectedTicket, priority: e.target.value })
-            }
-          >
-            <MenuItem value="P0">P0</MenuItem>
-            <MenuItem value="P1">P1</MenuItem>
-            <MenuItem value="P2">P2</MenuItem>
-            <MenuItem value="P3">P3</MenuItem>
-            <MenuItem value="P4">P4</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl fullWidth>
-          <InputLabel>Status</InputLabel>
-          <Select
-            value={selectedTicket.status || ""}
-            onChange={(e) =>
-              setSelectedTicket({ ...selectedTicket, status: e.target.value })
-            }
-          >
-            <MenuItem value="Open">Open</MenuItem>
-            <MenuItem value="In Progress">In Progress</MenuItem>
-            <MenuItem value="Resolved">Resolved</MenuItem>
-            <MenuItem value="Closed">Closed</MenuItem>
-          </Select>
-        </FormControl>
-        <TextField
-          label="Building"
-          fullWidth
-          value={selectedTicket.building || ""}
-          onChange={(e) =>
-            setSelectedTicket({ ...selectedTicket, building: e.target.value })
-          }
-        />
-        <TextField
-          label="Location"
-          fullWidth
-          value={selectedTicket.location || ""}
-          onChange={(e) =>
-            setSelectedTicket({ ...selectedTicket, location: e.target.value })
-          }
-        />
-        <TextField
-          label="Description"
-          fullWidth
-          multiline
-          rows={3}
-          value={selectedTicket.description || ""}
-          onChange={(e) =>
-            setSelectedTicket({ ...selectedTicket, description: e.target.value })
-          }
-        />
-      </Stack>
-
-      <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
-        <Button
-          variant="contained"
-          onClick={async () => {
-            try {
-              // 🔹 Update backend
-              await fetch(
-                `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticket_id}`,
-                {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(selectedTicket),
-                }
-              );
-
-              // 🔹 Update frontend state
-              setAllTickets((prev) =>
-                prev.map((t) =>
-                  t.ticket_id === selectedTicket.ticket_id ? selectedTicket : t
-                )
-              );
-
-              setTickets((prev) =>
-                prev.map((t) =>
-                  t.ticketId === selectedTicket.ticket_id
-                    ? {
-                        ...t,
-                        category: selectedTicket.category,
-                        subCategory: selectedTicket.sub_category,
-                        priority: selectedTicket.priority,
-                        status: selectedTicket.status,
-                      }
-                    : t
-                )
-              );
-
-              setModalType("");
-            } catch (err) {
-              console.error("Error saving edits:", err);
-              alert("Failed to update ticket. Please try again.");
-            }
-          }}
+      {/* ====== Success / Error Alert Section ====== */}
+      {alert.message && (
+        <Alert
+          variant={alert.type}
+          onClose={() => setAlert({ type: "", message: "" })}
+          dismissible
+          className="mt-3"
         >
-          Save
-        </Button>
-        <Button variant="outlined" onClick={() => setModalType("")}>
-          Cancel
-        </Button>
-      </Box>
+          {alert.message}
+        </Alert>
+      )}
+
+      <Form onSubmit={handleSubmit}>
+        <Card
+          className="p-3"
+          style={{ border: `2px solid ${borderColor}`, backgroundColor: cardBg }}
+        >
+          {/* Square 1 */}
+          <Card
+            className="p-3 mb-3"
+            style={{
+              backgroundColor: cardBg,
+              border: `1px solid ${borderColor}`,
+            }}
+          >
+            <Row>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ color: textColor }}>Category</Form.Label>
+                  <Select
+                    classNamePrefix="rs"
+                    options={categoryOptions}
+                    value={form.category}
+                    onChange={handleCategoryChange}
+                    placeholder="-- Select Category --"
+                    isClearable
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ color: textColor }}>
+                    Sub-category
+                  </Form.Label>
+                  <Select
+                    classNamePrefix="rs"
+                    options={getSubCategoryOptions()}
+                    value={subOptionFromValue(form.sub_category)}
+                    onChange={(s) =>
+                      setForm((f) => ({
+                        ...f,
+                        sub_category: s ? s.value : "",
+                      }))
+                    }
+                    placeholder="-- Select Sub-category --"
+                    isClearable
+                    isDisabled={!form.category}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ color: textColor }}>
+                    Priority Level
+                  </Form.Label>
+                  <Select
+                    classNamePrefix="rs"
+                    options={priorityOptions}
+                    value={form.priority}
+                    onChange={handlePriorityChange}
+                    placeholder="-- Select Priority --"
+                    isClearable
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ color: textColor }}>Building</Form.Label>
+                  <Select
+                    classNamePrefix="rs"
+                    options={buildingOptions}
+                    value={
+                      form.building
+                        ? { value: form.building, label: form.building }
+                        : null
+                    }
+                    onChange={handleBuildingChange}
+                    placeholder="-- Select Building --"
+                    isClearable
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ color: textColor }}>
+                    Affected Area
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="location"
+                    value={form.location}
+                    onChange={handleChange}
+                    style={{ color: textColor, backgroundColor: fieldBg }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ color: textColor }}>
+                    Impacted Systems
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="impacted"
+                    value={form.impacted}
+                    onChange={handleChange}
+                    style={{ color: textColor, backgroundColor: fieldBg }}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Form.Group>
+              <Form.Label style={{ color: textColor }}>
+                Incident Description
+              </Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={5}
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                style={{ color: textColor, backgroundColor: fieldBg }}
+              />
+            </Form.Group>
+          </Card>
+
+          {/* Square 2 */}
+          <Card
+            className="p-3"
+            style={{ border: `2px solid ${borderColor}`, backgroundColor: cardBg }}
+          >
+            <Row>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ color: textColor }}>
+                    Detected By
+                  </Form.Label>
+                  <Select
+                    classNamePrefix="rs"
+                    options={detectedByOptions}
+                    value={form.detectedBy}
+                    onChange={handleDetectedByChange}
+                    placeholder="-- Select --"
+                    isClearable
+                  />
+                </Form.Group>
+                {form.detectedBy?.value === "Other" && (
+                  <Form.Group className="mt-2">
+                    <Form.Label style={{ color: textColor }}>
+                      Please specify
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="detectedByOther"
+                      value={form.detectedByOther}
+                      onChange={handleChange}
+                      placeholder="Enter custom detection source"
+                      style={{ color: textColor, backgroundColor: fieldBg }}
+                    />
+                  </Form.Group>
+                )}
+              </Col>
+
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label style={{ color: textColor }}>
+                    Time Detected
+                  </Form.Label>
+                  <Form.Control
+                    type="datetime-local"
+                    name="time_detected"
+                    value={form.time_detected}
+                    onChange={handleChange}
+                    style={{ color: textColor, backgroundColor: fieldBg }}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Form.Group className="mt-3">
+              <Form.Label style={{ color: textColor }}>Root Cause</Form.Label>
+              <Form.Control
+                type="text"
+                name="root_cause"
+                value={form.root_cause}
+                onChange={handleChange}
+                style={{ color: textColor, backgroundColor: fieldBg }}
+              />
+            </Form.Group>
+
+            <Form.Group className="mt-3">
+              <Form.Label style={{ color: textColor }}>Action Taken</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                name="actions_taken"
+                value={form.actions_taken}
+                onChange={handleChange}
+                style={{ color: textColor, backgroundColor: fieldBg }}
+              />
+            </Form.Group>
+          </Card>
+
+ <div className="d-flex justify-content-end gap-2 mt-4">
+  <Button 
+    variant="secondary" 
+    size="lg" 
+    onClick={() => setModal({ open: false, mode: null, ticket: null })}
+  >
+    Cancel
+  </Button>
+  <Button type="submit" variant="primary" size="lg">
+    Update Ticket
+  </Button>
+</div>
+</Card>
+      </Form>
     </Box>
   );
 
