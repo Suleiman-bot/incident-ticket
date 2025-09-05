@@ -161,8 +161,8 @@ const [form, setForm] = useState({
   // 🔹 Resolve modal fields (default safe values)
   resolution_summary: "",
   resolution_time: "",
-  sla_breach: false,
-  post_review: false,
+  sla_breach: "No",     // default = No
+  post_review: "No",    // default = No
 });
 
 // 🔹 Generic text change handler
@@ -789,34 +789,35 @@ case "resolve":
         </Form.Group>
 
         {/* SLA Breach Checkbox */}
-        <Form.Group className="mb-3">
-          <Form.Check
-            type="checkbox"
-            label="SLA Breach"
-            checked={form.sla_breach || false}
-            onChange={(e) =>
-              setForm((prev) => ({
-                ...prev,
-                sla_breach: e.target.checked,
-              }))
-            }
-          />
-        </Form.Group>
+<Form.Group className="mb-3">
+  <Form.Check
+    type="checkbox"
+    label="SLA Breach"
+    checked={form.sla_breach === "Yes"}   // ✅ convert string to boolean
+    onChange={(e) =>
+      setForm((prev) => ({
+        ...prev,
+        sla_breach: e.target.checked ? "Yes" : "No", // ✅ always store "Yes"/"No"
+      }))
+    }
+  />
+</Form.Group>
 
-        {/* Post Incident Review Checkbox */}
-        <Form.Group className="mb-3">
-          <Form.Check
-            type="checkbox"
-            label="Post Incident Review"
-            checked={form.post_review || false}
-            onChange={(e) =>
-              setForm((prev) => ({
-                ...prev,
-                post_review: e.target.checked,
-              }))
-            }
-          />
-        </Form.Group>
+{/* Post Incident Review Checkbox */}
+<Form.Group className="mb-3">
+  <Form.Check
+    type="checkbox"
+    label="Post Incident Review"
+    checked={form.post_review === "Yes"}   // ✅ convert string to boolean
+    onChange={(e) =>
+      setForm((prev) => ({
+        ...prev,
+        post_review: e.target.checked ? "Yes" : "No", // ✅ always store "Yes"/"No"
+      }))
+    }
+  />
+</Form.Group>
+
 
         {/* ===== Action Buttons ===== */}
         <div className="d-flex justify-content-end gap-2 mt-4">
