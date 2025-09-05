@@ -410,7 +410,7 @@ case "assign":  //Assigned Engineers
 
           </Box>
         );
-case "edit":   //EDIT BUTTON
+case "edit": // EDIT BUTTON
   return (
     <Box sx={{ p: 4, bgcolor: "background.paper" }}>
       <Typography variant="h6" gutterBottom>
@@ -432,9 +432,12 @@ case "edit":   //EDIT BUTTON
       <Form onSubmit={handleSubmit}>
         <Card
           className="p-3"
-          style={{ border: `2px solid ${borderColor}`, backgroundColor: cardBg }}
+          style={{
+            border: `2px solid ${borderColor}`,
+            backgroundColor: cardBg,
+          }}
         >
-          {/* Square 1 */}
+          {/* ===== Square 1 ===== */}
           <Card
             className="p-3 mb-3"
             style={{
@@ -445,11 +448,17 @@ case "edit":   //EDIT BUTTON
             <Row>
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label style={{ color: textColor }}>Category</Form.Label>
-                  <Select
+                  <Form.Label style={{ color: textColor }}>
+                    Category
+                  </Form.Label>
+                  <ReactSelect
                     classNamePrefix="rs"
                     options={categoryOptions}
-                    value={form.category}
+                    value={
+                      form.category
+                        ? { value: form.category, label: form.category }
+                        : null
+                    }
                     onChange={handleCategoryChange}
                     placeholder="-- Select Category --"
                     isClearable
@@ -461,7 +470,7 @@ case "edit":   //EDIT BUTTON
                   <Form.Label style={{ color: textColor }}>
                     Sub-category
                   </Form.Label>
-                  <Select
+                  <ReactSelect
                     classNamePrefix="rs"
                     options={getSubCategoryOptions()}
                     value={subOptionFromValue(form.sub_category)}
@@ -485,10 +494,14 @@ case "edit":   //EDIT BUTTON
                   <Form.Label style={{ color: textColor }}>
                     Priority Level
                   </Form.Label>
-                  <Select
+                  <ReactSelect
                     classNamePrefix="rs"
                     options={priorityOptions}
-                    value={form.priority}
+                    value={
+                      form.priority
+                        ? { value: form.priority, label: form.priority }
+                        : null
+                    }
                     onChange={handlePriorityChange}
                     placeholder="-- Select Priority --"
                     isClearable
@@ -497,8 +510,10 @@ case "edit":   //EDIT BUTTON
               </Col>
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label style={{ color: textColor }}>Building</Form.Label>
-                  <Select
+                  <Form.Label style={{ color: textColor }}>
+                    Building
+                  </Form.Label>
+                  <ReactSelect
                     classNamePrefix="rs"
                     options={buildingOptions}
                     value={
@@ -560,10 +575,13 @@ case "edit":   //EDIT BUTTON
             </Form.Group>
           </Card>
 
-          {/* Square 2 */}
+          {/* ===== Square 2 ===== */}
           <Card
             className="p-3"
-            style={{ border: `2px solid ${borderColor}`, backgroundColor: cardBg }}
+            style={{
+              border: `2px solid ${borderColor}`,
+              backgroundColor: cardBg,
+            }}
           >
             <Row>
               <Col md={6}>
@@ -571,7 +589,7 @@ case "edit":   //EDIT BUTTON
                   <Form.Label style={{ color: textColor }}>
                     Detected By
                   </Form.Label>
-                  <Select
+                  <ReactSelect
                     classNamePrefix="rs"
                     options={detectedByOptions}
                     value={form.detectedBy}
@@ -637,25 +655,31 @@ case "edit":   //EDIT BUTTON
             </Form.Group>
           </Card>
 
- <div className="d-flex justify-content-end gap-2 mt-4">
-  <Button 
-    variant="secondary" 
-    size="lg" 
-   onClick={() => {
-  setModalType("");
-  setSelectedTicket(null);
-}}
-  >
-    Cancel
-  </Button>
-  <Button type="submit" variant="primary" size="lg">
-    Update Ticket
-  </Button>
-</div>
-</Card>
+          {/* ===== Buttons ===== */}
+          <div className="d-flex justify-content-end gap-2 mt-4">
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+            >
+              Save Changes
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
+              onClick={() => {
+                setModalType("");
+                setSelectedTicket(null);
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </Card>
       </Form>
     </Box>
   );
+
 
       case "resolve":
         return (
