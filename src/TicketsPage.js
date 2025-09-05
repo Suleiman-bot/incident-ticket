@@ -252,11 +252,11 @@ setSelectedTicket(fullTicket);
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
-
+//HandleOpenModal
 const handleOpenModal = (type) => {
   setModalType(type);
   handleCloseMenu();
-
+//HandleOpenModal Edit
   if (type === "edit" && selectedTicket) {
     setForm({
       category: selectedTicket.category || "",
@@ -275,6 +275,18 @@ const handleOpenModal = (type) => {
       actions_taken: selectedTicket.actions_taken || "",
     });
   }
+   //HandleOpenModal ResolveTicket
+  if (type === "resolve" && selectedTicket) {
+  setForm({
+    ...selectedTicket,
+    resolution_summary: selectedTicket.resolution_summary || "",
+    resolution_time: selectedTicket.resolution_time || "",
+    // normalize SLA + Review to "Yes"/"No"
+    sla_breach: selectedTicket.sla_breach || "No",
+    post_review: selectedTicket.post_review || "No",
+  });
+}
+
 };
 
   const handleFilterChange = (field, value) => {
@@ -754,7 +766,6 @@ case "resolve":
         Resolve Ticket
       </Typography>
 
-      {/* ===== Resolve Ticket Form ===== */}
       <Form>
         {/* Resolution Summary */}
         <Form.Group className="mb-3">
@@ -788,40 +799,38 @@ case "resolve":
           />
         </Form.Group>
 
-        {/* SLA Breach Checkbox */}
-<Form.Group className="mb-3">
-  <Form.Check
-    type="checkbox"
-    label="SLA Breach"
-    checked={form.sla_breach === "Yes"}   // ✅ convert string to boolean
-    onChange={(e) =>
-      setForm((prev) => ({
-        ...prev,
-        sla_breach: e.target.checked ? "Yes" : "No", // ✅ always store "Yes"/"No"
-      }))
-    }
-  />
-</Form.Group>
+        {/* SLA Breach */}
+        <Form.Group className="mb-3">
+          <Form.Check
+            type="checkbox"
+            label="SLA Breach"
+            checked={form.sla_breach === "Yes"}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                sla_breach: e.target.checked ? "Yes" : "No",
+              }))
+            }
+          />
+        </Form.Group>
 
-{/* Post Incident Review Checkbox */}
-<Form.Group className="mb-3">
-  <Form.Check
-    type="checkbox"
-    label="Post Incident Review"
-    checked={form.post_review === "Yes"}   // ✅ convert string to boolean
-    onChange={(e) =>
-      setForm((prev) => ({
-        ...prev,
-        post_review: e.target.checked ? "Yes" : "No", // ✅ always store "Yes"/"No"
-      }))
-    }
-  />
-</Form.Group>
-
+        {/* Post Incident Review */}
+        <Form.Group className="mb-3">
+          <Form.Check
+            type="checkbox"
+            label="Post Incident Review"
+            checked={form.post_review === "Yes"}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                post_review: e.target.checked ? "Yes" : "No",
+              }))
+            }
+          />
+        </Form.Group>
 
         {/* ===== Action Buttons ===== */}
         <div className="d-flex justify-content-end gap-2 mt-4">
-          {/* Close Button - dismiss without saving */}
           <RBButton
             variant="secondary"
             size="lg"
@@ -830,15 +839,15 @@ case "resolve":
             Close
           </RBButton>
 
-          {/* Resolve Ticket Button - save and mark Resolved */}
           <RBButton
             variant="success"
             size="lg"
             onClick={async () => {
               try {
                 const output = {
-                  ...form,
-                  status: "Resolved", // auto-update status
+                  ...selectedTicket,   // ✅ preserve all fields
+                  ...form,             // ✅ overwrite with resolve fields
+                  status: "Resolved",  // ✅ enforce resolved
                 };
 
                 await axios.put(
@@ -864,7 +873,7 @@ case "resolve":
                   )
                 );
 
-                setModalType(""); // close modal
+                setModalType("");
                 setSelectedTicket(null);
               } catch (err) {
                 console.error("Error resolving ticket:", err);
