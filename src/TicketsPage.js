@@ -158,6 +158,11 @@ const [form, setForm] = useState({
   time_detected: "",
   root_cause: "",
   actions_taken: "",
+  // 🔹 Resolve modal fields (default safe values)
+  resolution_summary: "",
+  resolution_time: "",
+  sla_breach: false,
+  post_review: false,
 });
 
 // 🔹 Generic text change handler
