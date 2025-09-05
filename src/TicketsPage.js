@@ -31,7 +31,7 @@ import KasiLogo from "./KasiLogo.jpeg";
 import { Stack, FormControlLabel, Switch } from "@mui/material";
 import { DarkMode, LightMode } from "@mui/icons-material";
 import ReactSelect from "react-select";
-import { Form, RBButton, Card, Row, Col, Alert } from "react-bootstrap";
+import { Form, Button as RBButton, Card, Row, Col, Alert } from "react-bootstrap";
 
 const assignedEngineerOptions = [
   { value: "Suleiman Abdulsalam", label: "Suleiman Abdulsalam" },
