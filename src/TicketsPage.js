@@ -33,6 +33,47 @@ import { DarkMode, LightMode } from "@mui/icons-material";
 import ReactSelect from "react-select";
 import { Form, Button as RBButton, Card, Row, Col, Alert } from "react-bootstrap";
 
+// ---------- constants (copied from App.js) ----------
+const subCategories = {
+  Network: ["Router Failure","Switch Failure","Network Latency","Packet Loss","ISP Outage","Fiber Cut","DNS Issue","Bandwidth Saturation"],
+  Server: ["CPU/Memory Overload","Hardware Fault","OS Crash"],
+  Storage: ["Disk Failure","RAID Degraded","Capacity Alert"],
+  Power: ["Power Outage","UPS Failure","Generator Issue"],
+  Cooling: ["Cooling Unit Failure","Temperature Alert"],
+  Security: ["Security Breach","Access Control Failure","Surveillance Offline"],
+  "Access Control": ["Badge Reader Failure","Door Lock Failure"],
+  Application: ["Software Bug","Service Crash","Performance Degradation"],
+  Database: ["Database Error","Connection Timeout","Data Corruption"]
+};
+const categoryOptions = Object.keys(subCategories).map(cat => ({ value: cat, label: cat }));
+const priorityOptions = [
+  { value: "P0", label: "P0 - Catastrophic" },
+  { value: "P1", label: "P1 - Critical" },
+  { value: "P2", label: "P2 - High" },
+  { value: "P3", label: "P3 - Medium" },
+  { value: "P4", label: "P4 - Low" },
+];
+const buildingOptions = ["LOS1","LOS2","LOS3","LOS4","LOS5"].map(b => ({ value: b, label: b }));
+const detectedByOptions = [
+  { value: "", label: "-- Select --" },
+  { value: "Monitoring Tool", label: "Monitoring Tool" },
+  { value: "Customer Report", label: "Customer Report" },
+  { value: "Engineer Observation", label: "Engineer Observation" },
+  { value: "Automated Alert", label: "Automated Alert" },
+  { value: "Other", label: "Other" },
+];
+
+const subOptionFromValue = (val) => (val ? { value: val, label: val } : null);
+const toOption = (val) => (val ? { value: val, label: String(val) } : null);
+const isoToLocalDatetime = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+
 const assignedEngineerOptions = [
   { value: "Suleiman Abdulsalam", label: "Suleiman Abdulsalam" },
   { value: "Jesse Etuk", label: "Jesse Etuk" },
@@ -42,9 +83,20 @@ const assignedEngineerOptions = [
   { value: "Ifeoma Ndudim", label: "Ifeoma Ndudim" },
 ];
 
+
+//TIcketsPage Components
 const TicketsPage = ({ theme, setTheme }) => {
   // state, hooks, etc...
   const navigate = useNavigate();
+  // theme-based colors
+const textColor = theme === "dark" ? "#fff" : "#000";
+const cardBg = theme === "dark" ? "#1e1e1e" : "#ffffff";
+const fieldBg = theme === "dark" ? "#333" : "#fff";
+const borderColor = theme === "dark" ? fieldBg : "#ccc";
+
+// alert state
+const [alert, setAlert] = useState({ type: "", message: "" });
+
   const [tickets, setTickets] = useState([]);
   const [filter, setFilter] = useState({
     ticketId: "",
@@ -119,11 +171,11 @@ const handleCategoryChange = (option) => {
   setForm((prev) => ({ ...prev, category: option ? option.value : "", sub_category: "" }));
 };
 
-// 🔹 Subcategory helper
+  // 🔹 Subcategory helper (same as App.js)
 const getSubCategoryOptions = () => {
-  if (!form.category) return [];
-  const selected = categoryOptions.find((c) => c.value === form.category);
-  return selected ? selected.subCategories.map((s) => ({ value: s, label: s })) : [];
+  const catKey = form.category?.value;
+  if (!catKey) return [];
+  return (subCategories[catKey] || []).map((s) => ({ value: s, label: s }));
 };
 
 // 🔹 Priority handler
@@ -220,6 +272,7 @@ const handleOpenModal = (type) => {
     setFilter((prev) => ({ ...prev, [field]: value }));
   };
 
+  
   const filteredTickets = useMemo(() => {
     return tickets.filter((t) => {
       return (
