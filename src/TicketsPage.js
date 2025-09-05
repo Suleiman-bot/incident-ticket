@@ -738,31 +738,144 @@ case "edit": // EDIT BUTTON
   );
 
 
-      case "resolve":
-        return (
-          <Box sx={{ p: 4, bgcolor: "background.paper" }}>
-            <Typography variant="h6">Resolve Incident</Typography>
-            <TextField
-              label="Resolution Summary"
-              fullWidth
-              multiline
-              rows={3}
-            />
-            <FormControl>
-              <Select>
-                <MenuItem value="Yes">SLA Breach</MenuItem>
-                <MenuItem value="No">No Breach</MenuItem>
-              </Select>
-            </FormControl>
-            <Button onClick={() => setModalType("")}>Resolve</Button>
-          </Box>
-        );
-      default:
-        return null;
-    }
-  };
-
+// ===============================
+// CASE: RESOLVE TICKET MODAL
+// ===============================
+case "resolve":
   return (
+    <Box sx={{ p: 4, bgcolor: "background.paper" }}>
+      {/* ===== Modal Title ===== */}
+      <Typography variant="h6" gutterBottom>
+        Resolve Ticket
+      </Typography>
+
+      {/* ===== Resolve Ticket Form ===== */}
+      <Form>
+        {/* Resolution Summary */}
+        <Form.Group className="mb-3">
+          <Form.Label>Resolution Summary</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            value={form.resolution_summary || ""}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                resolution_summary: e.target.value,
+              }))
+            }
+            placeholder="Enter resolution details"
+          />
+        </Form.Group>
+
+        {/* Resolution Time */}
+        <Form.Group className="mb-3">
+          <Form.Label>Resolution Time</Form.Label>
+          <Form.Control
+            type="datetime-local"
+            value={form.resolution_time || ""}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                resolution_time: e.target.value,
+              }))
+            }
+          />
+        </Form.Group>
+
+        {/* SLA Breach Checkbox */}
+        <Form.Group className="mb-3">
+          <Form.Check
+            type="checkbox"
+            label="SLA Breach"
+            checked={form.sla_breach || false}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                sla_breach: e.target.checked,
+              }))
+            }
+          />
+        </Form.Group>
+
+        {/* Post Incident Review Checkbox */}
+        <Form.Group className="mb-3">
+          <Form.Check
+            type="checkbox"
+            label="Post Incident Review"
+            checked={form.post_review || false}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                post_review: e.target.checked,
+              }))
+            }
+          />
+        </Form.Group>
+
+        {/* ===== Action Buttons ===== */}
+        <div className="d-flex justify-content-end gap-2 mt-4">
+          {/* Close Button - dismiss without saving */}
+          <RBButton
+            variant="secondary"
+            size="lg"
+            onClick={() => setModalType("")}
+          >
+            Close
+          </RBButton>
+
+          {/* Resolve Ticket Button - save and mark Resolved */}
+          <RBButton
+            variant="success"
+            size="lg"
+            onClick={async () => {
+              try {
+                const output = {
+                  ...form,
+                  status: "Resolved", // auto-update status
+                };
+
+                await axios.put(
+                  `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticket_id}`,
+                  output
+                );
+
+                // 🔹 Update full list
+                setAllTickets((prev) =>
+                  prev.map((t) =>
+                    t.ticket_id === selectedTicket.ticket_id
+                      ? { ...t, ...output }
+                      : t
+                  )
+                );
+
+                // 🔹 Update normalized table
+                setTickets((prev) =>
+                  prev.map((t) =>
+                    t.ticketId === selectedTicket.ticket_id
+                      ? { ...t, status: "Resolved" }
+                      : t
+                  )
+                );
+
+                setModalType(""); // close modal
+                setSelectedTicket(null);
+              } catch (err) {
+                console.error("Error resolving ticket:", err);
+                alert("Failed to resolve ticket. Please try again.");
+              }
+            }}
+          >
+            Resolve Ticket
+          </RBButton>
+        </div>
+      </Form>
+    </Box>
+  );
+
+ 
+//TITLE LOGO THEMES
+return (
     <Box sx={{ p: 2 }}>
       {/* 🔹 Title + Logo + Theme Switch */}
     <Stack
