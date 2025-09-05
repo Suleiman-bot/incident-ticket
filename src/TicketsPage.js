@@ -31,7 +31,7 @@ import KasiLogo from "./KasiLogo.jpeg";
 import { Stack, FormControlLabel, Switch } from "@mui/material";
 import { DarkMode, LightMode } from "@mui/icons-material";
 import ReactSelect from "react-select";
-import { RBForm, Button } from "react-bootstrap";
+import { Form, Button, Card, Row, Col, Alert } from "react-bootstrap";
 
 const assignedEngineerOptions = [
   { value: "Suleiman Abdulsalam", label: "Suleiman Abdulsalam" },
@@ -92,7 +92,93 @@ const fetchTickets = async () => {
 };
 
 
+// 🔹 Edit form state
+const [form, setForm] = useState({
+  category: "",
+  sub_category: "",
+  priority: "",
+  building: "",
+  location: "",
+  impacted: "",
+  description: "",
+  detectedBy: null,
+  detectedByOther: "",
+  time_detected: "",
+  root_cause: "",
+  actions_taken: "",
+});
 
+// 🔹 Generic text change handler
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  setForm((prev) => ({ ...prev, [name]: value }));
+};
+
+// 🔹 Category handler
+const handleCategoryChange = (option) => {
+  setForm((prev) => ({ ...prev, category: option ? option.value : "", sub_category: "" }));
+};
+
+// 🔹 Subcategory helper
+const getSubCategoryOptions = () => {
+  if (!form.category) return [];
+  const selected = categoryOptions.find((c) => c.value === form.category);
+  return selected ? selected.subCategories.map((s) => ({ value: s, label: s })) : [];
+};
+
+// 🔹 Priority handler
+const handlePriorityChange = (option) => {
+  setForm((prev) => ({ ...prev, priority: option ? option.value : "" }));
+};
+
+// 🔹 Building handler
+const handleBuildingChange = (option) => {
+  setForm((prev) => ({ ...prev, building: option ? option.value : "" }));
+};
+
+// 🔹 DetectedBy handler
+const handleDetectedByChange = (option) => {
+  setForm((prev) => ({ ...prev, detectedBy: option }));
+};
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    // Prepare output for backend
+    const output = {
+      ...form,
+      detectedBy: form.detectedBy ? form.detectedBy.value : "",
+    };
+
+    await axios.put(`http://192.168.0.3:8000/api/tickets/${selectedTicket.ticket_id}`, output);
+
+    // Update frontend state
+    setAllTickets((prev) =>
+      prev.map((t) =>
+        t.ticket_id === selectedTicket.ticket_id ? { ...t, ...output } : t
+      )
+    );
+
+    setTickets((prev) =>
+      prev.map((t) =>
+        t.ticketId === selectedTicket.ticket_id
+          ? {
+              ...t,
+              category: output.category,
+              subCategory: output.sub_category,
+              priority: output.priority,
+            }
+          : t
+      )
+    );
+
+    setModalType(""); // Close modal
+    setSelectedTicket(null);
+  } catch (err) {
+    console.error("Error updating ticket:", err);
+    alert("Failed to update ticket. Please try again.");
+  }
+};
 
 
   const handleActionClick = (event, ticket) => {
@@ -106,10 +192,29 @@ setSelectedTicket(fullTicket);
     setAnchorEl(null);
   };
 
-  const handleOpenModal = (type) => {
-    setModalType(type);
-    handleCloseMenu();
-  };
+const handleOpenModal = (type) => {
+  setModalType(type);
+  handleCloseMenu();
+
+  if (type === "edit" && selectedTicket) {
+    setForm({
+      category: selectedTicket.category || "",
+      sub_category: selectedTicket.sub_category || "",
+      priority: selectedTicket.priority || "",
+      building: selectedTicket.building || "",
+      location: selectedTicket.location || "",
+      impacted: selectedTicket.impacted || "",
+      description: selectedTicket.description || "",
+      detectedBy: selectedTicket.detectedBy 
+        ? { value: selectedTicket.detectedBy, label: selectedTicket.detectedBy }
+        : null,
+      detectedByOther: selectedTicket.detectedByOther || "",
+      time_detected: selectedTicket.time_detected || "",
+      root_cause: selectedTicket.root_cause || "",
+      actions_taken: selectedTicket.actions_taken || "",
+    });
+  }
+};
 
   const handleFilterChange = (field, value) => {
     setFilter((prev) => ({ ...prev, [field]: value }));
@@ -536,7 +641,10 @@ case "edit":   //EDIT BUTTON
   <Button 
     variant="secondary" 
     size="lg" 
-    onClick={() => setModal({ open: false, mode: null, ticket: null })}
+   onClick={() => {
+  setModalType("");
+  setSelectedTicket(null);
+}}
   >
     Cancel
   </Button>
