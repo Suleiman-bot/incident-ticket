@@ -172,11 +172,15 @@ const handleCategoryChange = (option) => {
 };
 
   // 🔹 Subcategory helper (same as App.js)
+// 🔹 Fix: Subcategory helper (string-based)
 const getSubCategoryOptions = () => {
-  const catKey = form.category?.value;
-  if (!catKey) return [];
-  return (subCategories[catKey] || []).map((s) => ({ value: s, label: s }));
+  if (!form.category) return [];
+  return (subCategories[form.category] || []).map((s) => ({
+    value: s,
+    label: s,
+  }));
 };
+
 
 // 🔹 Priority handler
 const handlePriorityChange = (option) => {
