@@ -31,7 +31,7 @@ import KasiLogo from "./KasiLogo.jpeg";
 import { Stack, FormControlLabel, Switch } from "@mui/material";
 import { DarkMode, LightMode } from "@mui/icons-material";
 import ReactSelect from "react-select";
-import { Form, Button, Card, Row, Col, Alert } from "react-bootstrap";
+import { Form, RBButton, Card, Row, Col, Alert } from "react-bootstrap";
 
 const assignedEngineerOptions = [
   { value: "Suleiman Abdulsalam", label: "Suleiman Abdulsalam" },
@@ -657,14 +657,14 @@ case "edit": // EDIT BUTTON
 
           {/* ===== Buttons ===== */}
           <div className="d-flex justify-content-end gap-2 mt-4">
-            <Button
+            <RBButton
               type="submit"
               variant="primary"
               size="lg"
             >
               Save Changes
-            </Button>
-            <Button
+            </RBButton>
+            <RBButton
               variant="secondary"
               size="lg"
               onClick={() => {
@@ -673,7 +673,7 @@ case "edit": // EDIT BUTTON
               }}
             >
               Cancel
-            </Button>
+            </RBButton>
           </div>
         </Card>
       </Form>
