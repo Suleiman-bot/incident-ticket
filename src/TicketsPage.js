@@ -872,7 +872,10 @@ case "resolve":
       </Form>
     </Box>
   );
-
+    default:
+      return null;
+  }
+};
  
 //TITLE LOGO THEMES
 return (
@@ -1030,7 +1033,7 @@ return (
   <MenuItem onClick={() => handleOpenModal("assign")}>Assign Engineers</MenuItem>
   <MenuItem onClick={() => handleOpenModal("updateStatus")}>Update Status</MenuItem>
   <MenuItem onClick={() => handleOpenModal("edit")}>Edit</MenuItem>
-  <MenuItem onClick={() => handleOpenModal("resolve")}>Resolution</MenuItem>
+  <MenuItem onClick={() => handleOpenModal("resolve")}>Resolve Ticket</MenuItem>
   <MenuItem
     onClick={() =>
       window.open(
