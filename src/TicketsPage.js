@@ -1091,7 +1091,7 @@ return (
   </FormControl>
 
 {/* 🔹 Date Range Picker (as icon with tooltip) */}
-<Tooltip 
+<Tooltip
   // Tooltip shows current selection OR fallback text
   title={
     filter.dateRange[0] && filter.dateRange[1]
@@ -1101,52 +1101,63 @@ return (
 >
   {/* Icon that opens date picker */}
   <IconButton
-    onClick={(e) => setDateAnchor(e.currentTarget)}  // open Menu anchored to icon
+    onClick={(e) => setDateAnchor(e.currentTarget)} // open Menu anchored to icon
     color="primary"
   >
-    <DateRangeIcon />  {/* calendar icon */}
+    <DateRangeIcon /> {/* calendar icon */}
   </IconButton>
 </Tooltip>
 
 {/* Pop-up menu containing the DatePicker */}
 <Menu
-  anchorEl={dateAnchor}             // anchor = clicked icon
-  open={Boolean(dateAnchor)}        // visible when anchor is set
+  anchorEl={dateAnchor}              // anchor = clicked icon
+  open={Boolean(dateAnchor)}         // visible when anchor is set
   onClose={() => setDateAnchor(null)} // close when clicked outside
 >
   <Box sx={{ p: 2 }}>
     {/* React DatePicker in range mode */}
     <DatePicker
       selectsRange
-      startDate={filter.dateRange[0]}   // controlled by state
+      startDate={filter.dateRange[0]} // controlled by state
       endDate={filter.dateRange[1]}
       onChange={(update) => {
         setFilter((prev) => ({ ...prev, dateRange: update })); // update filter
       }}
-      inline   // render calendar inline inside popup
+      inline // render calendar inline inside popup
     />
-  {/* 🔹 Custom Footer: Done + Clear buttons */}
-  <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem" }}>
-    <Button
-      variant="outlined"   // not filled for Clear
-      size="small"
-      onClick={() => {
-        handleFilterChange("dateRange", [null, null]); // reset filter
-        setDateAnchor(null); // close popup
+
+    {/* 🔹 Custom Footer: Done + Clear buttons */}
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        mt: 1, // small spacing above buttons
       }}
     >
-      Clear
-    </Button>
-    <Button
-      variant="contained"   // filled for Done
-      size="small"
-      onClick={() => setDateAnchor(null)} // just close
-    >
-      Done
-    </Button>
+      {/* Clear button → resets date range + closes menu */}
+      <Button
+        variant="outlined" // outlined (not filled)
+        size="small"
+        onClick={() => {
+          handleFilterChange("dateRange", [null, null]); // reset filter
+          setDateAnchor(null); // close popup
+        }}
+      >
+        Clear
+      </Button>
+
+      {/* Done button → just closes menu */}
+      <Button
+        variant="contained" // filled
+        size="small"
+        onClick={() => setDateAnchor(null)}
+      >
+        Done
+      </Button>
     </Box>
   </Box>
 </Menu>
+
 
 
   {/* 🔹 Sort by Date Button */}
