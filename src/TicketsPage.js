@@ -1105,7 +1105,10 @@ return (
             <Button variant="outlined">Export CSV</Button>
           </CSVLink>
         </Box>
-      </Box>
+
+  {/* ============================ */}
+  {/* TICKETS TABLE                */}
+  {/* ============================ */}
 
       <TableContainer component={Paper}>
         <Table>
