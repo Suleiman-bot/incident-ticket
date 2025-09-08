@@ -1025,6 +1025,9 @@ return (
    (search, building, priority, status, date, sorting).
    It uses flexbox with wrapping + gap for responsive layout.
 */}
+{/* 🔹 Filter + Action Bar */}
+<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", mb: 2 }}>
+ {/* 🔹 Left: Filters */}
 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
 
   {/* 🔹 Search by Ticket ID */}
@@ -1099,22 +1102,30 @@ return (
   />
 
   {/* 🔹 Sort by Date Button */}
-<IconButton
-  size="small"
-  sx={{ height: "40px", width: "40px", border: "1px solid #ccc" }} 
-  onClick={handleSortDate}
->
-  <SortIcon fontSize="small" />
-</IconButton>
-</Box>
+    <IconButton
+      size="small"
+      sx={{
+        height: "40px",
+        width: "40px",
+        border: "1px solid #ccc",
+        borderRadius: "8px",
+      }}
+      onClick={handleSortDate}
+    >
+      <SortIcon fontSize="small" />
+    </IconButton>
+  </Box>
 
-<Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
-  <Button variant="contained" onClick={handleCreateTicket}>
-    Create New Ticket
-  </Button>
-  <CSVLink data={tickets} filename={"tickets.csv"}>
-    <Button variant="outlined">Export CSV</Button>
-  </CSVLink>
+
+  {/* 🔹 Right: Action Buttons */}
+  <Box sx={{ display: "flex", gap: 2, mt: { xs: 2, sm: 0 } }}>
+    <Button variant="contained" onClick={handleCreateTicket}>
+      Create New Ticket
+    </Button>
+    <CSVLink data={tickets} filename={"tickets.csv"} style={{ textDecoration: "none" }}>
+      <Button variant="outlined">Export CSV</Button>
+    </CSVLink>
+  </Box>
 </Box>
 
 
