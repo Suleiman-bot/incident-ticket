@@ -168,6 +168,7 @@ const fetchTickets = async () => {
     // 🔹 PATCH 3: Normalize subset for table
     const normalized = res.data.map((t) => ({
       ticketId: t.ticket_id,
+      ticket_id: t.ticket_id, // add this so we can always reference the backend object
       category: t.category,
       subCategory: t.sub_category,
       priority: t.priority,
@@ -281,6 +282,38 @@ const handleDetectedByChange = (option) => {
   }
 };
 
+
+  //DOWNLOAD PDF CONSTANT
+const handleDownloadPDF = async (ticketId) => {
+  // 🔹 allTickets uses ticket_id, not ticketId
+  const ticket = allTickets.find(t => t.ticket_id === ticketId);
+  if (!ticket) {
+    alert("Ticket not found.");
+    return;
+  }
+
+  try {
+    // Call your backend API that generates PDF
+    const res = await axios.get(
+      `http://192.168.0.3:8000/api/tickets/${ticket.ticket_id}/pdf`,
+      { responseType: "blob" } // Important: PDF is binary
+    );
+
+    // Create a blob URL and download
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `${ticket.ticket_id}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (err) {
+    console.error("PDF download error:", err);
+    alert("Failed to download PDF. Please try again.");
+  }
+};
+
+  
 
   const handleActionClick = (event, ticket) => {
     setAnchorEl(event.currentTarget);
@@ -1390,16 +1423,10 @@ return (
   <MenuItem onClick={() => handleOpenModal("updateStatus")}>Update Status</MenuItem>
   <MenuItem onClick={() => handleOpenModal("edit")}>Edit</MenuItem>
   <MenuItem onClick={() => handleOpenModal("resolve")}>Resolve Ticket</MenuItem>
-  <MenuItem
-    onClick={() =>
-      window.open(
-        `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticketId}/download`,
-        "_blank"
-      )
-    }
-  >
-    Download PDF
-  </MenuItem>
+<MenuItem onClick={() => handleDownloadPDF(selectedTicket.ticketId)}> // use normalized ticketId
+  Download PDF
+</MenuItem>
+
 </Menu>
 
       <Modal open={!!modalType} onClose={() => setModalType("")}>
