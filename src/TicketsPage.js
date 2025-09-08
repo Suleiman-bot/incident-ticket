@@ -33,6 +33,9 @@ import { DarkMode, LightMode } from "@mui/icons-material";
 import ReactSelect from "react-select";
 import { Form, Button as RBButton, Card, Row, Col, Alert } from "react-bootstrap";
 import SortIcon from "@mui/icons-material/Sort";   // add this at the top
+import Tooltip from "@mui/material/Tooltip";
+import DateRangeIcon from "@mui/icons-material/DateRange"; // calendar-like icon
+
 
 // ---------- constants (copied from App.js) ----------
 const subCategories = {
@@ -106,6 +109,7 @@ const [sortOrder, setSortOrder] = useState("asc"); // "asc" | "desc"
     status: "",
     dateRange: [null, null],
   });
+  const [dateAnchor, setDateAnchor] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedTicket, setSelectedTicket] = useState(null);
   // 🔹 PATCH 1: Store full ticket objects separately for modal
@@ -1086,20 +1090,50 @@ return (
     </Select>
   </FormControl>
 
-  {/* 🔹 Date Range Picker (react-datepicker) */}
-  <DatePicker
-    selectsRange                          // Allows selecting start + end date
-    startDate={filter.dateRange[0]}       // First date in range
-    endDate={filter.dateRange[1]}         // Second date in range
-    onChange={(update) => handleFilterChange("dateRange", update)}
-    isClearable                           // Adds an "X" to clear selection
-    placeholderText="Select date range"   // Placeholder when no date is picked
-    className="form-control"              // Bootstrap-like styling for consistency
-    style={{
-      height: "40px",                     // Match height with other filters/buttons
-      minWidth: "200px"                   // Ensure picker isn’t too small
-    }}
-  />
+{/* 🔹 Date Range Picker (as icon with tooltip) */}
+<Tooltip 
+  // Tooltip shows current selection OR fallback text
+  title={
+    filter.dateRange[0] && filter.dateRange[1]
+      ? `${filter.dateRange[0].toISOString().split("T")[0]} - ${filter.dateRange[1].toISOString().split("T")[0]}`
+      : "Select Date Range"
+  }
+>
+  {/* Icon that opens date picker */}
+  <IconButton
+    onClick={(e) => setDateAnchor(e.currentTarget)}  // open Menu anchored to icon
+    color="primary"
+  >
+    <DateRangeIcon />  {/* calendar icon */}
+  </IconButton>
+</Tooltip>
+
+{/* Pop-up menu containing the DatePicker */}
+<Menu
+  anchorEl={dateAnchor}             // anchor = clicked icon
+  open={Boolean(dateAnchor)}        // visible when anchor is set
+  onClose={() => setDateAnchor(null)} // close when clicked outside
+>
+  <Box sx={{ p: 2 }}>
+    {/* React DatePicker in range mode */}
+    <DatePicker
+      selectsRange
+      startDate={filter.dateRange[0]}   // controlled by state
+      endDate={filter.dateRange[1]}
+      onChange={(update) => {
+        setFilter((prev) => ({ ...prev, dateRange: update })); // update filter
+      }}
+      inline   // render calendar inline inside popup
+    />
+    {/* Button to close menu */}
+    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
+      <Button size="small" onClick={() => setDateAnchor(null)}>
+        Done
+      </Button>
+    </Box>
+  </Box>
+</Menu>
+
 
   {/* 🔹 Sort by Date Button */}
     <IconButton
