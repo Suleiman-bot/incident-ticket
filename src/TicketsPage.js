@@ -523,40 +523,53 @@ case "assign":  //Assigned Engineers
         sx={{ mt: 2 }}
   onClick={async () => {
     try {
+            // 🔹 Build payload depending on new status
+      let payload = { status: selectedTicket.status };
+
+      if (selectedTicket.status === "Closed") {
+        // If status changed to Closed → set closed timestamp
+        payload.closed = new Date().toISOString();
+      } else {
+        // If status changed away from Closed → clear closed date
+        payload.closed = null;
+      }
+
+      // 🔹 Send update to backend
       await fetch(
         `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticket_id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: selectedTicket.status }),
+          body: JSON.stringify(payload),
         }
       );
 
-      // Update full tickets
-      setAllTickets(prev =>
-        prev.map(ticket =>
+      // 🔹 Update full tickets state
+      setAllTickets((prev) =>
+        prev.map((ticket) =>
           ticket.ticket_id === selectedTicket.ticket_id
-            ? { ...ticket, status: selectedTicket.status }
+            ? { ...ticket, ...payload }
             : ticket
         )
       );
 
-      // Update normalized table tickets
-      setTickets(prev =>
-        prev.map(ticket =>
+
+      // 🔹 Update normalized table tickets
+      setTickets((prev) =>
+        prev.map((ticket) =>
           ticket.ticketId === selectedTicket.ticket_id
-            ? { ...ticket, status: selectedTicket.status }
+            ? { ...ticket, ...payload }
             : ticket
         )
       );
 
-      // Sync modal data too
-      setSelectedTicket(prev => ({
+     // 🔹 Update modal ticket state
+      setSelectedTicket((prev) => ({
         ...prev,
-        status: selectedTicket.status,
+        ...payload,
       }));
 
-      setModalType("");
+      setModalType(""); // close modal
     } catch (err) {
       console.error("Error updating status:", err);
     }
@@ -564,9 +577,8 @@ case "assign":  //Assigned Engineers
 >
   Update
 </Button>
-
-          </Box>
-        );
+ </Box>
+    );
 
 // ===============================
 // CASE: EDIT MODAL
