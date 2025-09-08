@@ -319,44 +319,97 @@ const handleOpenModal = (type) => {
   };
 
   const modalBody = () => {
+    
     if (!selectedTicket) return null;
 
     switch (modalType) {
-      case "view": //View More
+
+// ===============================
+// CASE: VIEW MORE MODAL
+// =============================== 
+case "view": // View More
   return (
-<Box sx={{ p: 4, bgcolor: "background.paper" }}>
-  <Typography variant="h6" gutterBottom>Ticket Details</Typography>
+    <Box sx={{ p: 4, bgcolor: "background.paper" }}>
+      <Typography variant="h6" gutterBottom>
+        Ticket Details
+      </Typography>
 
-  {selectedTicket && (
-    <div style={{ display: 'grid', rowGap: 8 }}>
-      <div><strong>Ticket ID:</strong> {selectedTicket.ticket_id}</div>
-      <div><strong>Category:</strong> {selectedTicket.category}</div>
-      <div><strong>Sub Category:</strong> {selectedTicket.sub_category}</div>
-      <div><strong>Priority:</strong> {selectedTicket.priority}</div>
-      <div><strong>Status:</strong> {selectedTicket.status}</div>
-      <div><strong>Date Opened:</strong> {selectedTicket.opened}</div>
-      <div><strong>Date Closed:</strong> {selectedTicket.closed || '-'}</div>
-      <div><strong>Building:</strong> {selectedTicket.building}</div>
-      <div><strong>Location:</strong> {selectedTicket.location}</div>
-      <div><strong>Impacted Systems/Services:</strong> {selectedTicket.impacted}</div>
-      <div><strong>Description:</strong> {selectedTicket.description}</div>
-      <div><strong>Detected By:</strong> {selectedTicket.detectedBy}</div>
-      <div><strong>Time Detected:</strong> {selectedTicket.time_detected}</div>
-      <div><strong>Root Cause:</strong> {selectedTicket.root_cause}</div>
-      <div><strong>Actions Taken:</strong> {selectedTicket.actions_taken}</div>
-      <div><strong>Assigned To:</strong> {selectedTicket.assigned_to}</div>
-      <div><strong>Resolution Summary:</strong> {selectedTicket.resolution_summary}</div>
-      <div><strong>Resolution Time:</strong> {selectedTicket.resolution_time}</div>
-      <div><strong>SLA Breach:</strong> {selectedTicket.sla_breach}</div>
-      <div><strong>Post Review:</strong> {selectedTicket.post_review}</div>
-    </div>
-  )}
+      {selectedTicket && (
+        <div style={{ display: "grid", rowGap: 8 }}>
+          {selectedTicket.ticket_id && (
+            <div><strong>Ticket ID:</strong> {selectedTicket.ticket_id}</div>
+          )}
+          {selectedTicket.category && (
+            <div><strong>Category:</strong> {selectedTicket.category}</div>
+          )}
+          {selectedTicket.sub_category && (
+            <div><strong>Sub Category:</strong> {selectedTicket.sub_category}</div>
+          )}
+          {selectedTicket.priority && (
+            <div><strong>Priority:</strong> {selectedTicket.priority}</div>
+          )}
+          {selectedTicket.status && (
+            <div><strong>Status:</strong> {selectedTicket.status}</div>
+          )}
+          {selectedTicket.opened && (
+            <div><strong>Date Opened:</strong> {selectedTicket.opened}</div>
+          )}
+          {selectedTicket.closed && selectedTicket.closed !== "-" && (
+            <div><strong>Date Closed:</strong> {selectedTicket.closed}</div>
+          )}
+          {selectedTicket.building && (
+            <div><strong>Building:</strong> {selectedTicket.building}</div>
+          )}
+          {selectedTicket.location && (
+            <div><strong>Location:</strong> {selectedTicket.location}</div>
+          )}
+          {selectedTicket.impacted && (
+            <div><strong>Impacted Systems/Services:</strong> {selectedTicket.impacted}</div>
+          )}
+          {selectedTicket.description && (
+            <div><strong>Description:</strong> {selectedTicket.description}</div>
+          )}
+          {selectedTicket.detectedBy && (
+            <div><strong>Detected By:</strong> {selectedTicket.detectedBy}</div>
+          )}
+          {selectedTicket.time_detected && (
+            <div><strong>Time Detected:</strong> {selectedTicket.time_detected}</div>
+          )}
+          {selectedTicket.root_cause && (
+            <div><strong>Root Cause:</strong> {selectedTicket.root_cause}</div>
+          )}
+          {selectedTicket.actions_taken && (
+            <div><strong>Actions Taken:</strong> {selectedTicket.actions_taken}</div>
+          )}
+          {selectedTicket.assigned_to && (
+            <div><strong>Assigned To:</strong> {selectedTicket.assigned_to}</div>
+          )}
+          {selectedTicket.resolution_summary && (
+            <div><strong>Resolution Summary:</strong> {selectedTicket.resolution_summary}</div>
+          )}
+          {selectedTicket.resolution_time && (
+            <div><strong>Resolution Time:</strong> {selectedTicket.resolution_time}</div>
+          )}
 
-  <Button onClick={() => setModalType("")} sx={{ mt: 2 }}>Close</Button>
-</Box>
+          {/* SLA Breach & Post Review only if ticket resolved */}
+          {selectedTicket.status === "Resolved" && selectedTicket.sla_breach && (
+            <div><strong>SLA Breach:</strong> {selectedTicket.sla_breach}</div>
+          )}
+          {selectedTicket.status === "Resolved" && selectedTicket.post_review && (
+            <div><strong>Post Review:</strong> {selectedTicket.post_review}</div>
+          )}
+        </div>
+      )}
 
+      <Button onClick={() => setModalType("")} sx={{ mt: 2 }}>
+        Close
+      </Button>
+    </Box>
   );
 
+// ===============================
+// CASE: ASSIGNED ENGINEER MODAL
+// =============================== 
 case "assign":  //Assigned Engineers
   return (
     <Box sx={{ p: 4, bgcolor: "background.paper", borderRadius: 2 }}>
@@ -420,6 +473,9 @@ case "assign":  //Assigned Engineers
     </Box>
   );
 
+// ===============================
+// CASE: UPDATE STATUS MODAL
+// =============================== 
       case "updateStatus":   //Update Status
         return (
           <Box sx={{ p: 4, bgcolor: "background.paper" }}>
@@ -484,6 +540,10 @@ case "assign":  //Assigned Engineers
 
           </Box>
         );
+
+// ===============================
+// CASE: EDIT MODAL
+// =============================== 
 case "edit": // EDIT BUTTON
   return (
     <Box sx={{ p: 4, bgcolor: "background.paper" }}>
