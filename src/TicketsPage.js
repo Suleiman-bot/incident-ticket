@@ -284,32 +284,29 @@ const handleDetectedByChange = (option) => {
 
 
   //DOWNLOAD PDF CONSTANT
-const handleDownloadPDF = async (ticketId) => {
-  // 🔹 allTickets uses ticket_id, not ticketId
-  const ticket = allTickets.find(t => t.ticket_id === ticketId);
-  if (!ticket) {
-    window.alert("Ticket not found."); // 🔹 use window.alert to avoid runtime error
+// 🔹 PATCH: Download PDF from selected ticket in modal
+const handleDownloadPDF = async (ticket) => {
+  if (!ticket || !ticket.ticketId) {
+    window.alert("Ticket not found."); // safety check
     return;
   }
 
   try {
-    // Call your backend API that generates PDF
     const res = await axios.get(
-      `http://192.168.0.3:8000/api/tickets/${ticket.ticket_id}/pdf`,
-      { responseType: "blob" } // Important: PDF is binary
+      `http://192.168.0.3:8000/api/tickets/${ticket.ticketId}/pdf`,
+      { responseType: "blob" }
     );
 
-    // Create a blob URL and download
     const url = window.URL.createObjectURL(new Blob([res.data]));
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `${ticket.ticket_id}.pdf`);
+    link.setAttribute("download", `${ticket.ticketId}.pdf`);
     document.body.appendChild(link);
     link.click();
     link.remove();
   } catch (err) {
     console.error("PDF download error:", err);
-    window.alert("Failed to download PDF. Please try again."); // 🔹 also here
+    window.alert("Failed to download PDF. Please try again.");
   }
 };
 
@@ -1423,10 +1420,9 @@ return (
   <MenuItem onClick={() => handleOpenModal("updateStatus")}>Update Status</MenuItem>
   <MenuItem onClick={() => handleOpenModal("edit")}>Edit</MenuItem>
   <MenuItem onClick={() => handleOpenModal("resolve")}>Resolve Ticket</MenuItem>
-<MenuItem onClick={() => handleDownloadPDF(selectedTicket.ticketId)}>
+<MenuItem onClick={() => handleDownloadPDF(selectedTicket)}>
   Download PDF
 </MenuItem>
-
 </Menu>
 
       <Modal open={!!modalType} onClose={() => setModalType("")}>
