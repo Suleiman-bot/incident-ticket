@@ -32,6 +32,7 @@ import { Stack, FormControlLabel, Switch } from "@mui/material";
 import { DarkMode, LightMode } from "@mui/icons-material";
 import ReactSelect from "react-select";
 import { Form, Button as RBButton, Card, Row, Col, Alert } from "react-bootstrap";
+import SortIcon from "@mui/icons-material/Sort";   // add this at the top
 
 // ---------- constants (copied from App.js) ----------
 const subCategories = {
@@ -1087,14 +1088,13 @@ return (
   />
 
   {/* 🔹 Sort by Date Button */}
-  <Button
-    variant="outlined"                    // Outlined style (not too heavy)
-    size="small"                          // Compact size for uniform look
-    sx={{ height: "40px" }}               // Force consistent height with other inputs
-    onClick={handleSortDate}              // Calls sort function when clicked
-  >
-    Sort Date
-  </Button>
+<IconButton
+  size="small"
+  sx={{ height: "40px", width: "40px", border: "1px solid #ccc" }} 
+  onClick={handleSortDate}
+>
+  <SortIcon fontSize="small" />
+</IconButton>
 </Box>
 
         <Box sx={{ display: "flex", gap: 2 }}>
