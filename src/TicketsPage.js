@@ -288,7 +288,7 @@ const handleDownloadPDF = async (ticketId) => {
   // 🔹 allTickets uses ticket_id, not ticketId
   const ticket = allTickets.find(t => t.ticket_id === ticketId);
   if (!ticket) {
-    alert("Ticket not found.");
+    window.alert("Ticket not found."); // 🔹 use window.alert to avoid runtime error
     return;
   }
 
@@ -309,7 +309,7 @@ const handleDownloadPDF = async (ticketId) => {
     link.remove();
   } catch (err) {
     console.error("PDF download error:", err);
-    alert("Failed to download PDF. Please try again.");
+    window.alert("Failed to download PDF. Please try again."); // 🔹 also here
   }
 };
 
@@ -1423,7 +1423,7 @@ return (
   <MenuItem onClick={() => handleOpenModal("updateStatus")}>Update Status</MenuItem>
   <MenuItem onClick={() => handleOpenModal("edit")}>Edit</MenuItem>
   <MenuItem onClick={() => handleOpenModal("resolve")}>Resolve Ticket</MenuItem>
-<MenuItem onClick={() => handleDownloadPDF(selectedTicket.ticketId)}> // use normalized ticketId
+<MenuItem onClick={() => handleDownloadPDF(selectedTicket.ticketId)}>
   Download PDF
 </MenuItem>
 
