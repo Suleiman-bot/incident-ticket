@@ -1097,7 +1097,7 @@ return (
   // Tooltip shows current selection OR fallback text
   title={
     filter.dateRange[0] && filter.dateRange[1]
-      ? `${filter.dateRange[0].toISOString().split("T")[0]} - ${filter.dateRange[1].toISOString().split("T")[0]}`
+     ? `${filter.dateRange[0].toLocaleDateString("sv-SE")} - ${filter.dateRange[1].toLocaleDateString("sv-SE")}`
       : "Select Date Range"
   }
 >
