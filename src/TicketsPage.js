@@ -1125,11 +1125,25 @@ return (
       }}
       inline   // render calendar inline inside popup
     />
-    {/* Button to close menu */}
-    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
-      <Button size="small" onClick={() => setDateAnchor(null)}>
-        Done
-      </Button>
+  {/* 🔹 Custom Footer: Done + Clear buttons */}
+  <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem" }}>
+    <Button
+      variant="outlined"   // not filled for Clear
+      size="small"
+      onClick={() => {
+        handleFilterChange("dateRange", [null, null]); // reset filter
+        setDateAnchor(null); // close popup
+      }}
+    >
+      Clear
+    </Button>
+    <Button
+      variant="contained"   // filled for Done
+      size="small"
+      onClick={() => setDateAnchor(null)} // just close
+    >
+      Done
+    </Button>
     </Box>
   </Box>
 </Menu>
