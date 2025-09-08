@@ -1108,14 +1108,15 @@ return (
 </IconButton>
 </Box>
 
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <Button variant="contained" onClick={handleCreateTicket}>
-            Create New Ticket
-          </Button>
-          <CSVLink data={tickets} filename={"tickets.csv"}>
-            <Button variant="outlined">Export CSV</Button>
-          </CSVLink>
-        </Box>
+<Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}>
+  <Button variant="contained" onClick={handleCreateTicket}>
+    Create New Ticket
+  </Button>
+  <CSVLink data={tickets} filename={"tickets.csv"}>
+    <Button variant="outlined">Export CSV</Button>
+  </CSVLink>
+</Box>
+
 
   {/* ============================ */}
   {/* TICKETS TABLE                */}
