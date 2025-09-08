@@ -74,8 +74,13 @@ const isoToLocalDatetime = (iso) => {
   const d = new Date(iso);
   if (isNaN(d)) return '';
   const pad = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+  // Shift to local time properly
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+
+  return `${local.getFullYear()}-${pad(local.getMonth() + 1)}-${pad(local.getDate())}T${pad(local.getHours())}:${pad(local.getMinutes())}`;
 };
+
 
 // -------------------- ADD THIS --------------------
 // Utility: format server date strings consistently as "YYYY-MM-DD HH:mm"
