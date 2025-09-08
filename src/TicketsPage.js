@@ -401,7 +401,13 @@ case "view": // View More
         </div>
       )}
 
-      <Button onClick={() => setModalType("")} sx={{ mt: 2 }}>
+        {/* 🔹 Filled Close button */}
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setModalType("")}
+        sx={{ mt: 2 }}
+      >
         Close
       </Button>
     </Box>
