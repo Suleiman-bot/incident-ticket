@@ -214,6 +214,7 @@ const handleDetectedByChange = (option) => {
     const output = {
       ...form,
       detectedBy: form.detectedBy ? form.detectedBy.value : "",
+      time_detected: form.time_detected ? new Date(form.time_detected).toISOString() : "",
     };
 
     await axios.put(`http://192.168.0.3:8000/api/tickets/${selectedTicket.ticket_id}`, output);
@@ -275,7 +276,7 @@ const handleOpenModal = (type) => {
         ? { value: selectedTicket.detectedBy, label: selectedTicket.detectedBy }
         : null,
       detectedByOther: selectedTicket.detectedByOther || "",
-      time_detected: selectedTicket.time_detected || "",
+      time_detected: isoToLocalDatetime(selectedTicket.time_detected) || "",
       root_cause: selectedTicket.root_cause || "",
       actions_taken: selectedTicket.actions_taken || "",
     });
@@ -285,7 +286,7 @@ const handleOpenModal = (type) => {
   setForm({
     ...selectedTicket,
     resolution_summary: selectedTicket.resolution_summary || "",
-    resolution_time: selectedTicket.resolution_time || "",
+    resolution_time: isoToLocalDatetime(selectedTicket.resolution_time) || "",
     // normalize SLA + Review to "Yes"/"No"
     sla_breach: selectedTicket.sla_breach || "No",
     post_review: selectedTicket.post_review || "No",
@@ -934,6 +935,7 @@ case "resolve":
                   ...selectedTicket,   // ✅ preserve all fields
                   ...form,             // ✅ overwrite with resolve fields
                   status: "Resolved",  // ✅ enforce resolved
+                  resolution_time: form.resolution_time ? new Date(form.resolution_time).toISOString() : "",
                 };
 
                 await axios.put(
