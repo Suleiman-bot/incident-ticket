@@ -562,7 +562,9 @@ case "assign":  //Assigned Engineers
       // - Otherwise clear closed (null) so backend knows it's no longer closed
       const payload = { status: selectedTicket.status };
       if (selectedTicket.status === "Closed") {
-        payload.closed = new Date().toISOString();
+       const now = new Date();
+const pad = (n) => String(n).padStart(2, "0");
+payload.closed = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
       } else {
         payload.closed = null;
       }
