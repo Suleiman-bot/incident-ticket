@@ -380,7 +380,15 @@ const handleSortDate = () => {
 // =============================== 
 case "view": // View More
   return (
-    <Box sx={{ p: 4, bgcolor: "background.paper" }}>
+<Box
+  sx={{
+    p: 4,
+    bgcolor: cardBg,             // adaptive card background
+    color: textColor,            // adaptive text
+    border: `1px solid ${borderColor}`, // adaptive border
+    borderRadius: 2,             // keep rounded corners
+  }}
+>
       <Typography variant="h6" gutterBottom>
         Ticket Details
       </Typography>
@@ -469,7 +477,15 @@ case "view": // View More
 // =============================== 
 case "assign":  //Assigned Engineers
   return (
-    <Box sx={{ p: 4, bgcolor: "background.paper", borderRadius: 2 }}>
+   <Box
+  sx={{
+    p: 4,
+    bgcolor: cardBg,             // adaptive card background
+    color: textColor,            // adaptive text
+    border: `1px solid ${borderColor}`, // adaptive border
+    borderRadius: 2,             // keep rounded corners
+  }}
+>
       <Typography variant="h6" gutterBottom>
         Assign Engineers
       </Typography>
@@ -535,7 +551,15 @@ case "assign":  //Assigned Engineers
 // =============================== 
       case "updateStatus":   //Update Status
         return (
-          <Box sx={{ p: 4, bgcolor: "background.paper" }}>
+          <Box
+  sx={{
+    p: 4,
+    bgcolor: cardBg,             // adaptive card background
+    color: textColor,            // adaptive text
+    border: `1px solid ${borderColor}`, // adaptive border
+    borderRadius: 2,             // keep rounded corners
+  }}
+>
             <Typography variant="h6">Update Status</Typography>
             <FormControl fullWidth>
               <Select
@@ -618,7 +642,15 @@ payload.closed = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getD
 // =============================== 
 case "edit": // EDIT BUTTON
   return (
-    <Box sx={{ p: 4, bgcolor: "background.paper" }}>
+   <Box
+  sx={{
+    p: 4,
+    bgcolor: cardBg,             // adaptive card background
+    color: textColor,            // adaptive text
+    border: `1px solid ${borderColor}`, // adaptive border
+    borderRadius: 2,             // keep rounded corners
+  }}
+>
       <Typography variant="h6" gutterBottom>
         Edit Ticket
       </Typography>
@@ -892,7 +924,15 @@ case "edit": // EDIT BUTTON
 // ===============================
 case "resolve":
   return (
-    <Box sx={{ p: 4, bgcolor: "background.paper" }}>
+<Box
+  sx={{
+    p: 4,
+    bgcolor: cardBg,             // adaptive card background
+    color: textColor,            // adaptive text
+    border: `1px solid ${borderColor}`, // adaptive border
+    borderRadius: 2,             // keep rounded corners
+  }}
+>
       {/* ===== Modal Title ===== */}
       <Typography variant="h6" gutterBottom>
         Resolve Ticket
@@ -1049,9 +1089,14 @@ return (
         />
         <Box>
           <Typography variant="h6">Kasi Cloud Data Centers</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Incident Tickets
-          </Typography>
+{/* 🔹 Subtitle: Incident Tickets (adapts to dark/light mode) */}
+<Typography 
+  variant="h6" 
+  sx={{ color: textColor }}   // use dynamic theme color
+>
+  Incident Tickets
+</Typography>
+
         </Box>
       </Stack>
 
@@ -1087,11 +1132,32 @@ return (
     value={filter.ticketId}                  // Controlled input bound to filter state
     onChange={(e) => handleFilterChange("ticketId", e.target.value)}
     size="small"                             // Makes input compact
-    sx={{ minWidth: 180 }}                   // Prevent input from shrinking too much
-  />
+  sx={{
+    minWidth: 180,
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": { borderColor: borderColor },  // border adapts
+      "&:hover fieldset": { borderColor: borderColor },
+    },
+    "& .MuiInputLabel-root": { color: textColor }, // label adapts
+    input: { color: textColor },                  // text adapts
+  }}
+/>
 
   {/* 🔹 Filter by Building */}
-  <FormControl size="small" sx={{ minWidth: 140 }}>
+<FormControl
+  size="small"
+  sx={{
+    minWidth: 140,
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: borderColor,    // adaptive border
+    },
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: borderColor,
+    },
+    "& .MuiInputLabel-root": { color: textColor }, // label adapts
+    "& .MuiSelect-select": { color: textColor },   // selected value adapts
+  }}
+>
     <InputLabel>Building</InputLabel>
     <Select
       value={filter.building}
@@ -1107,7 +1173,20 @@ return (
   </FormControl>
 
   {/* 🔹 Filter by Priority */}
-  <FormControl size="small" sx={{ minWidth: 140 }}>
+ <FormControl
+  size="small"
+  sx={{
+    minWidth: 140,
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: borderColor,    // adaptive border
+    },
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: borderColor,
+    },
+    "& .MuiInputLabel-root": { color: textColor }, // label adapts
+    "& .MuiSelect-select": { color: textColor },   // selected value adapts
+  }}
+>
     <InputLabel>Priority</InputLabel>
     <Select
       value={filter.priority}
@@ -1123,7 +1202,20 @@ return (
   </FormControl>
 
   {/* 🔹 Filter by Status */}
-  <FormControl size="small" sx={{ minWidth: 140 }}>
+ <FormControl
+  size="small"
+  sx={{
+    minWidth: 140,
+    "& .MuiOutlinedInput-notchedOutline": {
+      borderColor: borderColor,    // adaptive border
+    },
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      borderColor: borderColor,
+    },
+    "& .MuiInputLabel-root": { color: textColor }, // label adapts
+    "& .MuiSelect-select": { color: textColor },   // selected value adapts
+  }}
+>
     <InputLabel>Status</InputLabel>
     <Select
       value={filter.status}
@@ -1208,18 +1300,18 @@ return (
 
 
   {/* 🔹 Sort by Date Button */}
-    <IconButton
-      size="small"
-      sx={{
-        height: "40px",
-        width: "40px",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-      }}
-      onClick={handleSortDate}
-    >
-      <SortIcon fontSize="small" />
-    </IconButton>
+<IconButton
+  size="small"
+  sx={{
+    height: "40px",
+    width: "40px",
+    border: `1px solid ${borderColor}`, // adaptive border
+    color: textColor,                   // adaptive icon color
+  }}
+  onClick={handleSortDate}
+>
+  <SortIcon fontSize="small" />
+</IconButton>
   </Box>
 
 
@@ -1235,48 +1327,62 @@ return (
 </Box>
 
 
-  {/* ============================ */}
-  {/* TICKETS TABLE                */}
-  {/* ============================ */}
+{/* ============================ */}
+{/* TICKETS TABLE                */}
+{/* ============================ */}
 
-      <TableContainer component={Paper}>
-        <Table>
-<TableHead>
-  <TableRow>
-    <TableCell sx={{ fontWeight: "bold" }}>Ticket ID</TableCell>
-    <TableCell sx={{ fontWeight: "bold" }}>Category</TableCell>
-    <TableCell sx={{ fontWeight: "bold" }}>Sub Category</TableCell>
-    <TableCell sx={{ fontWeight: "bold" }}>Priority</TableCell>
-    <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
-    <TableCell sx={{ fontWeight: "bold" }}>Date Opened</TableCell>
-    <TableCell sx={{ fontWeight: "bold" }}>Date Closed</TableCell>
-    <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
-  </TableRow>
-</TableHead>
-          <TableBody>
-            {filteredTickets.map((ticket) => (
-              <TableRow key={ticket.ticketId}>
-                <TableCell>{ticket.ticketId}</TableCell>
-                <TableCell>{ticket.category}</TableCell>
-                <TableCell>{ticket.subCategory}</TableCell>
-                <TableCell>{ticket.priority}</TableCell>
-                <TableCell>{ticket.status}</TableCell>
-{/* Show dateOpened formatted consistently */}
-<TableCell>{formatServerDate(ticket.dateOpened)}</TableCell>
-{/* Show dateClosed formatted consistently; display '-' when empty/null */}
-<TableCell>{ticket.dateClosed ? formatServerDate(ticket.dateClosed) : "-"}</TableCell>
-                <TableCell>
-                  <IconButton
-                    onClick={(e) => handleActionClick(e, ticket)}
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+<TableContainer
+  component={Paper}
+  sx={{
+    backgroundColor: cardBg,              // adaptive background
+    color: textColor,                     // adaptive text
+    border: `1px solid ${borderColor}`,   // adaptive border
+  }}
+>
+  <Table>
+    <TableHead>
+      <TableRow>
+        <TableCell sx={{ fontWeight: "bold", color: textColor }}>Ticket ID</TableCell>
+        <TableCell sx={{ fontWeight: "bold", color: textColor }}>Category</TableCell>
+        <TableCell sx={{ fontWeight: "bold", color: textColor }}>Sub Category</TableCell>
+        <TableCell sx={{ fontWeight: "bold", color: textColor }}>Priority</TableCell>
+        <TableCell sx={{ fontWeight: "bold", color: textColor }}>Status</TableCell>
+        <TableCell sx={{ fontWeight: "bold", color: textColor }}>Date Opened</TableCell>
+        <TableCell sx={{ fontWeight: "bold", color: textColor }}>Date Closed</TableCell>
+        <TableCell sx={{ fontWeight: "bold", color: textColor }}>Actions</TableCell>
+      </TableRow>
+    </TableHead>
+
+    <TableBody>
+      {filteredTickets.map((ticket) => (
+        <TableRow key={ticket.ticketId}>
+          <TableCell sx={{ color: textColor }}>{ticket.ticketId}</TableCell>
+          <TableCell sx={{ color: textColor }}>{ticket.category}</TableCell>
+          <TableCell sx={{ color: textColor }}>{ticket.subCategory}</TableCell>
+          <TableCell sx={{ color: textColor }}>{ticket.priority}</TableCell>
+          <TableCell sx={{ color: textColor }}>{ticket.status}</TableCell>
+
+          {/* Show dateOpened formatted consistently */}
+          <TableCell sx={{ color: textColor }}>
+            {formatServerDate(ticket.dateOpened)}
+          </TableCell>
+
+          {/* Show dateClosed formatted consistently; display '-' when empty/null */}
+          <TableCell sx={{ color: textColor }}>
+            {ticket.dateClosed ? formatServerDate(ticket.dateClosed) : "-"}
+          </TableCell>
+
+          <TableCell sx={{ color: textColor }}>
+            <IconButton onClick={(e) => handleActionClick(e, ticket)} sx={{ color: textColor }}>
+              <MoreVertIcon />
+            </IconButton>
+          </TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
+</TableContainer>
+
 
 <Menu anchorEl={anchorEl} open={open} onClose={handleCloseMenu}>
   <MenuItem onClick={() => handleOpenModal("view")}>View More</MenuItem>
