@@ -77,6 +77,35 @@ const isoToLocalDatetime = (iso) => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
+// -------------------- ADD THIS --------------------
+// Utility: format server date strings consistently as "YYYY-MM-DD HH:mm"
+// - If server sends an ISO (contains 'T') we extract the date + hour:minute
+//   without doing any timezone conversions (this preserves the exact values
+//   the backend sent and avoids 1-hour shifts caused by Date() TZ conversions).
+// - If server sends a space-separated datetime (e.g. "2025-09-02 10:17:50.107")
+//   we extract date + hour:minute.
+// - Fallback: attempt to format via Date object (local) as a last resort.
+const formatServerDate = (s) => {
+  if (!s) return "";
+  // ISO-like: 2025-09-08T15:50:07.136Z  -> "2025-09-08 15:50"
+  const isoMatch = String(s).match(/^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})/);
+  if (isoMatch) return `${isoMatch[1]} ${isoMatch[2]}:${isoMatch[3]}`;
+
+  // Space-separated: 2025-09-02 10:17:50.107 -> "2025-09-02 10:17"
+  const spaceMatch = String(s).match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}):(\d{2})/);
+  if (spaceMatch) return `${spaceMatch[1]} ${spaceMatch[2]}:${spaceMatch[3]}`;
+
+  // Fallback: format Date object to local (keeps minutes, no seconds)
+  const d = new Date(s);
+  if (!isNaN(d)) {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+  // If everything fails, return original string
+  return s;
+};
+// -------------------- END ADD --------------------
+
 
 const assignedEngineerOptions = [
   { value: "Suleiman Abdulsalam", label: "Suleiman Abdulsalam" },
@@ -518,19 +547,18 @@ case "assign":  //Assigned Engineers
             </FormControl>
                  {/* ===== Action Button ===== */}
 <Button
-        variant="contained"      // 🔹 Filled button
-        color="primary"          // 🔹 Blue (use "success" for green)
-        sx={{ mt: 2 }}
+  variant="contained"      // filled button
+  color="primary"
+  sx={{ mt: 2 }}
   onClick={async () => {
     try {
-            // 🔹 Build payload depending on new status
-      let payload = { status: selectedTicket.status };
-
+      // 🔹 Build payload:
+      // - If user set status === "Closed", attach closed = now (ISO)
+      // - Otherwise clear closed (null) so backend knows it's no longer closed
+      const payload = { status: selectedTicket.status };
       if (selectedTicket.status === "Closed") {
-        // If status changed to Closed → set closed timestamp
         payload.closed = new Date().toISOString();
       } else {
-        // If status changed away from Closed → clear closed date
         payload.closed = null;
       }
 
@@ -544,32 +572,29 @@ case "assign":  //Assigned Engineers
         }
       );
 
-      // 🔹 Update full tickets state
+      // 🔹 Update full tickets list (allTickets) so modal/other views read updated data
       setAllTickets((prev) =>
         prev.map((ticket) =>
-          ticket.ticket_id === selectedTicket.ticket_id
-            ? { ...ticket, ...payload }
-            : ticket
+          ticket.ticket_id === selectedTicket.ticket_id ? { ...ticket, ...payload } : ticket
         )
       );
 
-
-      // 🔹 Update normalized table tickets
+      // 🔹 Update normalized table rows so table reflects the closed date *immediately*
+      // We store raw payload.closed in the normalized `dateClosed` field; the table cell
+      // uses formatServerDate(...) so it will render in "YYYY-MM-DD HH:mm".
       setTickets((prev) =>
         prev.map((ticket) =>
           ticket.ticketId === selectedTicket.ticket_id
-            ? { ...ticket, ...payload }
+            ? { ...ticket, status: payload.status, dateClosed: payload.closed }
             : ticket
         )
       );
 
-     // 🔹 Update modal ticket state
-      setSelectedTicket((prev) => ({
-        ...prev,
-        ...payload,
-      }));
+      // 🔹 Update the modal selectedTicket so the modal reflects changes instantly
+      setSelectedTicket((prev) => ({ ...prev, ...payload }));
 
-      setModalType(""); // close modal
+      // Close modal
+      setModalType("");
     } catch (err) {
       console.error("Error updating status:", err);
     }
@@ -577,6 +602,7 @@ case "assign":  //Assigned Engineers
 >
   Update
 </Button>
+
  </Box>
     );
 
@@ -1228,8 +1254,10 @@ return (
                 <TableCell>{ticket.subCategory}</TableCell>
                 <TableCell>{ticket.priority}</TableCell>
                 <TableCell>{ticket.status}</TableCell>
-                <TableCell>{ticket.dateOpened}</TableCell>
-                <TableCell>{ticket.dateClosed}</TableCell>
+{/* Show dateOpened formatted consistently */}
+<TableCell>{formatServerDate(ticket.dateOpened)}</TableCell>
+{/* Show dateClosed formatted consistently; display '-' when empty/null */}
+<TableCell>{ticket.dateClosed ? formatServerDate(ticket.dateClosed) : "-"}</TableCell>
                 <TableCell>
                   <IconButton
                     onClick={(e) => handleActionClick(e, ticket)}
