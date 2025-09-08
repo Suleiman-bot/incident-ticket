@@ -1006,66 +1006,97 @@ return (
         />
       </Stack>
     </Stack>
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <TextField
-            label="Search Ticket ID"
-            value={filter.ticketId}
-            onChange={(e) => handleFilterChange("ticketId", e.target.value)}
-          />
-          <FormControl>
-            <InputLabel>Building</InputLabel>
-            <Select
-              value={filter.building}
-              onChange={(e) => handleFilterChange("building", e.target.value)}
-            >
-              <MenuItem value="">All</MenuItem>
-              <MenuItem value="LOS1">LOS1</MenuItem>
-              <MenuItem value="LOS2">LOS2</MenuItem>
-              <MenuItem value="LOS3">LOS3</MenuItem>
-              <MenuItem value="LOS4">LOS4</MenuItem>
-              <MenuItem value="LOS5">LOS5</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl>
-            <InputLabel>Priority</InputLabel>
-            <Select
-              value={filter.priority}
-              onChange={(e) => handleFilterChange("priority", e.target.value)}
-            >
-              <MenuItem value="">All</MenuItem>
-              <MenuItem value="P0">P0</MenuItem>
-              <MenuItem value="P1">P1</MenuItem>
-              <MenuItem value="P2">P2</MenuItem>
-              <MenuItem value="P3">P3</MenuItem>
-              <MenuItem value="P4">P4</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl>
-            <InputLabel>Status</InputLabel>
-            <Select
-              value={filter.status}
-              onChange={(e) => handleFilterChange("status", e.target.value)}
-            >
-              <MenuItem value="">All</MenuItem>
-              <MenuItem value="Open">Open</MenuItem>
-              <MenuItem value="In Progress">In Progress</MenuItem>
-              <MenuItem value="Resolved">Resolved</MenuItem>
-              <MenuItem value="Closed">Closed</MenuItem>
-            </Select>
-          </FormControl>
-          <DatePicker
-            selectsRange
-            startDate={filter.dateRange[0]}
-            endDate={filter.dateRange[1]}
-            onChange={(update) =>
-              handleFilterChange("dateRange", update)
-            }
-            isClearable
-            placeholderText="Select date range"
-          />
-          <Button onClick={handleSortDate}>Sort Date</Button>
-        </Box>
+{/* ============================
+   FILTER BAR SECTION
+   ============================
+   This <Box> contains all filter controls
+   (search, building, priority, status, date, sorting).
+   It uses flexbox with wrapping + gap for responsive layout.
+*/}
+<Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+
+  {/* 🔹 Search by Ticket ID */}
+  <TextField
+    label="Search Ticket ID"                 // Input label shown above field
+    value={filter.ticketId}                  // Controlled input bound to filter state
+    onChange={(e) => handleFilterChange("ticketId", e.target.value)}
+    size="small"                             // Makes input compact
+    sx={{ minWidth: 180 }}                   // Prevent input from shrinking too much
+  />
+
+  {/* 🔹 Filter by Building */}
+  <FormControl size="small" sx={{ minWidth: 140 }}>
+    <InputLabel>Building</InputLabel>
+    <Select
+      value={filter.building}
+      onChange={(e) => handleFilterChange("building", e.target.value)}
+    >
+      <MenuItem value="">All</MenuItem>      {/* Default option = no filter */}
+      <MenuItem value="LOS1">LOS1</MenuItem>
+      <MenuItem value="LOS2">LOS2</MenuItem>
+      <MenuItem value="LOS3">LOS3</MenuItem>
+      <MenuItem value="LOS4">LOS4</MenuItem>
+      <MenuItem value="LOS5">LOS5</MenuItem>
+    </Select>
+  </FormControl>
+
+  {/* 🔹 Filter by Priority */}
+  <FormControl size="small" sx={{ minWidth: 140 }}>
+    <InputLabel>Priority</InputLabel>
+    <Select
+      value={filter.priority}
+      onChange={(e) => handleFilterChange("priority", e.target.value)}
+    >
+      <MenuItem value="">All</MenuItem>      {/* Default = show all priorities */}
+      <MenuItem value="P0">P0</MenuItem>
+      <MenuItem value="P1">P1</MenuItem>
+      <MenuItem value="P2">P2</MenuItem>
+      <MenuItem value="P3">P3</MenuItem>
+      <MenuItem value="P4">P4</MenuItem>
+    </Select>
+  </FormControl>
+
+  {/* 🔹 Filter by Status */}
+  <FormControl size="small" sx={{ minWidth: 140 }}>
+    <InputLabel>Status</InputLabel>
+    <Select
+      value={filter.status}
+      onChange={(e) => handleFilterChange("status", e.target.value)}
+    >
+      <MenuItem value="">All</MenuItem>       {/* Default = no status filter */}
+      <MenuItem value="Open">Open</MenuItem>
+      <MenuItem value="In Progress">In Progress</MenuItem>
+      <MenuItem value="Resolved">Resolved</MenuItem>
+      <MenuItem value="Closed">Closed</MenuItem>
+    </Select>
+  </FormControl>
+
+  {/* 🔹 Date Range Picker (react-datepicker) */}
+  <DatePicker
+    selectsRange                          // Allows selecting start + end date
+    startDate={filter.dateRange[0]}       // First date in range
+    endDate={filter.dateRange[1]}         // Second date in range
+    onChange={(update) => handleFilterChange("dateRange", update)}
+    isClearable                           // Adds an "X" to clear selection
+    placeholderText="Select date range"   // Placeholder when no date is picked
+    className="form-control"              // Bootstrap-like styling for consistency
+    style={{
+      height: "40px",                     // Match height with other filters/buttons
+      minWidth: "200px"                   // Ensure picker isn’t too small
+    }}
+  />
+
+  {/* 🔹 Sort by Date Button */}
+  <Button
+    variant="outlined"                    // Outlined style (not too heavy)
+    size="small"                          // Compact size for uniform look
+    sx={{ height: "40px" }}               // Force consistent height with other inputs
+    onClick={handleSortDate}              // Calls sort function when clicked
+  >
+    Sort Date
+  </Button>
+</Box>
+
         <Box sx={{ display: "flex", gap: 2 }}>
           <Button variant="contained" onClick={handleCreateTicket}>
             Create New Ticket
