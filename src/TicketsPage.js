@@ -1196,18 +1196,18 @@ return (
 
       <TableContainer component={Paper}>
         <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Ticket ID</TableCell>
-              <TableCell>Category</TableCell>
-              <TableCell>Sub-Category</TableCell>
-              <TableCell>Priority</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Date Opened</TableCell>
-              <TableCell>Date Closed</TableCell>
-              <TableCell>Action</TableCell>
-            </TableRow>
-          </TableHead>
+<TableHead>
+  <TableRow>
+    <TableCell sx={{ fontWeight: "bold" }}>Ticket ID</TableCell>
+    <TableCell sx={{ fontWeight: "bold" }}>Category</TableCell>
+    <TableCell sx={{ fontWeight: "bold" }}>Sub Category</TableCell>
+    <TableCell sx={{ fontWeight: "bold" }}>Priority</TableCell>
+    <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+    <TableCell sx={{ fontWeight: "bold" }}>Date Opened</TableCell>
+    <TableCell sx={{ fontWeight: "bold" }}>Date Closed</TableCell>
+    <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+  </TableRow>
+</TableHead>
           <TableBody>
             {filteredTickets.map((ticket) => (
               <TableRow key={ticket.ticketId}>
