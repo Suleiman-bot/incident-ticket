@@ -97,7 +97,7 @@ const borderColor = theme === "dark" ? fieldBg : "#ccc";
 
 // alert state
 const [alert, setAlert] = useState({ type: "", message: "" });
-
+const [sortOrder, setSortOrder] = useState("asc"); // "asc" | "desc"
   const [tickets, setTickets] = useState([]);
   const [filter, setFilter] = useState({
     ticketId: "",
@@ -309,11 +309,22 @@ const handleOpenModal = (type) => {
     });
   }, [tickets, filter]);
 
-  const handleSortDate = () => {
-    setTickets((prev) =>
-      [...prev].sort((a, b) => new Date(a.dateOpened) - new Date(b.dateOpened))
-    );
-  };
+const handleSortDate = () => {
+  setTickets((prev) =>
+    [...prev].sort((a, b) => {
+      const dateA = new Date(a.dateOpened);
+      const dateB = new Date(b.dateOpened);
+
+      return sortOrder === "asc"
+        ? dateA - dateB
+        : dateB - dateA;
+    })
+  );
+
+  // flip sort order for next click
+  setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+};
+
 
   const handleCreateTicket = () => {
     navigate("/create-ticket");
