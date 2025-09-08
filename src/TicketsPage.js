@@ -499,7 +499,11 @@ case "assign":  //Assigned Engineers
                 <MenuItem value="Closed">Closed</MenuItem>
               </Select>
             </FormControl>
+                 {/* ===== Action Button ===== */}
 <Button
+        variant="contained"      // 🔹 Filled button
+        color="primary"          // 🔹 Blue (use "success" for green)
+        sx={{ mt: 2 }}
   onClick={async () => {
     try {
       await fetch(
