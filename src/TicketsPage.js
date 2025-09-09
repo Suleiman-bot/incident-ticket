@@ -441,10 +441,10 @@ case "view": // View More
             <div><strong>Status:</strong> {selectedTicket.status}</div>
           )}
           {selectedTicket.opened && (
-            <div><strong>Date Opened:</strong> {selectedTicket.opened}</div>
+          <div><strong>Date Opened:</strong> {formatServerDate(selectedTicket.opened)}</div>
           )}
           {selectedTicket.closed && selectedTicket.closed !== "-" && (
-            <div><strong>Date Closed:</strong> {selectedTicket.closed}</div>
+          <div><strong>Date Closed:</strong> {formatServerDate(selectedTicket.closed)}</div>
           )}
           {selectedTicket.building && (
             <div><strong>Building:</strong> {selectedTicket.building}</div>
@@ -462,7 +462,7 @@ case "view": // View More
             <div><strong>Detected By:</strong> {selectedTicket.detectedBy}</div>
           )}
           {selectedTicket.time_detected && (
-            <div><strong>Time Detected:</strong> {selectedTicket.time_detected}</div>
+          <div><strong>Time Detected:</strong> {formatServerDate(selectedTicket.time_detected)}</div>
           )}
           {selectedTicket.root_cause && (
             <div><strong>Root Cause:</strong> {selectedTicket.root_cause}</div>
