@@ -477,7 +477,7 @@ case "view": // View More
             <div><strong>Resolution Summary:</strong> {selectedTicket.resolution_summary}</div>
           )}
           {selectedTicket.resolution_time && (
-            <div><strong>Resolution Time:</strong> {selectedTicket.resolution_time}</div>
+            <div><strong>Resolution Time:</strong> {formatServerDate(selectedTicket.resolution_time)}</div>
           )}
 
           {/* SLA Breach & Post Review only if ticket resolved */}
