@@ -303,10 +303,10 @@ const handleDownloadPDF = async (ticket) => {
   }
 
   try {
-    const res = await axios.get(
-      `http://192.168.0.3:8000/api/tickets/${ticketId}/pdf`,
-      { responseType: "blob" }
-    );
+const res = await axios.get(
+  `http://192.168.0.3:8000/api/tickets/${ticketId}/download`, //Download PDF path
+  { responseType: "blob" }
+);
 
     const url = window.URL.createObjectURL(new Blob([res.data]));
     const link = document.createElement("a");
