@@ -1096,7 +1096,14 @@ case "resolve":
                   ...selectedTicket,   // ✅ preserve all fields
                   ...form,             // ✅ overwrite with resolve fields
                   status: "Resolved",  // ✅ enforce resolved
-                  resolution_time: form.resolution_time ? new Date(form.resolution_time).toISOString() : "",
+                  resolution_time: form.resolution_time
+                ? (() => {
+                const d = new Date(form.resolution_time);
+                const pad = (n) => String(n).padStart(2, "0");
+                return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+              })()
+              : "",
+
                 };
 
                   // ✅ Add duration
