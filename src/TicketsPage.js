@@ -1477,6 +1477,37 @@ return (
 <MenuItem onClick={() => handleDownloadPDF(selectedTicket)}>
   Download PDF
 </MenuItem>
+      <MenuItem
+    onClick={async () => {
+      if (!selectedTicket) return;
+      if (!window.confirm("Are you sure you want to delete this ticket?")) return;
+
+      try {
+        await fetch(
+          `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticket_id}`,
+          { method: "DELETE" }
+        );
+
+        // 🔹 Remove from state
+        setAllTickets((prev) =>
+          prev.filter((t) => t.ticket_id !== selectedTicket.ticket_id)
+        );
+
+        setTickets((prev) =>
+          prev.filter((t) => t.ticketId !== selectedTicket.ticket_id)
+        );
+
+        setSelectedTicket(null);
+        setModalType("");
+      } catch (err) {
+        console.error("Error deleting ticket:", err);
+        alert("Failed to delete ticket. Please try again.");
+      }
+    }}
+    style={{ color: "red" }}
+  >
+    Delete Ticket
+  </MenuItem>
 </Menu>
 
       <Modal open={!!modalType} onClose={() => setModalType("")}>
