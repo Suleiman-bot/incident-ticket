@@ -284,23 +284,34 @@ const handleDetectedByChange = (option) => {
 
 
   //DOWNLOAD PDF CONSTANT
-// 🔹 PATCH: Download PDF from selected ticket in modal
+// ===============================
+// PATCH: Handle both camelCase (frontend) and snake_case (backend)
+// for ticket IDs so the function never fails.
+// ===============================
 const handleDownloadPDF = async (ticket) => {
-  if (!ticket || !ticket.ticketId) {
-    window.alert("Ticket not found."); // safety check
+  if (!ticket) {
+    window.alert("Ticket not found.");
+    return;
+  }
+
+  // Handle both camelCase and snake_case
+  const ticketId = ticket.ticketId || ticket.ticket_id;
+
+  if (!ticketId) {
+    window.alert("Ticket not found.");
     return;
   }
 
   try {
     const res = await axios.get(
-      `http://192.168.0.3:8000/api/tickets/${ticket.ticketId}/pdf`,
+      `http://192.168.0.3:8000/api/tickets/${ticketId}/pdf`,
       { responseType: "blob" }
     );
 
     const url = window.URL.createObjectURL(new Blob([res.data]));
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `${ticket.ticketId}.pdf`);
+    link.setAttribute("download", `${ticketId}.pdf`);
     document.body.appendChild(link);
     link.click();
     link.remove();
