@@ -369,6 +369,29 @@ const handleOpenModal = (type) => {
 }
 
 };
+   //DURATION TIME CALCULATOR
+  const calculateDuration = (opened, resolved) => {
+  if (!opened || !resolved) return "";
+
+  const start = new Date(opened);
+  const end = new Date(resolved);
+  let diff = Math.floor((end - start) / 1000); // in seconds
+  if (diff < 0) return "";
+
+  const days = Math.floor(diff / 86400);
+  diff %= 86400;
+  const hours = Math.floor(diff / 3600);
+  diff %= 3600;
+  const mins = Math.floor(diff / 60);
+
+  let result = [];
+  if (days > 0) result.push(`${days} day${days > 1 ? "s" : ""}`);
+  if (hours > 0) result.push(`${hours} hr${hours > 1 ? "s" : ""}`);
+  if (mins > 0) result.push(`${mins} min${mins > 1 ? "s" : ""}`);
+
+  return result.length ? result.join(" ") : "0 mins";
+};
+
 
   const handleFilterChange = (field, value) => {
     setFilter((prev) => ({ ...prev, [field]: value }));
@@ -489,6 +512,10 @@ case "view": // View More
           )}
           {selectedTicket.resolution_time && (
             <div><strong>Resolution Time:</strong> {formatServerDate(selectedTicket.resolution_time)}</div>
+          )}
+
+          {selectedTicket.status === "Resolved" && selectedTicket.duration && (
+          <div><strong>Duration:</strong> {selectedTicket.duration}</div>
           )}
 
           {/* SLA Breach & Post Review only if ticket resolved */}
@@ -625,14 +652,22 @@ case "assign":  //Assigned Engineers
       // 🔹 Build payload:
       // - If user set status === "Closed", attach closed = now (ISO)
       // - Otherwise clear closed (null) so backend knows it's no longer closed
-      const payload = { status: selectedTicket.status };
-      if (selectedTicket.status === "Closed") {
-       const now = new Date();
-const pad = (n) => String(n).padStart(2, "0");
-payload.closed = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-      } else {
-        payload.closed = null;
-      }
+// 🔹 Build payload:
+const payload = { status: selectedTicket.status };
+
+// Handle closed date
+if (selectedTicket.status === "Closed") {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  payload.closed = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+} else {
+  payload.closed = null;
+}
+
+// 🔹 Clear duration if ticket is re-opened or set back to In Progress
+if (selectedTicket.status === "Open" || selectedTicket.status === "In Progress") {
+  payload.duration = "";
+}
 
       // 🔹 Send update to backend
       await fetch(
@@ -1064,6 +1099,14 @@ case "resolve":
                   resolution_time: form.resolution_time ? new Date(form.resolution_time).toISOString() : "",
                 };
 
+                  // ✅ Add duration
+              if (selectedTicket.opened && output.resolution_time) {
+              output.duration = calculateDuration(
+                selectedTicket.opened,
+              output.resolution_time
+                );
+                }
+                
                 await axios.put(
                   `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticket_id}`,
                   output
