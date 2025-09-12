@@ -91,16 +91,30 @@ const isoToLocalDatetime = (iso) => {
 //   we extract date + hour:minute.
 // - Fallback: attempt to format via Date object (local) as a last resort.
 // For human-readable display (table, view more, etc.)
-const formatServerDate = (iso) => {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (isNaN(d)) return '';
-  const pad = (n) => String(n).padStart(2, '0');
+// For human-readable display (table, view more, etc.)
+const formatServerDate = (s) => {
+  if (!s) return "";
+  const pad = (n) => String(n).padStart(2, "0");
 
-  // Shift to local time properly
-  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  // Case 1: already has "Z" or +hh:mm → backend gave UTC-aware string
+  if (/[zZ]|[+-]\d{2}:?\d{2}$/.test(s)) {
+    const d = new Date(s);
+    if (!isNaN(d)) {
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+  }
 
-  return `${local.getFullYear()}-${pad(local.getMonth() + 1)}-${pad(local.getDate())} ${pad(local.getHours())}:${pad(local.getMinutes())}`;
+  // Case 2: space-separated or plain ISO → just slice out yyyy-mm-dd hh:mm
+  const isoMatch = String(s).match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}):(\d{2})/);
+  if (isoMatch) return `${isoMatch[1]} ${isoMatch[2]}:${isoMatch[3]}`;
+
+  // Fallback
+  const d = new Date(s);
+  if (!isNaN(d)) {
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  return s;
 };
 // -------------------- END ADD --------------------
 
