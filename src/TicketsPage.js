@@ -90,24 +90,17 @@ const isoToLocalDatetime = (iso) => {
 // - If server sends a space-separated datetime (e.g. "2025-09-02 10:17:50.107")
 //   we extract date + hour:minute.
 // - Fallback: attempt to format via Date object (local) as a last resort.
-const formatServerDate = (s) => {
-  if (!s) return "";
-  // ISO-like: 2025-09-08T15:50:07.136Z  -> "2025-09-08 15:50"
-  const isoMatch = String(s).match(/^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})/);
-  if (isoMatch) return `${isoMatch[1]} ${isoMatch[2]}:${isoMatch[3]}`;
+// For human-readable display (table, view more, etc.)
+const formatServerDate = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  const pad = (n) => String(n).padStart(2, '0');
 
-  // Space-separated: 2025-09-02 10:17:50.107 -> "2025-09-02 10:17"
-  const spaceMatch = String(s).match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}):(\d{2})/);
-  if (spaceMatch) return `${spaceMatch[1]} ${spaceMatch[2]}:${spaceMatch[3]}`;
+  // Shift to local time properly
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
 
-  // Fallback: format Date object to local (keeps minutes, no seconds)
-  const d = new Date(s);
-  if (!isNaN(d)) {
-    const pad = (n) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  }
-  // If everything fails, return original string
-  return s;
+  return `${local.getFullYear()}-${pad(local.getMonth() + 1)}-${pad(local.getDate())} ${pad(local.getHours())}:${pad(local.getMinutes())}`;
 };
 // -------------------- END ADD --------------------
 
