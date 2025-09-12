@@ -935,11 +935,11 @@ case "edit": // EDIT BUTTON
                     Time Detected
                   </Form.Label>
                   <Form.Control
-                  type="datetime-local"
-                  name="time_detected"
-                  value={isoToLocalDatetime(form.time_detected)}
-                  onChange={handleChange}
-                  style={{ color: textColor, backgroundColor: fieldBg }}
+                    type="datetime-local"
+                    name="time_detected"
+                    value={form.time_detected}
+                    onChange={handleChange}
+                    style={{ color: textColor, backgroundColor: fieldBg }}
                   />
                 </Form.Group>
               </Col>
@@ -1037,7 +1037,7 @@ case "resolve":
           <Form.Label>Resolution Time</Form.Label>
           <Form.Control
             type="datetime-local"
-            value={isoToLocalDatetime(form.resolution_time)}
+            value={form.resolution_time || ""}
             onChange={(e) =>
               setForm((prev) => ({
                 ...prev,
