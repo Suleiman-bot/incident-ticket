@@ -358,7 +358,7 @@ const handleOpenModal = (type) => {
         ? { value: selectedTicket.detectedBy, label: selectedTicket.detectedBy }
         : null,
       detectedByOther: selectedTicket.detectedByOther || "",
-      time_detected:selectedTicket.time_detected || "",
+      time_detected: isoToLocalDatetime(selectedTicket.time_detected) || "",
       root_cause: selectedTicket.root_cause || "",
       actions_taken: selectedTicket.actions_taken || "",
     });
