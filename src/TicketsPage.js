@@ -377,11 +377,19 @@ const handleOpenModal = (type) => {
 
 };
    //DURATION TIME CALCULATOR
-  const calculateDuration = (opened, resolved) => {
-  if (!opened || !resolved) return "";
+const parseDate = (val) => {
+  if (!val) return null;
+  if (typeof val === "string" && val.includes("T")) return new Date(val); // ISO
+  if (typeof val === "string") return new Date(val.replace(" ", "T"));    // fallback
+  if (val instanceof Date) return val;
+  return null;
+};
 
-  const start = new Date(opened);
-  const end = new Date(resolved);
+const calculateDuration = (opened, resolved) => {
+  const start = parseDate(opened);
+  const end = parseDate(resolved);
+  if (!start || !end || isNaN(start) || isNaN(end)) return "";
+
   let diff = Math.floor((end - start) / 1000); // in seconds
   if (diff < 0) return "";
 
