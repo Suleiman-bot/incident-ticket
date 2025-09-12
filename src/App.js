@@ -104,7 +104,7 @@ function App({ theme, setTheme }) {
         description: t.description ?? '',
         detectedBy: t.detectedBy ? toOption(t.detectedBy) : null,
         detectedByOther: t.detectedByOther ?? '',
-        time_detected: isoToLocalDatetime(t.time_detected) || '',
+        time_detected:t.time_detected || '',
         root_cause: t.root_cause ?? '',
         actions_taken: t.actions_taken ?? '',
       });
