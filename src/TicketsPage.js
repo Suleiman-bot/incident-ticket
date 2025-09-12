@@ -503,7 +503,7 @@ case "view": // View More
             <div><strong>Detected By:</strong> {selectedTicket.detectedBy}</div>
           )}
           {selectedTicket.time_detected && (
-          <div><strong>Time Detected:</strong> {formatServerDate(selectedTicket.time_detected)}</div>
+          <div><strong>Time Detected:</strong> {selectedTicket.time_detected}</div>
           )}
           {selectedTicket.root_cause && (
             <div><strong>Root Cause:</strong> {selectedTicket.root_cause}</div>
