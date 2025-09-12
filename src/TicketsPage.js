@@ -379,9 +379,23 @@ const handleOpenModal = (type) => {
    //DURATION TIME CALCULATOR
 const parseDate = (val) => {
   if (!val) return null;
-  if (typeof val === "string" && val.includes("T")) return new Date(val); // ISO
-  if (typeof val === "string") return new Date(val.replace(" ", "T"));    // fallback
   if (val instanceof Date) return val;
+
+  if (typeof val === "string") {
+    // ISO string with Z or offset
+    if (val.includes("T")) return new Date(val);
+
+    // Space separated (without seconds)
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(val)) {
+      return new Date(val.replace(" ", "T") + ":00");
+    }
+
+    // Space separated (with seconds)
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(val)) {
+      return new Date(val.replace(" ", "T"));
+    }
+  }
+
   return null;
 };
 
