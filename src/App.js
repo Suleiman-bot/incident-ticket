@@ -141,7 +141,7 @@ function App({ theme, setTheme }) {
       description: form.description,
       detectedBy: form.detectedBy?.value || '',
       detectedByOther: form.detectedByOther,
-      time_detected: form.time_detected ? new Date(form.time_detected).toISOString() : '',
+      time_detected: form.time_detected || '',
       root_cause: form.root_cause,
       actions_taken: form.actions_taken,
     };
