@@ -337,6 +337,10 @@ export default function AppRouter() {
       <Routes>
          {/* 👇 New Login route */}
         <Route path="/" element={<LoginPage />} />
+                {/* 👇 protected tickets page */}
+        <Route path="/ticketspage" element={<TicketsPage />} />
+                {/* 👇 catch-all fallback → login */}
+        <Route path="*" element={<LoginPage />} />
         <Route path="/frontend" element={<App theme={theme} setTheme={setTheme} />} />
         <Route
           path="/ticketspage"
