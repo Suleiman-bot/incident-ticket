@@ -4,6 +4,7 @@ import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import Select from 'react-select';
 import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import LoginPage from "./LoginPage";
 import TicketsPage from './TicketsPage';
 import { Alert } from 'react-bootstrap';
 
@@ -334,6 +335,8 @@ export default function AppRouter() {
   return (
     <Router>
       <Routes>
+         {/* 👇 New Login route */}
+        <Route path="/" element={<LoginPage />} />
         <Route path="/frontend" element={<App theme={theme} setTheme={setTheme} />} />
         <Route
           path="/ticketspage"
