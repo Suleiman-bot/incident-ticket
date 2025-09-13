@@ -15,7 +15,7 @@ export default function LoginPage() {
     // 🔑 Dummy login (replace later with backend API)
     if (username === "admin" && password === "password123") {
       localStorage.setItem("isLoggedIn", "true"); // persist login
-      navigate("/tickets");
+      navigate("/ticketspage");
     } else {
       setError("Invalid username or password");
     }
