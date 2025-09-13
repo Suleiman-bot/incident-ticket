@@ -133,6 +133,12 @@ const assignedEngineerOptions = [
 const TicketsPage = ({ theme, setTheme }) => {
   // state, hooks, etc...
   const navigate = useNavigate();
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (!isLoggedIn) {
+      navigate("/");  // redirect to login if not logged in
+    }
+  }, [navigate]);
   // theme-based colors
 const textColor = theme === "dark" ? "#fff" : "#000";
 const cardBg = theme === "dark" ? "#1e1e1e" : "#ffffff";
