@@ -409,9 +409,9 @@ const parseDate = (val) => {
   return null;
 };
 
-const calculateDuration = (opened, resolved) => {
+const calculateDuration = (opened, closed) => {
   const start = parseDate(opened);
-  const end = parseDate(resolved);
+  const end = parseDate(closed);
   if (!start || !end || isNaN(start) || isNaN(end)) return "";
 
   let diff = Math.floor((end - start) / 1000); // in seconds
@@ -553,7 +553,7 @@ case "view": // View More
             <div><strong>Resolution Time:</strong> {formatServerDate(selectedTicket.resolution_time)}</div>
           )}
 
-          {selectedTicket.status === "Resolved" && selectedTicket.duration && (
+          {selectedTicket.status === "Closed" && selectedTicket.duration && (
           <div><strong>Duration:</strong> {selectedTicket.duration}</div>
           )}
 
@@ -682,31 +682,47 @@ case "assign":  //Assigned Engineers
               </Select>
             </FormControl>
                  {/* ===== Action Button ===== */}
+{/* ===== Action Button ===== */}
 <Button
-  variant="contained"      // filled button
+  variant="contained"
   color="primary"
   sx={{ mt: 2 }}
   onClick={async () => {
     try {
-      // 🔹 Build payload:
-      // - If user set status === "Closed", attach closed = now (ISO)
-      // - Otherwise clear closed (null) so backend knows it's no longer closed
-// 🔹 Build payload:
-const payload = { status: selectedTicket.status };
+      // 🔹 Build payload with status
+      const payload = { status: selectedTicket.status };
 
-// Handle closed date
-if (selectedTicket.status === "Closed") {
-  const now = new Date();
-  const pad = (n) => String(n).padStart(2, "0");
-  payload.closed = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-} else {
-  payload.closed = null;
-}
+      if (selectedTicket.status === "Closed") {
+        // --- Handle closed date ---
+        const now = new Date();
+        const pad = (n) => String(n).padStart(2, "0");
+        payload.closed = `${now.getFullYear()}-${pad(
+          now.getMonth() + 1
+        )}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(
+          now.getMinutes()
+        )}`;
 
-// 🔹 Clear duration if ticket is re-opened or set back to In Progress
-if (selectedTicket.status === "Open" || selectedTicket.status === "In Progress") {
-  payload.duration = "";
-}
+        // --- Calculate duration (opened -> closed) ---
+        if (selectedTicket.opened) {
+          payload.duration = calculateDuration(
+            selectedTicket.opened,
+            payload.closed
+          );
+        } else {
+          payload.duration = "";
+        }
+      } else {
+        // --- Not closed: reset closed + duration ---
+        payload.closed = null;
+
+        if (
+          selectedTicket.status === "Open" ||
+          selectedTicket.status === "In Progress" ||
+          selectedTicket.status === "Resolved"
+        ) {
+          payload.duration = "";
+        }
+      }
 
       // 🔹 Send update to backend
       await fetch(
@@ -743,6 +759,7 @@ if (selectedTicket.status === "Open" || selectedTicket.status === "In Progress")
       setModalType("");
     } catch (err) {
       console.error("Error updating status:", err);
+      window.alert("Failed to update status. Please try again.");
     }
   }}
 >
@@ -1142,17 +1159,9 @@ case "resolve":
                 return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
               })()
               : "",
-
+                duration: "" // ensure resolved clears duration per your requirement
                 };
 
-                  // ✅ Add duration
-              if (selectedTicket.opened && output.resolution_time) {
-              output.duration = calculateDuration(
-                selectedTicket.opened,
-              output.resolution_time
-                );
-                }
-                
                 await axios.put(
                   `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticket_id}`,
                   output
