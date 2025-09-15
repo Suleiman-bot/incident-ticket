@@ -689,8 +689,10 @@ case "assign":  //Assigned Engineers
   sx={{ mt: 2 }}
   onClick={async () => {
     try {
-      // 🔹 Build payload with status
-      const payload = { status: selectedTicket.status };
+      // 🔹 Start with full ticket so SLA, Post Review, etc. aren’t lost
+      const payload = { ...selectedTicket };
+            // Always update status
+      payload.status = selectedTicket.status;
 
       if (selectedTicket.status === "Closed") {
         // --- Handle closed date ---
