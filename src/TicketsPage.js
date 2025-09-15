@@ -469,7 +469,7 @@ const handleSortDate = () => {
 
 
   const handleCreateTicket = () => {
-    navigate("/create-ticket");
+    navigate("/frontend");
   };
 
   const modalBody = () => {
