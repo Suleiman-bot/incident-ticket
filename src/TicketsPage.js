@@ -557,13 +557,16 @@ case "view": // View More
           <div><strong>Duration:</strong> {selectedTicket.duration}</div>
           )}
 
-          {/* SLA Breach & Post Review only if ticket resolved */}
-          {selectedTicket.status === "Resolved" && selectedTicket.sla_breach && (
+         {/* SLA Breach & Post Review if ticket Resolved or Closed */}
+        {(selectedTicket.status === "Resolved" || selectedTicket.status === "Closed") &&
+          selectedTicket.sla_breach && (
             <div><strong>SLA Breach:</strong> {selectedTicket.sla_breach}</div>
-          )}
-          {selectedTicket.status === "Resolved" && selectedTicket.post_review && (
+        )}
+        
+        {(selectedTicket.status === "Resolved" || selectedTicket.status === "Closed") &&
+          selectedTicket.post_review && (
             <div><strong>Post Review:</strong> {selectedTicket.post_review}</div>
-          )}
+        )}
         </div>
       )}
 
