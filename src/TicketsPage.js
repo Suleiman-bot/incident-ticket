@@ -682,59 +682,64 @@ case "assign":  //Assigned Engineers
               </Select>
             </FormControl>
                  {/* ===== Action Button ===== */}
-{/* ===== Action Button ===== */}
-<Button
-  variant="contained"
-  color="primary"
-  sx={{ mt: 2 }}
-  onClick={async () => {
-    try {
-      // 🔹 Start with full ticket so SLA, Post Review, etc. aren’t lost
-      const payload = { ...selectedTicket };
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ mt: 2 }}
+        onClick={async () => {
+          try {
+            // 🔹 Start with full ticket so SLA, Post Review, etc. aren’t lost
+            const payload = { ...selectedTicket };
             // Always update status
-      payload.status = selectedTicket.status;
-
-      if (selectedTicket.status === "Closed") {
-        // --- Handle closed date ---
-        const now = new Date();
-        const pad = (n) => String(n).padStart(2, "0");
-        payload.closed = `${now.getFullYear()}-${pad(
-          now.getMonth() + 1
-        )}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(
-          now.getMinutes()
-        )}`;
-
-        // --- Calculate duration (opened -> closed) ---
-        if (selectedTicket.opened) {
-          payload.duration = calculateDuration(
-            selectedTicket.opened,
-            payload.closed
-          );
-        } else {
-          payload.duration = "";
-        }
-      } else {
-        // --- Not closed: reset closed + duration ---
-        payload.closed = null;
-
-        if (
-          selectedTicket.status === "Open" ||
-          selectedTicket.status === "In Progress" ||
-          selectedTicket.status === "Resolved"
-        ) {
-          payload.duration = "";
-        }
-      }
-
-      // 🔹 Send update to backend
-      await fetch(
-        `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticket_id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+            payload.status = selectedTicket.status;
+      
+            if (selectedTicket.status === "Closed") {
+              // --- Handle closed date ---
+              const now = new Date();
+              const pad = (n) => String(n).padStart(2, "0");
+              payload.closed = `${now.getFullYear()}-${pad(
+                now.getMonth() + 1
+              )}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(
+                now.getMinutes()
+              )}`;
+      
+              // --- Calculate duration (opened -> closed) ---
+              if (selectedTicket.opened) {
+                payload.duration = calculateDuration(
+                  selectedTicket.opened,
+                  payload.closed
+                );
+              } else {
+                payload.duration = "";
+              }
+            } else {
+              // --- Not closed: reset closed ---
+              payload.closed = null;
+      
+              if (selectedTicket.status === "Open" || selectedTicket.status === "In Progress") {
+                // Clear everything related to resolution + SLA + Post Review
+                payload.resolution_summary = "";
+                payload.resolution_time = "";
+                payload.duration = "";
+                payload.sla_breach = "";
+                payload.post_review = "";
+              }
+      
+              if (selectedTicket.status === "Resolved") {
+                // Only clear duration when "Resolved"
+                payload.duration = "";
+              }
+            }
+      
+            // 🔹 Send update to backend
+            await fetch(
+              `http://192.168.0.3:8000/api/tickets/${selectedTicket.ticket_id}`,
+              {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              }
+            );
 
       // 🔹 Update full tickets list (allTickets) so modal/other views read updated data
       setAllTickets((prev) =>
