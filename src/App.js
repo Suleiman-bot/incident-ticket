@@ -333,22 +333,17 @@ export default function AppRouter() {
   }, [theme]);
 
   return (
-    <Router>
-      <Routes>
-         {/* 👇 New Login route */}
-        <Route path="/" element={<LoginPage />} />
-                {/* 👇 protected tickets page */}
-        <Route path="/ticketspage" element={<TicketsPage />} />
-                {/* 👇 catch-all fallback → login */}
-        <Route path="*" element={<LoginPage />} />
-        <Route path="/frontend" element={<App theme={theme} setTheme={setTheme} />} />
-        <Route
-          path="/ticketspage"
-          element={<TicketsPage theme={theme} setTheme={setTheme} />}
-        />
-        <Route path="*" element={<App theme={theme} setTheme={setTheme} />} />
-      </Routes>
-    </Router>
+<Router>
+  <Routes>
+    <Route path="/" element={<LoginPage />} />
+    <Route
+      path="/ticketspage"
+      element={<TicketsPage theme={theme} setTheme={setTheme} />}
+    />
+    <Route path="/frontend" element={<App theme={theme} setTheme={setTheme} />} />
+    <Route path="*" element={<LoginPage />} />
+  </Routes>
+</Router>
   );
 }
 
