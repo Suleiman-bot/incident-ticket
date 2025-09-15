@@ -2,18 +2,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Form, Button, Card, Alert } from "react-bootstrap";
+import { EyeFill, EyeSlashFill } from "react-bootstrap-icons"; // 👈 install: npm i react-bootstrap-icons
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     // 🔑 Dummy login (replace later with backend API)
-    if (username === "admin" && password === "password123") {
+    if (username === "admin" && password === "password") {
       localStorage.setItem("isLoggedIn", "true"); // persist login
       navigate("/ticketspage");
     } else {
@@ -37,15 +39,24 @@ export default function LoginPage() {
             />
           </Form.Group>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </Form.Group>
+<Form.Group className="mb-3" controlId="formPassword">
+  <Form.Label>Password</Form.Label>
+  <div className="d-flex align-items-center">
+    <Form.Control
+      type={showPassword ? "text" : "password"}
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      required
+    />
+    <Button
+      variant="outline-secondary"
+      onClick={() => setShowPassword(!showPassword)}
+      style={{ marginLeft: "8px" }}
+    >
+      {showPassword ? <EyeSlashFill /> : <EyeFill />}
+    </Button>
+  </div>
+</Form.Group>
 
           <Button variant="primary" type="submit" className="w-100">
             Login
