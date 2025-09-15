@@ -133,6 +133,10 @@ const assignedEngineerOptions = [
 const TicketsPage = ({ theme, setTheme }) => {
   // state, hooks, etc...
   const navigate = useNavigate();
+  const handleLogout = () => {
+  localStorage.removeItem("isLoggedIn"); // clear session
+  navigate("/"); // back to login
+};
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     if (!isLoggedIn) {
@@ -1441,15 +1445,22 @@ return (
   </Box>
 
 
-  {/* 🔹 Right: Action Buttons */}
-  <Box sx={{ display: "flex", gap: 2, mt: { xs: 2, sm: 0 } }}>
-    <Button variant="contained" onClick={handleCreateTicket}>
-      Create New Ticket
-    </Button>
-    <CSVLink data={tickets} filename={"tickets.csv"} style={{ textDecoration: "none" }}>
-      <Button variant="outlined">Export CSV</Button>
-    </CSVLink>
-  </Box>
+{/* 🔹 Right: Action Buttons */}
+<Box sx={{ display: "flex", gap: 2, mt: { xs: 2, sm: 0 } }}>
+  <Button variant="contained" onClick={handleCreateTicket}>
+    Create New Ticket
+  </Button>
+  <CSVLink data={tickets} filename={"tickets.csv"} style={{ textDecoration: "none" }}>
+    <Button variant="outlined">Export CSV</Button>
+  </CSVLink>
+  <Button 
+    variant="outlined" 
+    color="error" 
+    onClick={handleLogout}
+  >
+    Logout
+  </Button>
+</Box>
 </Box>
 
 
