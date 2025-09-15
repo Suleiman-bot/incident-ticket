@@ -156,7 +156,7 @@ try {
     await api.post('/tickets', output, { headers: { 'Content-Type': 'application/json' } });
     setAlert({ type: 'success', message: 'Ticket created successfully!' });
   }
-  navigate('/ticketspage');
+  navigate('/LoginPage');
 } catch (err) {
   console.error('Error submitting ticket:', err);
 
