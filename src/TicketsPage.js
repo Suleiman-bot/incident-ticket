@@ -553,7 +553,7 @@ case "view": // View More
             <div><strong>Resolution Time:</strong> {formatServerDate(selectedTicket.resolution_time)}</div>
           )}
 
-          {selectedTicket.status === "Resolved" && selectedTicket.duration && (
+          {selectedTicket.status === "closed" && selectedTicket.duration && (
           <div><strong>Duration:</strong> {selectedTicket.duration}</div>
           )}
 
