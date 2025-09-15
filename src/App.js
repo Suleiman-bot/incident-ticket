@@ -5,6 +5,7 @@ import Select from 'react-select';
 import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import LoginPage from "./LoginPage";
+import ProtectedRoute from "./ProtectedRoute";
 import TicketsPage from './TicketsPage';
 import { Alert } from 'react-bootstrap';
 
@@ -336,10 +337,17 @@ export default function AppRouter() {
 <Router>
   <Routes>
     <Route path="/" element={<LoginPage />} />
+
+    {/* Protect ticketspage */}
     <Route
       path="/ticketspage"
-      element={<TicketsPage theme={theme} setTheme={setTheme} />}
+      element={
+        <ProtectedRoute>
+          <TicketsPage theme={theme} setTheme={setTheme} />
+        </ProtectedRoute>
+      }
     />
+
     <Route path="/frontend" element={<App theme={theme} setTheme={setTheme} />} />
     <Route path="*" element={<LoginPage />} />
   </Routes>
