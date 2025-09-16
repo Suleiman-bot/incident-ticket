@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-start; /* push content to the left or right */
-  background: url("/Background.jpeg") no-repeat center top 30px; /* moves image down */
+  background: url("/public/Background.jpeg") no-repeat center top 30px; /* moves image down */
   background-size: cover;
   padding-left: 50px; /* shift login card horizontally */
 }
