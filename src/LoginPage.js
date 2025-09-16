@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Form, Button, Card, Alert } from "react-bootstrap";
 import { EyeFill, EyeSlashFill } from "react-bootstrap-icons"; // 👈 install: npm i react-bootstrap-icons
+import "./LoginPage.css";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
