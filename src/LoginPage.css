@@ -5,6 +5,6 @@
   align-items: center;
   justify-content: center;
 
-  background: url("/Background.jpeg") no-repeat center center;
+  background: url("/public/Background.jpeg") no-repeat center center;
   background-size: cover;
 }
