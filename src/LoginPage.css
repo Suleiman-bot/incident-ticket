@@ -1,0 +1,10 @@
+/* src/LoginPage.css */
+.login-page {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: url("/Background.jpeg") no-repeat center center;
+  background-size: cover;
+}
