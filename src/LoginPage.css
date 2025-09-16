@@ -8,5 +8,6 @@
   background-size: cover;
   background-position: center 30%; /* move image down (tweak % as needed) */
   padding-top: 120px;  /* pushes the login box downwards */
+  overflow: hidden;       /* 🚫 hides scroll inside this container */
 }
 
