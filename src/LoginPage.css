@@ -9,7 +9,7 @@
   background-position: center center; /* move image down (tweak % as needed) */
   padding-top: 120px;  /* pushes the login box downwards */
   overflow: hidden;       /* 🚫 hides scroll inside this container */
-  transform: scale(0.9);       /* zoom out */
+  transform: scale(1.0);       /* zoom out */
   transform-origin: center;    /* keep centered when scaling */
 }
 
