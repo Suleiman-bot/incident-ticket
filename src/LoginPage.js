@@ -27,8 +27,8 @@ export default function LoginPage() {
   return (
     <div className="login-page">
       <Container className="d-flex justify-content-center align-items-center vh-100">
-        <Card style={{ width: "400px" }} className="p-4 shadow-lg">
-          <h3 className="mb-4 text-center">Login</h3>
+        <Card className="login-box shadow-lg" style={{ width: "400px" }}>
+          <h3>Login</h3>
           {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
