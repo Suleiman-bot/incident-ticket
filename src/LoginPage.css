@@ -4,7 +4,7 @@
   display: flex;
   justify-content: center;   /* center horizontally */
   align-items: flex-start;   /* align items to the top instead of center */
-  background: url("/public/Background.jpeg") no-repeat center center;
+  background: url("/public/BG.jpeg") no-repeat center center;
   background-size: cover;
   background-position: center 10%; /* move image down (tweak % as needed) */
   padding-top: 120px;  /* pushes the login box downwards */
