@@ -5,7 +5,7 @@
   justify-content: center;   /* center horizontally */
   align-items: flex-start;   /* align items to the top instead of center */
   background: url("/public/BG.jpeg") no-repeat center center;
-  background-size: 120%;
+  background-size: 80%;
   background-position: center 30%; /* move image down (tweak % as needed) */
   padding-top: 120px;  /* pushes the login box downwards */
   overflow: hidden;       /* 🚫 hides scroll inside this container */
