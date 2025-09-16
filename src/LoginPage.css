@@ -2,9 +2,10 @@
 .login-page {
   height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: flex-start; /* push content to the left or right */
-  background: url("/public/Background.jpeg") no-repeat center top 30px; /* moves image down */
+  justify-content: center;   /* center horizontally */
+  align-items: flex-start;   /* align items to the top instead of center */
+  background: url("/public/Background.jpeg") no-repeat center center;
   background-size: cover;
-  padding-left: 50px; /* shift login card horizontally */
+  padding-top: 120px;  /* pushes the login box downwards */
 }
+
