@@ -436,20 +436,21 @@ const calculateDuration = (opened, closed) => {
     setFilter((prev) => ({ ...prev, [field]: value }));
   };
 
-  
-  const filteredTickets = useMemo(() => {
-    return tickets.filter((t) => {
-      return (
-        (!filter.ticketId || t.ticketId.includes(filter.ticketId)) &&
-        (!filter.building || t.building === filter.building) &&
-        (!filter.priority || t.priority === filter.priority) &&
-        (!filter.status || t.status === filter.status) &&
-        (!filter.dateRange[0] ||
-          (new Date(t.dateOpened) >= filter.dateRange[0] &&
-            new Date(t.dateOpened) <= filter.dateRange[1]))
-      );
-    });
-  }, [tickets, filter]);
+  //Filter ticket constant
+const filteredTickets = useMemo(() => {
+  return tickets.filter((t) => {
+    return (
+      (!filter.ticketId || t.ticketId.includes(filter.ticketId)) &&
+      (!filter.building ||
+        (t.building || "").trim().toLowerCase() === filter.building.trim().toLowerCase()) &&
+      (!filter.priority || t.priority === filter.priority) &&
+      (!filter.status || t.status === filter.status) &&
+      (!filter.dateRange[0] ||
+        (new Date(t.dateOpened) >= filter.dateRange[0] &&
+          new Date(t.dateOpened) <= filter.dateRange[1]))
+    );
+  });
+}, [tickets, filter]);
 
 const handleSortDate = () => {
   setTickets((prev) =>
