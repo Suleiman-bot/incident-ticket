@@ -190,6 +190,7 @@ const fetchTickets = async () => {
       subCategory: t.sub_category,
       priority: t.priority,
       status: t.status,
+      building: (t.building || "").trim(),   // <-- important: include building
       dateOpened: t.opened,
       dateClosed: t.closed,
     }));
